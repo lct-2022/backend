@@ -4,6 +4,8 @@
                 #:return-error
                 #:define-rpc-method)
   (:import-from #:passport/user
+                #:issue-token-for
+                #:get-user-by
                 #:is-email-available-p
                 #:get-next-user-id
                 #:user-email
@@ -32,39 +34,32 @@
   (:param email string)
   (:param password string)
   (:result string)
-  (let* ((hash (sha1-hex password))
-         (user (loop for user in *users*
-                     when (and (string= (user-password-hash user)
-                                        hash)
-                               (string= (user-email user)
-                                        email))
-                       do (return user))))
-    (cond
-      (user (cl-json-web-tokens:issue (serapeum:dict "user-id" 100500)
-                                      :algorithm :hs256
-                                      :secret (get-jwt-secret)
-                                      :issued-at (get-universal-time)
-                                      ;; Если захотим, чтобы токены протухали через N минут
-                                      ;; :expiration (+ (get-universal-time)
-                                      ;;                (* 15 60))
-                                      ))
-      (t
-       (openrpc-server:return-error "Неправильный email или пароль." :code 1)))))
+  (with-connection ()
+    (let* ((hash (sha1-hex password))
+           (user (get-user-by email))
+           (user-hash (when user
+                        (user-password-hash user))))
+      (cond
+        ((equal user-hash hash)
+         (issue-token-for user))
+        (t
+         (openrpc-server:return-error "Неправильный email или пароль." :code 1))))))
 
 
 (define-rpc-method (passport-api create-user) (email password fio)
   (:param email string)
   (:param password string)
   (:param fio string)
-  (:result user)
+  (:result string)
   (with-connection ()
     (cond
       ((is-email-available-p email)
-       (mito:create-dao 'user
-                        :id (get-next-user-id)
-                        :email email
-                        :fio fio
-                        :password-hash (sha1-hex password)))
+       (let ((user (mito:create-dao 'user
+                                    :id (get-next-user-id)
+                                    :email email
+                                    :fio fio
+                                    :password-hash (sha1-hex password))))
+         (issue-token-for user)))
       (t
        (return-error (format nil "Email ~A уже занят."
                              email)

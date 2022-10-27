@@ -5,10 +5,14 @@
                 #:type-to-schema)
   (:import-from #:serapeum
                 #:dict)
+  (:import-from #:cl-json-web-tokens)
   (:import-from #:mito
+                #:object-id
                 #:dao-table-class)
   (:import-from #:common/db
-                #:sql-fetch-all))
+                #:sql-fetch-all)
+  (:import-from #:common/token
+                #:get-jwt-secret))
 (in-package #:passport/user)
 
 
@@ -17,7 +21,7 @@
        :type integer
        :col-type :integer
        :primary-key t
-       :accessor user-id)
+       :accessor object-id)
    (email :initarg :email
           :type string
           :col-type :text
@@ -91,4 +95,16 @@
     (null rows)))
 
 
+(defun get-user-by (email)
+  (mito:find-dao 'user :email email))
 
+
+(defun issue-token-for (user)
+   (cl-json-web-tokens:issue (dict "user-id" (object-id user))
+                             :algorithm :hs256
+                             :secret (get-jwt-secret)
+                             :issued-at (get-universal-time)
+                             ;; Если захотим, чтобы токены протухали через N минут
+                             ;; :expiration (+ (get-universal-time)
+                             ;;                (* 15 60))
+                             ))
