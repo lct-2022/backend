@@ -1,0 +1,17 @@
+dist ultralisp http://dist.ultralisp.org/
+
+github slynk svetlyak40wt/sly :branch patches
+
+github mito svetlyak40wt/mito :branch fix-migration
+
+# Waiting for this pull:
+# https://github.com/cxxxr/jsonrpc/pull/33
+github jsonrpc svetlyak40wt/jsonrpc :branch separate-clack-builder
+
+# Waiting for this pull:
+# https://github.com/eyedouble/cl-json-web-tokens/pulls
+github cl-json-web-tokens svetlyak40wt/cl-json-web-tokens :branch fix-padding-on-decode
+
+# Waiting for this pull:
+# https://github.com/fukamachi/dexador/pull/143
+github dexador svetlyak40wt/dexador :branch fix-usage-of-closed-stream

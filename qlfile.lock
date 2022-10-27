@@ -1,0 +1,28 @@
+("quicklisp" .
+ (:class qlot/source/dist:source-dist
+  :initargs (:distribution "http://beta.quicklisp.org/dist/quicklisp.txt" :%version :latest)
+  :version "2022-07-08"))
+("ultralisp" .
+ (:class qlot/source/dist:source-dist
+  :initargs (:distribution "http://dist.ultralisp.org/" :%version :latest)
+  :version "20221027134501"))
+("slynk" .
+ (:class qlot/source/github:source-github
+  :initargs (:repos "svetlyak40wt/sly" :ref nil :branch "patches" :tag nil)
+  :version "github-030a8441f57f7e0bb401570935e741dfd9edfb83"))
+("mito" .
+ (:class qlot/source/github:source-github
+  :initargs (:repos "svetlyak40wt/mito" :ref nil :branch "fix-migration" :tag nil)
+  :version "github-6d75f5dfa0fe412960a337334b7ecae18e288aeb"))
+("jsonrpc" .
+ (:class qlot/source/github:source-github
+  :initargs (:repos "svetlyak40wt/jsonrpc" :ref nil :branch "separate-clack-builder" :tag nil)
+  :version "github-62be10e477bb9ad2047e1c06afeb70aed2dcbd99"))
+("cl-json-web-tokens" .
+ (:class qlot/source/github:source-github
+  :initargs (:repos "svetlyak40wt/cl-json-web-tokens" :ref nil :branch "fix-padding-on-decode" :tag nil)
+  :version "github-f3174cffac86d24bc90fa1149736ce557f239f92"))
+("dexador" .
+ (:class qlot/source/github:source-github
+  :initargs (:repos "svetlyak40wt/dexador" :ref nil :branch "fix-usage-of-closed-stream" :tag nil)
+  :version "github-21160df30855fbaf7acf27bea86a9141e4204ed8"))
