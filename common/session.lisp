@@ -2,8 +2,8 @@
   (:use #:cl)
   (:import-from #:lack.request
                 #:request-headers)
-  (:import-from #:openrpc-server
-                #:return-error/vars
+  (:import-from #:openrpc-server/vars
+                #:return-error
                 #:*current-request*)
   (:import-from #:common/token
                 #:decode)
