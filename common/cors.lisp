@@ -3,21 +3,20 @@
 (in-package #:common/cors)
 
 
-(defun process-cors-middleware (env app access-control)
-  (let ((path (getf env :path-info)))
-    (log:info "Processing request with" path))
-  
+(defun process-cors-middleware (env app access-control allowed-headers)
   (destructuring-bind (code headers content)
       (funcall app env)
     (list code
-          (if (member :Access-Control-Allow-Origin headers)
-              headers
-              (list* :Access-Control-Allow-Origin access-control
-                     headers))
+          (append
+           (unless (member :Access-Control-Allow-Origin headers)
+             (list :Access-Control-Allow-Origin access-control))
+           (list :Access-Control-Allow-Headers allowed-headers)
+           headers)
           content)))
 
 
-(defun make-cors-middleware (app &key (access-control "*"))
+(defun make-cors-middleware (app &key (access-control "*")
+                                   (allowed-headers "Authorization"))
   (lambda (env)
-    (process-cors-middleware env app access-control)))
+    (process-cors-middleware env app access-control allowed-headers)))
 

@@ -21,7 +21,9 @@
                 #:with-connection)
   (:import-from #:common/server)
   (:import-from #:log4cl-extras/error
-                #:with-log-unhandled))
+                #:with-log-unhandled)
+  (:import-from #:common/session
+                #:with-session))
 (in-package #:passport/server)
 
 
@@ -46,7 +48,7 @@
          (openrpc-server:return-error "Неправильный email или пароль." :code 1))))))
 
 
-(define-rpc-method (passport-api create-user) (email password fio)
+(define-rpc-method (passport-api signup) (email password fio)
   (:param email string)
   (:param password string)
   (:param fio string)
@@ -64,6 +66,14 @@
        (return-error (format nil "Email ~A уже занят."
                              email)
                      :code 2)))))
+
+
+(define-rpc-method (passport-api my-profile) ()
+  (:result user)
+  (with-connection ()
+    (with-session (session :require t)
+      (mito:find-dao 'user
+                     :id (gethash "user-id" session)))))
 
 
 (defun start-me ()

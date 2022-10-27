@@ -2,6 +2,8 @@
          :test #'equal)
 (pushnew "~/lisp/cl-json-web-tokens/" asdf:*central-registry*
          :test #'equal)
+(pushnew "~/lisp/log4cl-extras/" asdf:*central-registry*
+         :test #'equal)
 
 (defsystem common
   :class :package-inferred-system
