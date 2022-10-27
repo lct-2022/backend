@@ -3,7 +3,9 @@
   (:import-from #:clack
                 #:clackup)
   (:import-from #:openrpc-server
-                #:make-clack-app))
+                #:make-clack-app)
+  (:import-from #:common/cors
+                #:make-cors-middleware))
 (in-package #:common/server)
 
 
@@ -22,14 +24,16 @@
   (remhash (cons port interface)
            *servers*))
 
-(defun start (port &key (interface "localhost"))
+(defun start (api port &key (interface "localhost"))
   (when (find-server port interface)
     (error "Server already running"))
   
   (register-server port interface
-                   (clackup (make-clack-app :indent-json t)
-                            :address interface
-                            :port port)))
+                   (clackup
+                    (make-cors-middleware
+                     (make-clack-app :api api :indent-json t))
+                    :address interface
+                    :port port)))
 
 (defun stop (port &key (interface "localhost"))
   (let ((server (find-server port interface)))
