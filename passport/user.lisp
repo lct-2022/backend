@@ -75,7 +75,13 @@
           :initform nil
           :type (or null string)
           :col-type (or :null :text)
-          :accessor user-about))
+          :accessor user-about)
+   (admin :initarg :admin
+          :initform nil
+          :type boolean
+          :col-type :boolean
+          :accessor adminp
+          :documentation "Если этот признак True, то пользователь считается админом и может позволить себе больше, чем простые смертные."))
   (:table-name "passport.user")
   (:metaclass dao-table-class))
 
@@ -95,11 +101,15 @@
 
 
 (defun issue-token-for (user)
-   (cl-json-web-tokens:issue (dict "user-id" (object-id user))
-                             :algorithm :hs256
-                             :secret (get-jwt-secret)
-                             :issued-at (get-universal-time)
-                             ;; Если захотим, чтобы токены протухали через N минут
-                             ;; :expiration (+ (get-universal-time)
-                             ;;                (* 15 60))
-                             ))
+  (let ((payload (dict "user-id" (object-id user)
+                       ;; Пока у нас только одна роль. Но на будущее, роли отдаются списоком:
+                       "roles" (when (adminp user)
+                                 (list "admin")))))
+    (cl-json-web-tokens:issue payload
+                              :algorithm :hs256
+                              :secret (get-jwt-secret)
+                              :issued-at (get-universal-time)
+                              ;; Если захотим, чтобы токены протухали через N минут
+                              ;; :expiration (+ (get-universal-time)
+                              ;;                (* 15 60))
+                              )))

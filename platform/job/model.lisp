@@ -11,7 +11,7 @@
 (defclass job ()
   ((id :initarg :id
        :type integer
-       :col-type :integer
+       :col-type :bigserial
        :primary-key t
        :accessor object-id)
    (team :initarg :team
@@ -22,11 +22,13 @@
           :initform ""
           :type string
           :col-type :text
-          :accessor job-title)
+          :accessor job-title
+          :documentation "Должность.")
    (description :initarg :description
                 :initform ""
                 :type string
                 :col-type :text
-                :accessor job-description))
+                :accessor job-description
+                :documentation "Описание вакансии."))
   (:table-name "platform.job")
   (:metaclass dao-table-class))

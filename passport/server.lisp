@@ -32,7 +32,9 @@
                 #:fmt)
   (:import-from #:sxql
                 #:limit
-                #:order-by))
+                #:order-by)
+  (:import-from #:mito
+                #:find-dao))
 (in-package #:passport/server)
 
 
@@ -78,17 +80,26 @@
 
 
 (define-rpc-method (passport-api my-profile) ()
+  (:summary "Отдаёт профиль текущего залогиненого пользователя.")
   (:result user)
   (with-connection ()
-    (with-session (session :require t)
-      (mito:find-dao 'user
-                     :id (gethash "user-id" session)))))
+    (with-session (user-id)
+      (find-dao 'user
+                :id user-id))))
+
+
+(define-rpc-method (passport-api my-roles) ()
+  (:summary "Отдаёт список строк с ролями текущего залогинового пользователя.")
+  (:result (list-of string))
+  (with-session ((roles))
+    (map 'vector #'string-downcase roles)))
+
 
 (define-update-method (passport-api update-profile user)
                       (fio birthday gender phone country city education job about)
-  (with-session (session :require t)
-    (mito:find-dao 'user
-                     :id (gethash "user-id" session))))
+  (with-session (user-id)
+    (find-dao 'user
+              :id user-id)))
 
 
 (define-rpc-method (passport-api get-profile) (id)

@@ -18,7 +18,8 @@
    (author-id :initarg :author-id
               :type integer
               :col-type :integer
-              :accessor project-author-id)
+              :accessor project-author-id
+              :documentation "Идентификатор профиля автора проекта.")
    (title :initarg :title
           :initform ""
           :type string
@@ -38,7 +39,8 @@
              :initform ""
              :type string
              :col-type :text
-             :accessor project-contests))
+             :accessor project-contests
+             :documentation "Текстовое описание конкурсов и хакатонов, в которых принимал участие."))
   (:table-name "platform.project")
   (:metaclass dao-table-class))
 

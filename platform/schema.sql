@@ -47,3 +47,10 @@ CREATE TABLE platform.team_member (
 
 ALTER TABLE platform.project ADD COLUMN author_id integer DEFAULT 1;
 ALTER TABLE platform.project ALTER COLUMN author_id DROP NOT NULL, ALTER COLUMN author_id DROP DEFAULT;
+
+CREATE TYPE job_application_status AS ENUM ('applied', 'accepted', 'declined');
+ALTER TABLE platform.job_application ADD COLUMN status job_application_status NOT NULL DEFAULT 'applied';
+
+
+ALTER TABLE platform.team_member ADD COLUMN title TEXT NOT NULL DEFAULT 'Unknown';
+ALTER TABLE platform.team_member ALTER COLUMN title DROP DEFAULT;

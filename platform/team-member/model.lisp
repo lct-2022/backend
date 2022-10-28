@@ -25,6 +25,11 @@
         :type job
         :col-type job
         :documentation "Член команды всегда должен соответствовать какой-то позиции в команде."
-        :accessor team-member-job))
+        :accessor team-member-job)
+   (title :initarg :title
+          :type string
+          :col-type :text
+          :accessor team-title
+          :documentation "Сюда копируется название позиции, на которую взяли человека."))
   (:table-name "platform.team_member")
   (:metaclass dao-table-class))

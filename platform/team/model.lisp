@@ -25,3 +25,9 @@
             :accessor team-project))
   (:table-name "platform.team")
   (:metaclass dao-table-class))
+
+
+(defgeneric get-team-id (obj)
+  (:documentation "Возвращает id команды, которой принадлежит объект. Например так можно по job-application узнать id команды в которую подана заявка.")
+  (:method ((obj team))
+    (mito:object-id obj)))

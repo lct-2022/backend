@@ -8,7 +8,11 @@
   (:import-from #:common/token
                 #:decode)
   (:import-from #:log4cl-extras/error
-                #:with-log-unhandled))
+                #:with-log-unhandled)
+  (:import-from #:alexandria
+                #:ensure-list
+                #:make-keyword
+                #:with-gensyms))
 (in-package #:common/session)
 
 
@@ -24,10 +28,22 @@
                                                c)))))))
 
 
-(defmacro with-session ((var &key (require t)) &body body)
-  `(let ((,var (decode-current-jwt-token)))
-     (when (and ,require
-                (not ,var))
-       (return-error "Этот метод требует аутентификации."
-                     :code 3))
-     ,@body))
+(defmacro with-session (((&rest bindings) &key (require t))
+                        &body body)
+  (with-gensyms (session-var)
+    (let ((bindings
+            (loop for var in (ensure-list bindings)
+                  for key = (string-downcase var)
+                  collect (cond
+                            ((string= key "roles")
+                             `(,var (loop for role in (gethash "roles" ,session-var)
+                                          collect (make-keyword (string-upcase role)))))
+                            (t
+                             `(,var (gethash ,key ,session-var)))))))
+      `(let* ((,session-var (decode-current-jwt-token))
+              ,@bindings)
+         (when (and ,require
+                    (not ,session-var))
+           (return-error "Этот метод требует аутентификации."
+                         :code 3))
+         ,@body))))

@@ -15,4 +15,7 @@ CREATE TABLE passport.user (
     updated_at TIMESTAMPTZ
 );
 
-create unique index passport_user_email on passport.user (email);
+CREATE UNIQUE INDEX passport_user_email ON passport.user (email);
+
+
+ALTER TABLE passport.user ADD COLUMN admin BOOLEAN DEFAULT False;
