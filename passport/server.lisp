@@ -25,7 +25,11 @@
   (:import-from #:common/session
                 #:with-session)
   (:import-from #:alexandria
-                #:symbolicate))
+                #:symbolicate)
+  (:import-from #:common/rpc
+                #:define-update-method)
+  (:import-from #:serapeum
+                #:fmt))
 (in-package #:passport/server)
 
 
@@ -77,55 +81,24 @@
       (mito:find-dao 'user
                      :id (gethash "user-id" session)))))
 
-
-(defvar *updatable-fields*
-  '(fio birthday gender phone country city education job about)
-  "Поля пользователя, которые можно обновлять в базе")
-
-(eval-when (:compile-toplevel :load-toplevel :execute)
-  (defun slots-with-types (class-name)
-    (let* ((class (closer-mop:ensure-finalized (find-class class-name)))
-           (slots (closer-mop:class-slots class)))
-      (loop for slot in slots
-            for name = (closer-mop:slot-definition-name slot)
-            for type = (closer-mop:slot-definition-type slot)
-            collect (list name type)))))
-
-
-(defmacro define-update-method ((api method-name model) fields &body body)
-  (let* ((types (slots-with-types model))
-         (fields-kwargs (loop for name in fields
-                              for given-name = (symbolicate name "-GIVEN-P")
-                              collect (list name nil given-name)))
-         (update-code (loop for (name default given-name) in fields-kwargs
-                            ;; In the TYPES alist, first item is a symbol,
-                            ;; corresponding to the slot name
-                            for slot-name = (first (assoc name types :test #'string-equal))
-                            ;; TODO: use accessors here instead of slot-value
-                            collect `(when ,given-name
-                                       (setf (slot-value object ',slot-name)
-                                             ,name))))
-         (param-definitions (loop for name in fields
-                                  for type = (second (assoc name types :test #'string-equal))
-                                  unless type
-                                    do (error "Unable to find type for field ~S."
-                                              name)
-                                  collect (list :param name type))))
-    `(define-rpc-method (,api ,method-name) (&key ,@fields-kwargs)
-       ,@param-definitions
-       (:result ,model)
-       (with-connection ()
-         (let ((object (progn ,@body)))
-           ,@update-code
-           (mito:save-dao object)
-           (values object))))))
-
-
 (define-update-method (passport-api update-profile user)
                       (fio birthday gender phone country city education job about)
   (with-session (session :require t)
     (mito:find-dao 'user
                      :id (gethash "user-id" session))))
+
+
+(define-rpc-method (passport-api get-profile) (id)
+  (:param id integer "ID пользователя")
+  (:result user)
+  (with-connection ()
+    (let ((user (mito:find-dao 'user
+                               :id id)))
+      (if user
+          user
+          (return-error (fmt "Пользователь с id = ~A не найден."
+                             id)
+                        :code 4)))))
 
 
 (defun start-me ()

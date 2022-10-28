@@ -7,17 +7,11 @@
   (:import-from #:common/token
                 #:get-jwt-secret)
   (:import-from #:openrpc-server/api
-                #:define-api))
+                #:define-api)
+  (:import-from #:platform/api
+                #:platform-api))
 (in-package #:platform/server)
 
-
-
-(define-api (platform-api :title "Platform API"))
-
-
-(define-rpc-method (platform-api top-projects) ()
-  (:result string)
-  "Not implemented")
 
 
 (defun start-me ()

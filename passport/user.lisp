@@ -64,7 +64,8 @@
               :initform nil
               :type (or null string)
               :col-type (or :null :text)
-              :accessor user-edication)
+              :accessor user-edication
+              :documentation "Название школы, ВУЗа, ПТУ. Научные степени.")
    (job :initarg :job
         :initform nil
         :type (or null string)
