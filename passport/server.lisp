@@ -29,7 +29,10 @@
   (:import-from #:common/rpc
                 #:define-update-method)
   (:import-from #:serapeum
-                #:fmt))
+                #:fmt)
+  (:import-from #:sxql
+                #:limit
+                #:order-by))
 (in-package #:passport/server)
 
 
@@ -99,6 +102,16 @@
           (return-error (fmt "Пользователь с id = ~A не найден."
                              id)
                         :code 4)))))
+
+
+(define-rpc-method (passport-api popular-profiles) (&key (limit 10))
+  (:param limit integer)
+  (:result (list-of user))
+  (with-connection ()
+    (or (mito:select-dao 'user
+          (order-by (:desc :created-at))
+          (limit limit))
+        #())))
 
 
 (defun start-me ()
