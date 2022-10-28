@@ -17,5 +17,14 @@ CREATE TABLE passport.user (
 
 CREATE UNIQUE INDEX passport_user_email ON passport.user (email);
 
+---------------
+-- Migrations:
 
 ALTER TABLE passport.user ADD COLUMN admin BOOLEAN DEFAULT False;
+
+ALTER TABLE passport.user ADD COLUMN avatar_url TEXT;
+
+UPDATE passport.user SET avatar_url = 'http://www.gravatar.com/avatar/501a6ae10e3fc3956ad1052cfc6d38d9?s=200'
+ WHERE avatar_url is NULL;
+
+ALTER TABLE passport.user ALTER COLUMN avatar_url SET NOT NULL;

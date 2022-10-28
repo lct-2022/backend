@@ -34,11 +34,14 @@
                 #:limit
                 #:order-by)
   (:import-from #:mito
-                #:find-dao))
+                #:find-dao)
+  (:import-from #:avatar-api
+                #:gravatar))
 (in-package #:passport/server)
 
 
-(defvar *users* nil)
+(defparameter *default-avatar*
+  "http://www.gravatar.com/avatar/501a6ae10e3fc3956ad1052cfc6d38d9?s=200")
 
 (define-api (passport-api :title "Passport API"))
 
@@ -71,6 +74,11 @@
                                     :id (get-next-user-id)
                                     :email email
                                     :fio fio
+                                    :avatar-url (handler-case (gravatar email 200)
+                                                  (error (err)
+                                                    (log:error "Unable to retrieve avatar for ~A because of: ~A"
+                                                               email err)
+                                                    *default-avatar*))
                                     :password-hash (sha1-hex password))))
          (issue-token-for user)))
       (t

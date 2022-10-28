@@ -30,6 +30,11 @@
                   :type string
                   :col-type :text
                   :reader user-password-hash)
+   (avatar-url :initarg :avatar-url
+               :type string
+               :col-type :text
+               :documentation "По-умолчанию, генерируем URL через Gravatar, по email пользователя. Часто это срабатывает."
+               :accessor avatar-url)
    (fio :initarg :fio
         :initform nil
         :type (or null string)
