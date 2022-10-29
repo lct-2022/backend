@@ -16,7 +16,7 @@
 
 
 (define-rpc-method (platform-api get-team-members) (project-id)
-  (:summary "Отдаёт список участников команды.")
+  (:summary "Отдаёт список участников проекта (из всех команд).")
   (:description "Поскольку у нас микросервисы, то профили пользователей надо запросить отдельно через passport.get-profiles.")
   (:param project-id integer)
   (:result (list-of team-member))

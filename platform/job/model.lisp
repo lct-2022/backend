@@ -29,6 +29,12 @@
                 :type string
                 :col-type :text
                 :accessor job-description
-                :documentation "Описание вакансии."))
+                :documentation "Описание вакансии.")
+   (open :initarg :open
+         :initform t
+         :type boolean
+         :col-type :boolean
+         :documentation "Признак того, что вакансия закрыта."
+         :accessor job-open-p))
   (:table-name "platform.job")
   (:metaclass dao-table-class))

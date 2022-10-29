@@ -6,6 +6,7 @@
   (:import-from #:platform/api
                 #:platform-api)
   (:import-from #:platform/job/model
+                #:job-open-p
                 #:job-title
                 #:job)
   (:import-from #:platform/job-application/model
@@ -33,7 +34,9 @@
   (:import-from #:platform/team-member/model
                 #:team-member)
   (:import-from #:serapeum
-                #:fmt))
+                #:fmt)
+  (:import-from #:mito.dao
+                #:select-by-sql))
 (in-package #:platform/job-application/api)
 
 
@@ -107,6 +110,12 @@
           (setf (application-status existing)
                 "accepted")
           (save-dao existing)
+          
+          ;; Пометим вакансию закрытой
+          (let ((job (application-job existing)))
+            (when job
+              (setf (job-open-p job) nil)
+              (save-dao job)))
 
           ;; Добавим пользователя в команду
           (let ((user-id (application-user-id existing))
@@ -144,3 +153,18 @@
 
           ;; Вернём "отклик"
           existing)))))
+
+
+(define-rpc-method (platform-api get-job-applications) (project-id)
+  (:summary "Отдаёт список открытых вакансий на проекте.")
+  (:param project-id integer)
+  (:result (list-of job-application))
+
+  (with-connection ()
+    (select-by-sql 'job-application
+                   "SELECT ja.*
+                      FROM platform.job_application AS ja
+                      JOIN platform.job AS j ON ja.job_id = j.id
+                      JOIN platform.team AS tm ON j.team_id = tm.id
+                     WHERE tm.project_id = ? AND j.open"
+                   :binds (list project-id))))
