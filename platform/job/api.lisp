@@ -37,7 +37,7 @@
                      :team-id team-id)))
 
 
-(define-rpc-method (platform-api get-team-job) (team-id &key only-open)
+(define-rpc-method (platform-api get-team-jobs) (team-id &key only-open)
   (:summary "Возвращает вакансии команды.")
   (:description "По-умолчанию возвращаются все, а если указан параметр only-open, то только открытые.")
   (:param team-id integer)

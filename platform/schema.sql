@@ -1,3 +1,5 @@
+CREATE SCHEMA IF NOT EXISTS platform;
+
 CREATE TABLE platform.project (
     id BIGSERIAL NOT NULL PRIMARY KEY,
     title TEXT NOT NULL,

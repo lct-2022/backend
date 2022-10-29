@@ -1,5 +1,7 @@
+CREATE SCHEMA IF NOT EXISTS passport;
+
 CREATE TABLE passport.user (
-    id INTEGER NOT NULL PRIMARY KEY,
+    id BIGSERIAL NOT NULL PRIMARY KEY,
     email TEXT NOT NULL,
     password_hash TEXT NOT NULL,
     fio TEXT,
@@ -28,3 +30,10 @@ UPDATE passport.user SET avatar_url = 'http://www.gravatar.com/avatar/501a6ae10e
  WHERE avatar_url is NULL;
 
 ALTER TABLE passport.user ALTER COLUMN avatar_url SET NOT NULL;
+
+-- make id in user bigserial
+
+CREATE SEQUENCE temp_id_seq;
+ALTER TABLE temp ALTER COLUMN id SET NOT NULL;
+ALTER TABLE temp ALTER COLUMN id SET DEFAULT nextval('temp_id_seq');
+ALTER SEQUENCE temp_id_seq OWNED BY temp.id;

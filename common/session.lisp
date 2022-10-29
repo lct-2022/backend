@@ -2,8 +2,9 @@
   (:use #:cl)
   (:import-from #:lack.request
                 #:request-headers)
+  (:import-from #:openrpc-server
+                #:return-error)
   (:import-from #:openrpc-server/vars
-                #:return-error
                 #:*current-request*)
   (:import-from #:common/token
                 #:decode)
@@ -40,10 +41,10 @@
                                           collect (make-keyword (string-upcase role)))))
                             (t
                              `(,var (gethash ,key ,session-var)))))))
-      `(let* ((,session-var (decode-current-jwt-token))
-              ,@bindings)
+      `(let ((,session-var (decode-current-jwt-token)))
          (when (and ,require
                     (not ,session-var))
            (return-error "Этот метод требует аутентификации."
                          :code 3))
-         ,@body))))
+         (let (,@bindings)
+           ,@body)))))

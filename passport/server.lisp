@@ -43,6 +43,7 @@
 (defparameter *default-avatar*
   "http://www.gravatar.com/avatar/501a6ae10e3fc3956ad1052cfc6d38d9?s=200")
 
+
 (define-api (passport-api :title "Passport API"))
 
 
@@ -67,6 +68,7 @@
   (:param password string)
   (:param fio string)
   (:result string)
+  (log:info "Signup")
   (with-connection ()
     (cond
       ((is-email-available-p email)
