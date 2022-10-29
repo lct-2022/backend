@@ -49,7 +49,10 @@
       (log:error "Параметр only-open пока не поддерживается."))
 
     (or (select-dao 'job
-          (where (:= :team-id team-id)))
+          (if only-open
+              (where (:and (:= :team-id team-id)
+                           (:= :open t)))
+              (where (:= :team-id team-id))))
         #())))
 
 (define-rpc-method (platform-api popular-jobs) (&key (limit 5))
