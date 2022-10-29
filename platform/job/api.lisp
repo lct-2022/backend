@@ -37,6 +37,15 @@
                      :team-id team-id)))
 
 
+(define-rpc-method (platform-api get-job) (id)
+  (:summary "Возвращает вакансию.")
+  (:param id integer)
+  (:result job)
+
+  (with-connection ()
+    (mito:find-dao 'job :id id)))
+
+
 (define-rpc-method (platform-api get-team-jobs) (team-id &key only-open)
   (:summary "Возвращает вакансии команды.")
   (:description "По-умолчанию возвращаются все, а если указан параметр only-open, то только открытые.")
@@ -45,9 +54,6 @@
   (:result (list-of job))
 
   (with-connection ()
-    (when only-open
-      (log:error "Параметр only-open пока не поддерживается."))
-
     (or (select-dao 'job
           (if only-open
               (where (:and (:= :team-id team-id)
