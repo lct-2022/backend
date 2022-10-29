@@ -160,6 +160,7 @@
 (defun search-objects (collection term &key
                                          (sort (list :created-at :desc))
                                          (limit 10)
+                                         (fields '("title" "description"))
                                          (page-key nil))
   ;; TODO: научиться обрабатывать 400 ответы от Elastic
   ;; например на запрос: TYPE:macro AND storage NAME:FLEXI-STREAMS:WITH-OUTPUT-TO-SEQUENCE
@@ -171,8 +172,7 @@
             with sort-param = (make-sort-param sort)
             with query = (dict "query" (dict
                                         "query_string"
-                                        (dict "fields"
-                                              (list "title" "description")
+                                        (dict "fields" fields
                                               "query" term))
                                ;; Сортировка используется для keyset пейджинации
                                ;; и подгрузки результатов:
@@ -228,6 +228,12 @@
     (mito:retrieve-dao class-name)))
 
 
+(defgeneric get-fields-to-search (class-name)
+  (:documentation "Возвращает список полей, по которым надо производить поиск.")
+  (:method ((class-name symbol))
+    (list "title" "description")))
+
+
 (defun index-object (object)
   (let* ((doc (make-document-for-index object))
          (id (object-id object)))
@@ -273,13 +279,15 @@
            (setf page-key
                  (decode-json page-key)))
 
-         (let ((index-name (get-index-name ',class-name)))
-           (log:info "Searching for objects in index ~S by query ~S."
-                     index-name query)
+         (let ((index-name (get-index-name ',class-name))
+               (fields (get-fields-to-search ',class-name)))
+           (log:info "Searching for objects in index ~S by query ~S among fields ~{~A~^, ~}."
+                     index-name query fields)
         
            (multiple-value-bind (search-results total next-page-key)
                (search-objects index-name
                                query
+                               :fields fields
                                :limit limit
                                :page-key page-key)
              (declare (ignore total))
