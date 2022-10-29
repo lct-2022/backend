@@ -12,7 +12,11 @@
   (:import-from #:common/db
                 #:with-connection)
   (:import-from #:mito
-                #:save-dao))
+                #:save-dao)
+  (:import-from #:common/session
+                #:with-session)
+  (:import-from #:common/permissions
+                #:assert-can-modify))
 (in-package #:common/rpc)
 
 
@@ -28,9 +32,13 @@
 
 (defmacro define-update-method ((api method-name model) fields &body body)
   (let* ((types (slots-with-types model))
+         (positional-args (loop for name in fields
+                                when (string-equal name "id")
+                                  collect name))
          (fields-kwargs (loop for name in fields
                               for given-name = (symbolicate name "-GIVEN-P")
-                              collect (list name nil given-name)))
+                              unless (string-equal name "id")
+                                collect (list name nil given-name)))
          (update-code (loop for (name default given-name) in fields-kwargs
                             ;; In the TYPES alist, first item is a symbol,
                             ;; corresponding to the slot name
@@ -45,14 +53,16 @@
                                     do (error "Unable to find type for field ~S."
                                               name)
                                   collect (list :param name type))))
-    `(define-rpc-method (,api ,method-name) (&key ,@fields-kwargs)
+    `(define-rpc-method (,api ,method-name) (,@positional-args &key ,@fields-kwargs)
        ,@param-definitions
        (:result ,model)
-       (with-connection ()
-         (let ((object (progn ,@body)))
-           ,@update-code
-           (save-dao object)
-           (values object))))))
+       (with-session (user-id)
+         (with-connection ()
+           (let ((object (progn ,@body)))
+             (assert-can-modify user-id object)
+             ,@update-code
+             (save-dao object)
+             (values object)))))))
 
 
 

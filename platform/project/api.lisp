@@ -21,7 +21,9 @@
   (:import-from #:common/session
                 #:with-session)
   (:import-from #:serapeum
-                #:fmt))
+                #:fmt)
+  (:import-from #:common/rpc
+                #:define-update-method))
 (in-package #:platform/project/api)
 
 
@@ -59,6 +61,16 @@
       (if project
           project
           (return-error (fmt "Проект с id = ~A не найден." id))))))
+
+
+(define-update-method (platform-api update-project project)
+                      (id title description url contests)
+  (unless id
+    (return-error "Параметр ID обязательный."
+                  :code 5))
+  
+  (find-dao 'project
+            :id id))
 
 
 (define-rpc-method (platform-api popular-projects) (&key (limit 5))
