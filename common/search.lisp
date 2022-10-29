@@ -183,13 +183,12 @@
             for id = (el hit "_id")
             for source = (el hit "_source")
             for doc = (el source "documentation")
-            collect (list id source) into results
+            collect source into results
             finally (return (if (length= limit results)
                                 ;; Возможно есть следующая страница
                                 (values results
                                         total
-                                        (extract-next-page-key sort (second ;; скипнем id
-                                                                     (lastcar results))))
+                                        (extract-next-page-key sort (lastcar results)))
                                 (values results
                                         total))))
     (dexador.error:http-request-not-found ()
