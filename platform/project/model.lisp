@@ -2,7 +2,9 @@
   (:use #:cl)
   (:import-from #:mito
                 #:dao-table-class
-                #:object-id))
+                #:object-id)
+  (:import-from #:common/event-bus
+                #:emit-event))
 (in-package #:platform/project/model)
 
 
@@ -44,6 +46,17 @@
   (:table-name "platform.project")
   (:metaclass dao-table-class))
 
+
+(defmethod mito:insert-dao :after ((obj project))
+  (emit-event :project-created obj))
+
+
+(defmethod mito:update-dao :after ((obj project))
+  (emit-event :project-update obj))
+
+
+(defmethod mito:delete-dao :after ((obj project))
+  (emit-event :project-deleted obj))
 
 
 (defclass test-project ()

@@ -38,12 +38,18 @@
   "Индексируем все проекты.
    Для прода надо будет сделать какой-то pipeline, чтобы добавлять в индекс только новые или обновлённые."
   (with-connection ()
-    (loop for project in (mito:retrieve-dao 'project)
-          do (index-project project))))
+    (common/db:with-lock ("index-projects")
+      (loop for project in (mito:retrieve-dao 'project)
+            do (index-project project)))))
 
 
 (define-rpc-method (platform-api search-projects) (query &key (limit 10) page-key)
-  (:param query string "Запрос для поиска на языке запросов ElasticSearch. Если передать \"*\" - выдаются все проекты, начиная с самых свежих.")
+  (:summary "Возвращает список проектов по заданному запросу.")
+  (:description "Запрос должен вводиться в формате ElasticSearch. Но для поиска по всем
+полям можно просто слова вводить.  Если передать \"*\" - выдаются все проекты, начиная с самых свежих.
+
+Этот метод поддерживает пейджинацию и можно запрашивать следующие страницы результатов.")
+  (:param query string "Запрос для поиска на языке запросов ElasticSearch.")
   (:param limit integer)
   (:param page-key string)
   (:result (paginated-list-of project))
@@ -53,7 +59,9 @@
           (decode-json page-key)))
   
   (multiple-value-bind (search-results total next-page-key)
-      (search-objects "projects" query :limit limit)
+      (search-objects "projects" query
+                      :limit limit
+                      :page-key page-key)
     (declare (ignore total))
     (let* ((ids (loop for result in search-results
                       collect (el result "id")))
@@ -67,3 +75,16 @@
           results))))
 
 
+(defun index-in-thread (&rest args)
+  (declare (ignore args))
+  (bt:make-thread (lambda ()
+                    ;; Небольшая задержка, чтобы убедиться,
+                    ;; что в соседнем потоке все данные успеют закоммититься:
+                    (sleep 5)
+                    (index))
+                  :name "Index projects"))
+
+
+(common/event-bus:on-event :project-created 'index-in-thread)
+(common/event-bus:on-event :project-updated 'index-in-thread)
+(common/event-bus:on-event :project-deleted 'index-in-thread)

@@ -23,7 +23,9 @@
   (:import-from #:serapeum
                 #:fmt)
   (:import-from #:common/rpc
-                #:define-update-method))
+                #:define-update-method)
+  (:import-from #:common/event-bus
+                #:emit-event))
 (in-package #:platform/project/api)
 
 
