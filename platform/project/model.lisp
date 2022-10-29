@@ -47,18 +47,6 @@
   (:metaclass dao-table-class))
 
 
-(defmethod mito:insert-dao :after ((obj project))
-  (emit-event :project-created obj))
-
-
-(defmethod mito:update-dao :after ((obj project))
-  (emit-event :project-update obj))
-
-
-(defmethod mito:delete-dao :after ((obj project))
-  (emit-event :project-deleted obj))
-
-
 (defclass test-project ()
   ((ID :initarg :id
        :type integer

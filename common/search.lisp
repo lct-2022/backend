@@ -12,9 +12,22 @@
   (:import-from #:yason
                 #:with-output-to-string*)
   (:import-from #:alexandria
+                #:make-keyword
+                #:symbolicate
                 #:lastcar
                 #:length=
-                #:ensure-list))
+                #:ensure-list)
+  (:import-from #:mito
+                #:object-updated-at
+                #:object-created-at
+                #:object-id)
+  (:import-from #:local-time
+                #:timestamp-to-unix)
+  (:import-from #:openrpc-server/method
+                #:define-rpc-method)
+  (:import-from #:common/event-bus
+                #:on-event
+                #:emit-event))
 (in-package #:common/search)
 
 
@@ -41,7 +54,7 @@
                   (get-elastic-port)
                   collection
                   (quri:url-encode id))))
-    (log:info "Sending data to Elastic Search" collection id)
+    ;; (log:info "Sending data to Elastic Search" collection id)
     (jonathan:parse
      (dex:put url
               :content content
@@ -195,3 +208,117 @@
       (values nil 0 nil))
     (dexador.error:http-request-bad-request (condition)
       (error 'bad-query :original-error condition))))
+
+
+(defgeneric make-document-for-index (obj)
+  (:documentation "Индексирует проект указанного типа"))
+
+(defgeneric get-index-name (obj)
+  (:documentation "Возвращает название индекса для указанного типа объектов.")
+  (:method ((obj symbol))
+    (fmt "~As"
+         (string-downcase obj)))
+  (:method ((obj standard-object))
+    (fmt "~As"
+         (string-downcase (type-of obj)))))
+
+
+(defgeneric get-objects-to-index (class-name)
+  (:method ((class-name symbol))
+    (mito:retrieve-dao class-name)))
+
+
+(defun index-object (object)
+  (let* ((doc (make-document-for-index object))
+         (id (object-id object)))
+    
+    ;; Эти поля есть у всех объектов из базы
+    (setf (gethash "id" doc)
+          id
+          (gethash "created-at" doc)
+          (timestamp-to-unix (object-created-at object))
+          (gethash "updated-at" doc)
+          (timestamp-to-unix (object-updated-at object)))
+    
+    (common/search::index (get-index-name object)
+                          (fmt "~A" id)
+                          doc)))
+
+
+(defun index-objects-of-type (class-name)
+  "Индексируем все объекты указанного типа.
+   Для прода надо будет сделать какой-то pipeline, чтобы добавлять в индекс только новые или обновлённые."
+  (with-connection ()
+    (common/db:with-lock ((fmt "index-~A" class-name))
+      (loop for obj in (get-objects-to-index class-name)
+            do (index-object obj)))))
+
+
+(defmacro define-search-rpc-method ((api-name method-name class-name) &body metadata)
+  "Генератор методов для поиска по разным типам объектов.
+   Просто чтобы не повторять примерно один и тот же код."
+  (let* ((index-func-name (symbolicate "INDEX-" class-name "S-IN-THREAD"))
+         (create-event (make-keyword (symbolicate class-name "-CREATED")))
+         (update-event (make-keyword (symbolicate class-name "-UPDATED")))
+         (delete-event (make-keyword (symbolicate class-name "-DELETED"))))
+    `(progn
+       (define-rpc-method (,api-name ,method-name) (query &key (limit 10) page-key)
+         (:param query string "Запрос для поиска на языке запросов ElasticSearch.")
+         (:param limit integer)
+         (:param page-key string)
+         (:result (paginated-list-of ,class-name))
+         ,@metadata
+
+         (when page-key
+           (setf page-key
+                 (decode-json page-key)))
+
+         (let ((index-name (get-index-name ',class-name)))
+           (log:info "Searching for objects in index ~S by query ~S."
+                     index-name query)
+        
+           (multiple-value-bind (search-results total next-page-key)
+               (search-objects index-name
+                               query
+                               :limit limit
+                               :page-key page-key)
+             (declare (ignore total))
+             (let* ((ids (loop for result in search-results
+                               collect (el result "id")))
+                    (results (when ids
+                               (with-connection ()
+                                 (mito:select-dao ',class-name
+                                   (where (:in :id ids)))))))
+               (if next-page-key
+                   (values results
+                           (encode-json next-page-key))
+                   results)))))
+
+
+       (defun ,index-func-name (&rest args)
+         (declare (ignore args))
+         (bt:make-thread (lambda ()
+                           ;; Небольшая задержка, чтобы убедиться,
+                           ;; что в соседнем потоке все данные успеют закоммититься:
+                           (sleep 5)
+                           (index-objects-of-type ',class-name))
+                         :name (fmt "Index ~A"
+                                    (get-index-name ',class-name))))
+
+       ;; Эти методы будут посылать сигнал о том, что изменён объект
+       ;; определённого типа:
+       (defmethod mito:insert-dao :after ((obj ,class-name))
+         (emit-event ,create-event obj))
+       
+       
+       (defmethod mito:update-dao :after ((obj ,class-name))
+         (emit-event ,update-event obj))
+
+
+       (defmethod mito:delete-dao :after ((obj ,class-name))
+         (emit-event ,delete-event obj))
+
+       ;; А тут мы привязываем обработчики этих сигналов,
+       ;; чтобы происходила автоматическая индексация:
+       (loop for event in '(,create-event ,update-event ,delete-event)
+             do (on-event event ',index-func-name)))))

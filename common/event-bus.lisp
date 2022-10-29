@@ -16,8 +16,12 @@
 
 
 (defun on-event (event thunk)
-  (event-emitter:on event *bus*
-                    thunk))
+  (unless (position thunk
+                    (event-emitter:listeners *bus* event)
+                    :test 'eq
+                    :key #'event-emitter::listener-function)
+    (event-emitter:on event *bus*
+                      thunk)))
 
 
 (defun emit-event (event &rest args)
