@@ -1,0 +1,256 @@
+{
+  "methods": [
+    {
+      "name": "rpc.discover",
+      "params": [],
+      "result": {
+        "name": "OpenRPC Schema",
+        "schema": {
+          "$ref": "https://raw.githubusercontent.com/open-rpc/meta-schema/master/schema.json"
+        }
+      }
+    },
+    {
+      "name": "vote",
+      "params": [
+        {
+          "name": "subject-type",
+          "schema": {
+            "type": "string"
+          },
+          "required": true,
+          "summary": "Тип объекта: project или user."
+        },
+        {
+          "name": "subject-id",
+          "schema": {
+            "type": "integer"
+          },
+          "required": true,
+          "summary": "ID объекта."
+        }
+      ],
+      "result": {
+        "name": "vote-result",
+        "schema": {
+          "type": "object",
+          "properties": {
+            "created-at": {
+              "type": "object",
+              "properties": {},
+              "required": [],
+              "x-cl-class": "T",
+              "x-cl-package": "COMMON-LISP"
+            },
+            "updated-at": {
+              "type": "object",
+              "properties": {},
+              "required": [],
+              "x-cl-class": "T",
+              "x-cl-package": "COMMON-LISP"
+            },
+            "synced": {
+              "type": "boolean"
+            },
+            "id": {
+              "type": "integer"
+            },
+            "user-id": {
+              "type": "integer"
+            },
+            "subject-type": {
+              "type": "string",
+              "description": "Тип объекта, за который оставлен голос. В базе это ENUM (project, user)"
+            },
+            "subject-id": {
+              "type": "integer",
+              "description": "ID объекта, за который оставлен голос."
+            }
+          },
+          "required": [
+            "subject-id",
+            "subject-type",
+            "user-id",
+            "id",
+            "updated-at",
+            "created-at"
+          ],
+          "x-cl-class": "VOTE",
+          "x-cl-package": "RATING/VOTE/MODEL",
+          "description": "Запись о голосе конкретного участника за какую-то сущность в нашей системе."
+        }
+      },
+      "summary": "Оставляет голос от текущего пользователя за объект с указанным типом и id.",
+      "paramStructure": "by-name"
+    },
+    {
+      "name": "get-vote",
+      "params": [
+        {
+          "name": "subject-type",
+          "schema": {
+            "type": "string"
+          },
+          "required": true,
+          "summary": "Тип объекта: project или user."
+        },
+        {
+          "name": "subject-id",
+          "schema": {
+            "type": "integer"
+          },
+          "required": true,
+          "summary": "ID объекта."
+        }
+      ],
+      "result": {
+        "name": "get-vote-result",
+        "schema": {
+          "type": "object",
+          "properties": {
+            "created-at": {
+              "type": "object",
+              "properties": {},
+              "required": [],
+              "x-cl-class": "T",
+              "x-cl-package": "COMMON-LISP"
+            },
+            "updated-at": {
+              "type": "object",
+              "properties": {},
+              "required": [],
+              "x-cl-class": "T",
+              "x-cl-package": "COMMON-LISP"
+            },
+            "synced": {
+              "type": "boolean"
+            },
+            "id": {
+              "type": "integer"
+            },
+            "user-id": {
+              "type": "integer"
+            },
+            "subject-type": {
+              "type": "string",
+              "description": "Тип объекта, за который оставлен голос. В базе это ENUM (project, user)"
+            },
+            "subject-id": {
+              "type": "integer",
+              "description": "ID объекта, за который оставлен голос."
+            }
+          },
+          "required": [
+            "subject-id",
+            "subject-type",
+            "user-id",
+            "id",
+            "updated-at",
+            "created-at"
+          ],
+          "x-cl-class": "VOTE",
+          "x-cl-package": "RATING/VOTE/MODEL",
+          "description": "Запись о голосе конкретного участника за какую-то сущность в нашей системе."
+        }
+      },
+      "summary": "Возвращает объект Vote, если текущий пользователь уже голосовал за объект.",
+      "paramStructure": "by-name"
+    },
+    {
+      "name": "get-rating",
+      "params": [
+        {
+          "name": "subject-type",
+          "schema": {
+            "type": "string"
+          },
+          "required": true,
+          "summary": "Тип объекта: project или user."
+        },
+        {
+          "name": "subject-id",
+          "schema": {
+            "type": "integer"
+          },
+          "required": true,
+          "summary": "ID объекта."
+        }
+      ],
+      "result": {
+        "name": "get-rating-result",
+        "schema": {
+          "type": "integer"
+        }
+      },
+      "summary": "Возвращает рейтинг объекта (количество голосов за него).",
+      "paramStructure": "by-name"
+    },
+    {
+      "name": "get-top",
+      "params": [
+        {
+          "name": "subject-type",
+          "schema": {
+            "type": "string"
+          },
+          "required": true,
+          "summary": "Тип объекта: project или user."
+        },
+        {
+          "name": "limit",
+          "schema": {
+            "type": "integer"
+          },
+          "summary": "Максимальное количество объектов в топе. По умолчанию 10."
+        }
+      ],
+      "result": {
+        "name": "get-top-result",
+        "schema": {
+          "type": "array",
+          "items": {
+            "type": "object",
+            "properties": {
+              "synced": {
+                "type": "boolean"
+              },
+              "subject-type": {
+                "type": "string",
+                "description": "Тип объекта, за который оставлен голос. В базе это ENUM (project, user)"
+              },
+              "subject-id": {
+                "type": "integer",
+                "description": "ID объекта, из TOP."
+              },
+              "rating": {
+                "type": "integer",
+                "description": "Рейтинг объекта (пока это просто количество голосов за него)."
+              }
+            },
+            "required": [
+              "rating",
+              "subject-id",
+              "subject-type"
+            ],
+            "x-cl-class": "TOP-ITEM",
+            "x-cl-package": "RATING/VOTE/MODEL",
+            "description": "Представляет собой ссылку на объект из топа + его рейтинг."
+          }
+        }
+      },
+      "summary": "Возвращает N объектов с наивысшим рейтингом в своей категории.",
+      "paramStructure": "by-name"
+    }
+  ],
+  "openrpc": "1.0.0",
+  "info": {
+    "title": "Rating API",
+    "version": "0.1.0"
+  },
+  "servers": [
+    {
+      "name": "default",
+      "url": "https://localhost/"
+    }
+  ]
+}

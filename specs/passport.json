@@ -1,0 +1,1029 @@
+{
+  "methods": [
+    {
+      "name": "rpc.discover",
+      "params": [],
+      "result": {
+        "name": "OpenRPC Schema",
+        "schema": {
+          "$ref": "https://raw.githubusercontent.com/open-rpc/meta-schema/master/schema.json"
+        }
+      }
+    },
+    {
+      "name": "login",
+      "params": [
+        {
+          "name": "email",
+          "schema": {
+            "type": "string"
+          },
+          "required": true
+        },
+        {
+          "name": "password",
+          "schema": {
+            "type": "string"
+          },
+          "required": true
+        }
+      ],
+      "result": {
+        "name": "login-result",
+        "schema": {
+          "type": "string"
+        }
+      },
+      "paramStructure": "by-name"
+    },
+    {
+      "name": "my-profile",
+      "params": [],
+      "result": {
+        "name": "my-profile-result",
+        "schema": {
+          "type": "object",
+          "properties": {
+            "created-at": {
+              "type": "object",
+              "properties": {},
+              "required": [],
+              "x-cl-class": "T",
+              "x-cl-package": "COMMON-LISP"
+            },
+            "updated-at": {
+              "type": "object",
+              "properties": {},
+              "required": [],
+              "x-cl-class": "T",
+              "x-cl-package": "COMMON-LISP"
+            },
+            "synced": {
+              "type": "boolean"
+            },
+            "id": {
+              "type": "integer"
+            },
+            "email": {
+              "type": "string"
+            },
+            "password-hash": {
+              "type": "string"
+            },
+            "avatar-url": {
+              "type": "string",
+              "description": "По-умолчанию, генерируем URL через Gravatar, по email пользователя. Часто это срабатывает."
+            },
+            "fio": {
+              "oneOf": [
+                {
+                  "type": "null"
+                },
+                {
+                  "type": "string"
+                }
+              ]
+            },
+            "birthday": {
+              "oneOf": [
+                {
+                  "type": "null"
+                },
+                {
+                  "type": "string"
+                }
+              ]
+            },
+            "gender": {
+              "oneOf": [
+                {
+                  "type": "null"
+                },
+                {
+                  "type": "string"
+                }
+              ]
+            },
+            "phone": {
+              "oneOf": [
+                {
+                  "type": "null"
+                },
+                {
+                  "type": "string"
+                }
+              ]
+            },
+            "country": {
+              "oneOf": [
+                {
+                  "type": "null"
+                },
+                {
+                  "type": "string"
+                }
+              ]
+            },
+            "city": {
+              "oneOf": [
+                {
+                  "type": "null"
+                },
+                {
+                  "type": "string"
+                }
+              ]
+            },
+            "education": {
+              "oneOf": [
+                {
+                  "type": "null"
+                },
+                {
+                  "type": "string"
+                }
+              ],
+              "description": "Название школы, ВУЗа, ПТУ. Научные степени."
+            },
+            "job": {
+              "oneOf": [
+                {
+                  "type": "null"
+                },
+                {
+                  "type": "string"
+                }
+              ]
+            },
+            "about": {
+              "oneOf": [
+                {
+                  "type": "null"
+                },
+                {
+                  "type": "string"
+                }
+              ]
+            },
+            "admin": {
+              "type": "boolean",
+              "description": "Если этот признак True, то пользователь считается админом и может позволить себе больше, чем простые смертные."
+            }
+          },
+          "required": [
+            "avatar-url",
+            "password-hash",
+            "email",
+            "id",
+            "updated-at",
+            "created-at"
+          ],
+          "x-cl-class": "USER",
+          "x-cl-package": "PASSPORT/USER"
+        }
+      },
+      "summary": "Отдаёт профиль текущего залогиненого пользователя.",
+      "paramStructure": "by-name"
+    },
+    {
+      "name": "signup",
+      "params": [
+        {
+          "name": "email",
+          "schema": {
+            "type": "string"
+          },
+          "required": true
+        },
+        {
+          "name": "password",
+          "schema": {
+            "type": "string"
+          },
+          "required": true
+        },
+        {
+          "name": "fio",
+          "schema": {
+            "type": "string"
+          },
+          "required": true
+        }
+      ],
+      "result": {
+        "name": "signup-result",
+        "schema": {
+          "type": "string"
+        }
+      },
+      "paramStructure": "by-name"
+    },
+    {
+      "name": "update-profile",
+      "params": [
+        {
+          "name": "about",
+          "schema": {
+            "oneOf": [
+              {
+                "type": "null"
+              },
+              {
+                "type": "string"
+              }
+            ]
+          }
+        },
+        {
+          "name": "job",
+          "schema": {
+            "oneOf": [
+              {
+                "type": "null"
+              },
+              {
+                "type": "string"
+              }
+            ]
+          }
+        },
+        {
+          "name": "education",
+          "schema": {
+            "oneOf": [
+              {
+                "type": "null"
+              },
+              {
+                "type": "string"
+              }
+            ]
+          }
+        },
+        {
+          "name": "city",
+          "schema": {
+            "oneOf": [
+              {
+                "type": "null"
+              },
+              {
+                "type": "string"
+              }
+            ]
+          }
+        },
+        {
+          "name": "country",
+          "schema": {
+            "oneOf": [
+              {
+                "type": "null"
+              },
+              {
+                "type": "string"
+              }
+            ]
+          }
+        },
+        {
+          "name": "phone",
+          "schema": {
+            "oneOf": [
+              {
+                "type": "null"
+              },
+              {
+                "type": "string"
+              }
+            ]
+          }
+        },
+        {
+          "name": "gender",
+          "schema": {
+            "oneOf": [
+              {
+                "type": "null"
+              },
+              {
+                "type": "string"
+              }
+            ]
+          }
+        },
+        {
+          "name": "birthday",
+          "schema": {
+            "oneOf": [
+              {
+                "type": "null"
+              },
+              {
+                "type": "string"
+              }
+            ]
+          }
+        },
+        {
+          "name": "fio",
+          "schema": {
+            "oneOf": [
+              {
+                "type": "null"
+              },
+              {
+                "type": "string"
+              }
+            ]
+          }
+        }
+      ],
+      "result": {
+        "name": "update-profile-result",
+        "schema": {
+          "type": "object",
+          "properties": {
+            "created-at": {
+              "type": "object",
+              "properties": {},
+              "required": [],
+              "x-cl-class": "T",
+              "x-cl-package": "COMMON-LISP"
+            },
+            "updated-at": {
+              "type": "object",
+              "properties": {},
+              "required": [],
+              "x-cl-class": "T",
+              "x-cl-package": "COMMON-LISP"
+            },
+            "synced": {
+              "type": "boolean"
+            },
+            "id": {
+              "type": "integer"
+            },
+            "email": {
+              "type": "string"
+            },
+            "password-hash": {
+              "type": "string"
+            },
+            "avatar-url": {
+              "type": "string",
+              "description": "По-умолчанию, генерируем URL через Gravatar, по email пользователя. Часто это срабатывает."
+            },
+            "fio": {
+              "oneOf": [
+                {
+                  "type": "null"
+                },
+                {
+                  "type": "string"
+                }
+              ]
+            },
+            "birthday": {
+              "oneOf": [
+                {
+                  "type": "null"
+                },
+                {
+                  "type": "string"
+                }
+              ]
+            },
+            "gender": {
+              "oneOf": [
+                {
+                  "type": "null"
+                },
+                {
+                  "type": "string"
+                }
+              ]
+            },
+            "phone": {
+              "oneOf": [
+                {
+                  "type": "null"
+                },
+                {
+                  "type": "string"
+                }
+              ]
+            },
+            "country": {
+              "oneOf": [
+                {
+                  "type": "null"
+                },
+                {
+                  "type": "string"
+                }
+              ]
+            },
+            "city": {
+              "oneOf": [
+                {
+                  "type": "null"
+                },
+                {
+                  "type": "string"
+                }
+              ]
+            },
+            "education": {
+              "oneOf": [
+                {
+                  "type": "null"
+                },
+                {
+                  "type": "string"
+                }
+              ],
+              "description": "Название школы, ВУЗа, ПТУ. Научные степени."
+            },
+            "job": {
+              "oneOf": [
+                {
+                  "type": "null"
+                },
+                {
+                  "type": "string"
+                }
+              ]
+            },
+            "about": {
+              "oneOf": [
+                {
+                  "type": "null"
+                },
+                {
+                  "type": "string"
+                }
+              ]
+            },
+            "admin": {
+              "type": "boolean",
+              "description": "Если этот признак True, то пользователь считается админом и может позволить себе больше, чем простые смертные."
+            }
+          },
+          "required": [
+            "avatar-url",
+            "password-hash",
+            "email",
+            "id",
+            "updated-at",
+            "created-at"
+          ],
+          "x-cl-class": "USER",
+          "x-cl-package": "PASSPORT/USER"
+        }
+      },
+      "paramStructure": "by-name"
+    },
+    {
+      "name": "get-profile",
+      "params": [
+        {
+          "name": "id",
+          "schema": {
+            "type": "integer"
+          },
+          "required": true,
+          "summary": "ID пользователя"
+        }
+      ],
+      "result": {
+        "name": "get-profile-result",
+        "schema": {
+          "type": "object",
+          "properties": {
+            "created-at": {
+              "type": "object",
+              "properties": {},
+              "required": [],
+              "x-cl-class": "T",
+              "x-cl-package": "COMMON-LISP"
+            },
+            "updated-at": {
+              "type": "object",
+              "properties": {},
+              "required": [],
+              "x-cl-class": "T",
+              "x-cl-package": "COMMON-LISP"
+            },
+            "synced": {
+              "type": "boolean"
+            },
+            "id": {
+              "type": "integer"
+            },
+            "email": {
+              "type": "string"
+            },
+            "password-hash": {
+              "type": "string"
+            },
+            "avatar-url": {
+              "type": "string",
+              "description": "По-умолчанию, генерируем URL через Gravatar, по email пользователя. Часто это срабатывает."
+            },
+            "fio": {
+              "oneOf": [
+                {
+                  "type": "null"
+                },
+                {
+                  "type": "string"
+                }
+              ]
+            },
+            "birthday": {
+              "oneOf": [
+                {
+                  "type": "null"
+                },
+                {
+                  "type": "string"
+                }
+              ]
+            },
+            "gender": {
+              "oneOf": [
+                {
+                  "type": "null"
+                },
+                {
+                  "type": "string"
+                }
+              ]
+            },
+            "phone": {
+              "oneOf": [
+                {
+                  "type": "null"
+                },
+                {
+                  "type": "string"
+                }
+              ]
+            },
+            "country": {
+              "oneOf": [
+                {
+                  "type": "null"
+                },
+                {
+                  "type": "string"
+                }
+              ]
+            },
+            "city": {
+              "oneOf": [
+                {
+                  "type": "null"
+                },
+                {
+                  "type": "string"
+                }
+              ]
+            },
+            "education": {
+              "oneOf": [
+                {
+                  "type": "null"
+                },
+                {
+                  "type": "string"
+                }
+              ],
+              "description": "Название школы, ВУЗа, ПТУ. Научные степени."
+            },
+            "job": {
+              "oneOf": [
+                {
+                  "type": "null"
+                },
+                {
+                  "type": "string"
+                }
+              ]
+            },
+            "about": {
+              "oneOf": [
+                {
+                  "type": "null"
+                },
+                {
+                  "type": "string"
+                }
+              ]
+            },
+            "admin": {
+              "type": "boolean",
+              "description": "Если этот признак True, то пользователь считается админом и может позволить себе больше, чем простые смертные."
+            }
+          },
+          "required": [
+            "avatar-url",
+            "password-hash",
+            "email",
+            "id",
+            "updated-at",
+            "created-at"
+          ],
+          "x-cl-class": "USER",
+          "x-cl-package": "PASSPORT/USER"
+        }
+      },
+      "paramStructure": "by-name"
+    },
+    {
+      "name": "popular-profiles",
+      "params": [
+        {
+          "name": "limit",
+          "schema": {
+            "type": "integer"
+          }
+        }
+      ],
+      "result": {
+        "name": "popular-profiles-result",
+        "schema": {
+          "type": "array",
+          "items": {
+            "type": "object",
+            "properties": {
+              "user": {
+                "type": "object",
+                "properties": {
+                  "created-at": {
+                    "type": "object",
+                    "properties": {},
+                    "required": [],
+                    "x-cl-class": "T",
+                    "x-cl-package": "COMMON-LISP"
+                  },
+                  "updated-at": {
+                    "type": "object",
+                    "properties": {},
+                    "required": [],
+                    "x-cl-class": "T",
+                    "x-cl-package": "COMMON-LISP"
+                  },
+                  "synced": {
+                    "type": "boolean"
+                  },
+                  "id": {
+                    "type": "integer"
+                  },
+                  "email": {
+                    "type": "string"
+                  },
+                  "password-hash": {
+                    "type": "string"
+                  },
+                  "avatar-url": {
+                    "type": "string",
+                    "description": "По-умолчанию, генерируем URL через Gravatar, по email пользователя. Часто это срабатывает."
+                  },
+                  "fio": {
+                    "oneOf": [
+                      {
+                        "type": "null"
+                      },
+                      {
+                        "type": "string"
+                      }
+                    ]
+                  },
+                  "birthday": {
+                    "oneOf": [
+                      {
+                        "type": "null"
+                      },
+                      {
+                        "type": "string"
+                      }
+                    ]
+                  },
+                  "gender": {
+                    "oneOf": [
+                      {
+                        "type": "null"
+                      },
+                      {
+                        "type": "string"
+                      }
+                    ]
+                  },
+                  "phone": {
+                    "oneOf": [
+                      {
+                        "type": "null"
+                      },
+                      {
+                        "type": "string"
+                      }
+                    ]
+                  },
+                  "country": {
+                    "oneOf": [
+                      {
+                        "type": "null"
+                      },
+                      {
+                        "type": "string"
+                      }
+                    ]
+                  },
+                  "city": {
+                    "oneOf": [
+                      {
+                        "type": "null"
+                      },
+                      {
+                        "type": "string"
+                      }
+                    ]
+                  },
+                  "education": {
+                    "oneOf": [
+                      {
+                        "type": "null"
+                      },
+                      {
+                        "type": "string"
+                      }
+                    ],
+                    "description": "Название школы, ВУЗа, ПТУ. Научные степени."
+                  },
+                  "job": {
+                    "oneOf": [
+                      {
+                        "type": "null"
+                      },
+                      {
+                        "type": "string"
+                      }
+                    ]
+                  },
+                  "about": {
+                    "oneOf": [
+                      {
+                        "type": "null"
+                      },
+                      {
+                        "type": "string"
+                      }
+                    ]
+                  },
+                  "admin": {
+                    "type": "boolean",
+                    "description": "Если этот признак True, то пользователь считается админом и может позволить себе больше, чем простые смертные."
+                  }
+                },
+                "required": [
+                  "avatar-url",
+                  "password-hash",
+                  "email",
+                  "id",
+                  "updated-at",
+                  "created-at"
+                ],
+                "x-cl-class": "USER",
+                "x-cl-package": "PASSPORT/USER"
+              },
+              "rating": {
+                "type": "integer"
+              }
+            },
+            "required": [
+              "rating",
+              "user"
+            ],
+            "x-cl-class": "USER-WITH-RATING",
+            "x-cl-package": "PASSPORT/USER"
+          }
+        }
+      },
+      "paramStructure": "by-name"
+    },
+    {
+      "name": "my-roles",
+      "params": [],
+      "result": {
+        "name": "my-roles-result",
+        "schema": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          }
+        }
+      },
+      "summary": "Отдаёт список строк с ролями текущего залогинового пользователя.",
+      "paramStructure": "by-name"
+    },
+    {
+      "name": "search-users",
+      "params": [
+        {
+          "name": "query",
+          "schema": {
+            "type": "string"
+          },
+          "required": true,
+          "summary": "Запрос для поиска на языке запросов ElasticSearch."
+        },
+        {
+          "name": "page-key",
+          "schema": {
+            "type": "string"
+          }
+        },
+        {
+          "name": "limit",
+          "schema": {
+            "type": "integer"
+          }
+        }
+      ],
+      "result": {
+        "name": "search-users-result",
+        "schema": {
+          "type": "object",
+          "properties": {
+            "items": {
+              "type": "array",
+              "items": {
+                "type": "object",
+                "properties": {
+                  "created-at": {
+                    "type": "object",
+                    "properties": {},
+                    "required": [],
+                    "x-cl-class": "T",
+                    "x-cl-package": "COMMON-LISP"
+                  },
+                  "updated-at": {
+                    "type": "object",
+                    "properties": {},
+                    "required": [],
+                    "x-cl-class": "T",
+                    "x-cl-package": "COMMON-LISP"
+                  },
+                  "synced": {
+                    "type": "boolean"
+                  },
+                  "id": {
+                    "type": "integer"
+                  },
+                  "email": {
+                    "type": "string"
+                  },
+                  "password-hash": {
+                    "type": "string"
+                  },
+                  "avatar-url": {
+                    "type": "string",
+                    "description": "По-умолчанию, генерируем URL через Gravatar, по email пользователя. Часто это срабатывает."
+                  },
+                  "fio": {
+                    "oneOf": [
+                      {
+                        "type": "null"
+                      },
+                      {
+                        "type": "string"
+                      }
+                    ]
+                  },
+                  "birthday": {
+                    "oneOf": [
+                      {
+                        "type": "null"
+                      },
+                      {
+                        "type": "string"
+                      }
+                    ]
+                  },
+                  "gender": {
+                    "oneOf": [
+                      {
+                        "type": "null"
+                      },
+                      {
+                        "type": "string"
+                      }
+                    ]
+                  },
+                  "phone": {
+                    "oneOf": [
+                      {
+                        "type": "null"
+                      },
+                      {
+                        "type": "string"
+                      }
+                    ]
+                  },
+                  "country": {
+                    "oneOf": [
+                      {
+                        "type": "null"
+                      },
+                      {
+                        "type": "string"
+                      }
+                    ]
+                  },
+                  "city": {
+                    "oneOf": [
+                      {
+                        "type": "null"
+                      },
+                      {
+                        "type": "string"
+                      }
+                    ]
+                  },
+                  "education": {
+                    "oneOf": [
+                      {
+                        "type": "null"
+                      },
+                      {
+                        "type": "string"
+                      }
+                    ],
+                    "description": "Название школы, ВУЗа, ПТУ. Научные степени."
+                  },
+                  "job": {
+                    "oneOf": [
+                      {
+                        "type": "null"
+                      },
+                      {
+                        "type": "string"
+                      }
+                    ]
+                  },
+                  "about": {
+                    "oneOf": [
+                      {
+                        "type": "null"
+                      },
+                      {
+                        "type": "string"
+                      }
+                    ]
+                  },
+                  "admin": {
+                    "type": "boolean",
+                    "description": "Если этот признак True, то пользователь считается админом и может позволить себе больше, чем простые смертные."
+                  }
+                },
+                "required": [
+                  "avatar-url",
+                  "password-hash",
+                  "email",
+                  "id",
+                  "updated-at",
+                  "created-at"
+                ],
+                "x-cl-class": "USER",
+                "x-cl-package": "PASSPORT/USER"
+              }
+            },
+            "next-page-key": {
+              "type": "string"
+            }
+          },
+          "required": [
+            "items"
+          ],
+          "x-paginated-list": true
+        }
+      },
+      "summary": "Возвращает список пользователей по заданному запросу.",
+      "description": "Запрос должен вводиться в формате ElasticSearch. Но для поиска по всем\n полям можно просто слова вводить.  Если передать \"*\" - выдаются все пользователи, начиная с самых свежих.\n\nМожно давать сложные запросы типа city: Moscow AND country: Russia.\n\nЭтот метод поддерживает пейджинацию и можно запрашивать следующие страницы результатов.",
+      "paramStructure": "by-name"
+    }
+  ],
+  "openrpc": "1.0.0",
+  "info": {
+    "title": "Passport API",
+    "version": "0.1.0"
+  },
+  "servers": [
+    {
+      "name": "default",
+      "url": "https://localhost/"
+    }
+  ]
+}

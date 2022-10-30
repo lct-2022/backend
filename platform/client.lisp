@@ -1,11 +1,14 @@
 (uiop:define-package #:platform/client
   (:use #:cl)
-  (:import-from #:openrpc-client))
+  (:import-from #:openrpc-client)
+  (:import-from #:common/rpc
+                #:cached-url-as))
 (in-package #:platform/client)
 
 
 (openrpc-client:generate-client platform
-                                "http://localhost:8001/openrpc.json")
+                                (cached-url-as "http://localhost:8001/openrpc.json"
+                                               (asdf:system-relative-pathname :common "specs/platform.json")))
 
 (defvar *client* (make-platform))
 

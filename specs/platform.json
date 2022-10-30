@@ -1,0 +1,3088 @@
+{
+  "methods": [
+    {
+      "name": "rpc.discover",
+      "params": [],
+      "result": {
+        "name": "OpenRPC Schema",
+        "schema": {
+          "$ref": "https://raw.githubusercontent.com/open-rpc/meta-schema/master/schema.json"
+        }
+      }
+    },
+    {
+      "name": "create-project",
+      "params": [
+        {
+          "name": "title",
+          "schema": {
+            "type": "string"
+          },
+          "required": true
+        },
+        {
+          "name": "description",
+          "schema": {
+            "type": "string"
+          },
+          "required": true
+        },
+        {
+          "name": "contests",
+          "schema": {
+            "type": "string"
+          }
+        },
+        {
+          "name": "url",
+          "schema": {
+            "type": "string"
+          }
+        }
+      ],
+      "result": {
+        "name": "create-project-result",
+        "schema": {
+          "type": "object",
+          "properties": {
+            "created-at": {
+              "type": "object",
+              "properties": {},
+              "required": [],
+              "x-cl-class": "T",
+              "x-cl-package": "COMMON-LISP"
+            },
+            "updated-at": {
+              "type": "object",
+              "properties": {},
+              "required": [],
+              "x-cl-class": "T",
+              "x-cl-package": "COMMON-LISP"
+            },
+            "synced": {
+              "type": "boolean"
+            },
+            "id": {
+              "type": "integer"
+            },
+            "author-id": {
+              "type": "integer",
+              "description": "Идентификатор профиля автора проекта."
+            },
+            "title": {
+              "type": "string"
+            },
+            "description": {
+              "type": "string"
+            },
+            "url": {
+              "type": "string"
+            },
+            "contests": {
+              "type": "string",
+              "description": "Текстовое описание конкурсов и хакатонов, в которых принимал участие."
+            }
+          },
+          "required": [
+            "author-id",
+            "id",
+            "updated-at",
+            "created-at"
+          ],
+          "x-cl-class": "PROJECT",
+          "x-cl-package": "PLATFORM/PROJECT/MODEL"
+        }
+      },
+      "summary": "Создаёт проект, одну команду под него, и наполняет команду примером вакансий.",
+      "paramStructure": "by-name"
+    },
+    {
+      "name": "popular-projects",
+      "params": [
+        {
+          "name": "limit",
+          "schema": {
+            "type": "integer"
+          }
+        }
+      ],
+      "result": {
+        "name": "popular-projects-result",
+        "schema": {
+          "type": "array",
+          "items": {
+            "type": "object",
+            "properties": {
+              "project": {
+                "type": "object",
+                "properties": {
+                  "created-at": {
+                    "type": "object",
+                    "properties": {},
+                    "required": [],
+                    "x-cl-class": "T",
+                    "x-cl-package": "COMMON-LISP"
+                  },
+                  "updated-at": {
+                    "type": "object",
+                    "properties": {},
+                    "required": [],
+                    "x-cl-class": "T",
+                    "x-cl-package": "COMMON-LISP"
+                  },
+                  "synced": {
+                    "type": "boolean"
+                  },
+                  "id": {
+                    "type": "integer"
+                  },
+                  "author-id": {
+                    "type": "integer",
+                    "description": "Идентификатор профиля автора проекта."
+                  },
+                  "title": {
+                    "type": "string"
+                  },
+                  "description": {
+                    "type": "string"
+                  },
+                  "url": {
+                    "type": "string"
+                  },
+                  "contests": {
+                    "type": "string",
+                    "description": "Текстовое описание конкурсов и хакатонов, в которых принимал участие."
+                  }
+                },
+                "required": [
+                  "author-id",
+                  "id",
+                  "updated-at",
+                  "created-at"
+                ],
+                "x-cl-class": "PROJECT",
+                "x-cl-package": "PLATFORM/PROJECT/MODEL"
+              },
+              "rating": {
+                "type": "integer"
+              }
+            },
+            "required": [
+              "rating",
+              "project"
+            ],
+            "x-cl-class": "PROJECT-WITH-RATING",
+            "x-cl-package": "PLATFORM/PROJECT/MODEL"
+          }
+        }
+      },
+      "summary": "Отдаёт список популярных проектов для главной страницы.",
+      "description": "Отдаёт не просто проекты, а структуру, содержащую и данные проекта и рейтинг.",
+      "paramStructure": "by-name"
+    },
+    {
+      "name": "create-team",
+      "params": [
+        {
+          "name": "project-id",
+          "schema": {
+            "type": "integer"
+          },
+          "required": true
+        },
+        {
+          "name": "title",
+          "schema": {
+            "type": "string"
+          },
+          "required": true
+        }
+      ],
+      "result": {
+        "name": "create-team-result",
+        "schema": {
+          "type": "object",
+          "properties": {
+            "created-at": {
+              "type": "object",
+              "properties": {},
+              "required": [],
+              "x-cl-class": "T",
+              "x-cl-package": "COMMON-LISP"
+            },
+            "updated-at": {
+              "type": "object",
+              "properties": {},
+              "required": [],
+              "x-cl-class": "T",
+              "x-cl-package": "COMMON-LISP"
+            },
+            "synced": {
+              "type": "boolean"
+            },
+            "id": {
+              "type": "integer"
+            },
+            "title": {
+              "type": "string"
+            },
+            "project": {
+              "type": "object",
+              "properties": {
+                "created-at": {
+                  "type": "object",
+                  "properties": {},
+                  "required": [],
+                  "x-cl-class": "T",
+                  "x-cl-package": "COMMON-LISP"
+                },
+                "updated-at": {
+                  "type": "object",
+                  "properties": {},
+                  "required": [],
+                  "x-cl-class": "T",
+                  "x-cl-package": "COMMON-LISP"
+                },
+                "synced": {
+                  "type": "boolean"
+                },
+                "id": {
+                  "type": "integer"
+                },
+                "author-id": {
+                  "type": "integer",
+                  "description": "Идентификатор профиля автора проекта."
+                },
+                "title": {
+                  "type": "string"
+                },
+                "description": {
+                  "type": "string"
+                },
+                "url": {
+                  "type": "string"
+                },
+                "contests": {
+                  "type": "string",
+                  "description": "Текстовое описание конкурсов и хакатонов, в которых принимал участие."
+                }
+              },
+              "required": [
+                "author-id",
+                "id",
+                "updated-at",
+                "created-at"
+              ],
+              "x-cl-class": "PROJECT",
+              "x-cl-package": "PLATFORM/PROJECT/MODEL"
+            },
+            "project-id": {
+              "type": "object",
+              "properties": {},
+              "required": [],
+              "x-cl-class": "T",
+              "x-cl-package": "COMMON-LISP"
+            }
+          },
+          "required": [
+            "project-id",
+            "project",
+            "id",
+            "updated-at",
+            "created-at"
+          ],
+          "x-cl-class": "TEAM",
+          "x-cl-package": "PLATFORM/TEAM/MODEL"
+        }
+      },
+      "summary": "Создаёт ещё одну команду внутри проекта.",
+      "description": "Пока нам это не нужно, для каждого проекта создаётся дефолтная команда. Однако в будущем, может быть будет необходимо создавать по несколько команд для работы над большими проектами.\n\nЧтобы создать команду, надо быть владельцем проекта или админом.",
+      "paramStructure": "by-name"
+    },
+    {
+      "name": "get-project-teams",
+      "params": [
+        {
+          "name": "project-id",
+          "schema": {
+            "type": "integer"
+          },
+          "required": true
+        }
+      ],
+      "result": {
+        "name": "get-project-teams-result",
+        "schema": {
+          "type": "array",
+          "items": {
+            "type": "object",
+            "properties": {
+              "created-at": {
+                "type": "object",
+                "properties": {},
+                "required": [],
+                "x-cl-class": "T",
+                "x-cl-package": "COMMON-LISP"
+              },
+              "updated-at": {
+                "type": "object",
+                "properties": {},
+                "required": [],
+                "x-cl-class": "T",
+                "x-cl-package": "COMMON-LISP"
+              },
+              "synced": {
+                "type": "boolean"
+              },
+              "id": {
+                "type": "integer"
+              },
+              "title": {
+                "type": "string"
+              },
+              "project": {
+                "type": "object",
+                "properties": {
+                  "created-at": {
+                    "type": "object",
+                    "properties": {},
+                    "required": [],
+                    "x-cl-class": "T",
+                    "x-cl-package": "COMMON-LISP"
+                  },
+                  "updated-at": {
+                    "type": "object",
+                    "properties": {},
+                    "required": [],
+                    "x-cl-class": "T",
+                    "x-cl-package": "COMMON-LISP"
+                  },
+                  "synced": {
+                    "type": "boolean"
+                  },
+                  "id": {
+                    "type": "integer"
+                  },
+                  "author-id": {
+                    "type": "integer",
+                    "description": "Идентификатор профиля автора проекта."
+                  },
+                  "title": {
+                    "type": "string"
+                  },
+                  "description": {
+                    "type": "string"
+                  },
+                  "url": {
+                    "type": "string"
+                  },
+                  "contests": {
+                    "type": "string",
+                    "description": "Текстовое описание конкурсов и хакатонов, в которых принимал участие."
+                  }
+                },
+                "required": [
+                  "author-id",
+                  "id",
+                  "updated-at",
+                  "created-at"
+                ],
+                "x-cl-class": "PROJECT",
+                "x-cl-package": "PLATFORM/PROJECT/MODEL"
+              },
+              "project-id": {
+                "type": "object",
+                "properties": {},
+                "required": [],
+                "x-cl-class": "T",
+                "x-cl-package": "COMMON-LISP"
+              }
+            },
+            "required": [
+              "project-id",
+              "project",
+              "id",
+              "updated-at",
+              "created-at"
+            ],
+            "x-cl-class": "TEAM",
+            "x-cl-package": "PLATFORM/TEAM/MODEL"
+          }
+        }
+      },
+      "summary": "Отдаёт список команд для проекта.",
+      "paramStructure": "by-name"
+    },
+    {
+      "name": "create-job",
+      "params": [
+        {
+          "name": "team-id",
+          "schema": {
+            "type": "integer"
+          },
+          "required": true
+        },
+        {
+          "name": "title",
+          "schema": {
+            "type": "string"
+          },
+          "required": true
+        },
+        {
+          "name": "description",
+          "schema": {
+            "type": "string"
+          },
+          "required": true
+        }
+      ],
+      "result": {
+        "name": "create-job-result",
+        "schema": {
+          "type": "object",
+          "properties": {
+            "created-at": {
+              "type": "object",
+              "properties": {},
+              "required": [],
+              "x-cl-class": "T",
+              "x-cl-package": "COMMON-LISP"
+            },
+            "updated-at": {
+              "type": "object",
+              "properties": {},
+              "required": [],
+              "x-cl-class": "T",
+              "x-cl-package": "COMMON-LISP"
+            },
+            "synced": {
+              "type": "boolean"
+            },
+            "id": {
+              "type": "integer"
+            },
+            "team": {
+              "type": "object",
+              "properties": {
+                "created-at": {
+                  "type": "object",
+                  "properties": {},
+                  "required": [],
+                  "x-cl-class": "T",
+                  "x-cl-package": "COMMON-LISP"
+                },
+                "updated-at": {
+                  "type": "object",
+                  "properties": {},
+                  "required": [],
+                  "x-cl-class": "T",
+                  "x-cl-package": "COMMON-LISP"
+                },
+                "synced": {
+                  "type": "boolean"
+                },
+                "id": {
+                  "type": "integer"
+                },
+                "title": {
+                  "type": "string"
+                },
+                "project": {
+                  "type": "object",
+                  "properties": {
+                    "created-at": {
+                      "type": "object",
+                      "properties": {},
+                      "required": [],
+                      "x-cl-class": "T",
+                      "x-cl-package": "COMMON-LISP"
+                    },
+                    "updated-at": {
+                      "type": "object",
+                      "properties": {},
+                      "required": [],
+                      "x-cl-class": "T",
+                      "x-cl-package": "COMMON-LISP"
+                    },
+                    "synced": {
+                      "type": "boolean"
+                    },
+                    "id": {
+                      "type": "integer"
+                    },
+                    "author-id": {
+                      "type": "integer",
+                      "description": "Идентификатор профиля автора проекта."
+                    },
+                    "title": {
+                      "type": "string"
+                    },
+                    "description": {
+                      "type": "string"
+                    },
+                    "url": {
+                      "type": "string"
+                    },
+                    "contests": {
+                      "type": "string",
+                      "description": "Текстовое описание конкурсов и хакатонов, в которых принимал участие."
+                    }
+                  },
+                  "required": [
+                    "author-id",
+                    "id",
+                    "updated-at",
+                    "created-at"
+                  ],
+                  "x-cl-class": "PROJECT",
+                  "x-cl-package": "PLATFORM/PROJECT/MODEL"
+                },
+                "project-id": {
+                  "type": "object",
+                  "properties": {},
+                  "required": [],
+                  "x-cl-class": "T",
+                  "x-cl-package": "COMMON-LISP"
+                }
+              },
+              "required": [
+                "project-id",
+                "project",
+                "id",
+                "updated-at",
+                "created-at"
+              ],
+              "x-cl-class": "TEAM",
+              "x-cl-package": "PLATFORM/TEAM/MODEL"
+            },
+            "team-id": {
+              "type": "object",
+              "properties": {},
+              "required": [],
+              "x-cl-class": "T",
+              "x-cl-package": "COMMON-LISP"
+            },
+            "title": {
+              "type": "string",
+              "description": "Должность."
+            },
+            "description": {
+              "type": "string",
+              "description": "Описание вакансии."
+            },
+            "open": {
+              "type": "boolean",
+              "description": "Признак того, что вакансия закрыта."
+            }
+          },
+          "required": [
+            "team-id",
+            "team",
+            "id",
+            "updated-at",
+            "created-at"
+          ],
+          "x-cl-class": "JOB",
+          "x-cl-package": "PLATFORM/JOB/MODEL"
+        }
+      },
+      "paramStructure": "by-name"
+    },
+    {
+      "name": "get-team-jobs",
+      "params": [
+        {
+          "name": "team-id",
+          "schema": {
+            "type": "integer"
+          },
+          "required": true
+        },
+        {
+          "name": "only-open",
+          "schema": {
+            "type": "boolean"
+          }
+        }
+      ],
+      "result": {
+        "name": "get-team-jobs-result",
+        "schema": {
+          "type": "array",
+          "items": {
+            "type": "object",
+            "properties": {
+              "created-at": {
+                "type": "object",
+                "properties": {},
+                "required": [],
+                "x-cl-class": "T",
+                "x-cl-package": "COMMON-LISP"
+              },
+              "updated-at": {
+                "type": "object",
+                "properties": {},
+                "required": [],
+                "x-cl-class": "T",
+                "x-cl-package": "COMMON-LISP"
+              },
+              "synced": {
+                "type": "boolean"
+              },
+              "id": {
+                "type": "integer"
+              },
+              "team": {
+                "type": "object",
+                "properties": {
+                  "created-at": {
+                    "type": "object",
+                    "properties": {},
+                    "required": [],
+                    "x-cl-class": "T",
+                    "x-cl-package": "COMMON-LISP"
+                  },
+                  "updated-at": {
+                    "type": "object",
+                    "properties": {},
+                    "required": [],
+                    "x-cl-class": "T",
+                    "x-cl-package": "COMMON-LISP"
+                  },
+                  "synced": {
+                    "type": "boolean"
+                  },
+                  "id": {
+                    "type": "integer"
+                  },
+                  "title": {
+                    "type": "string"
+                  },
+                  "project": {
+                    "type": "object",
+                    "properties": {
+                      "created-at": {
+                        "type": "object",
+                        "properties": {},
+                        "required": [],
+                        "x-cl-class": "T",
+                        "x-cl-package": "COMMON-LISP"
+                      },
+                      "updated-at": {
+                        "type": "object",
+                        "properties": {},
+                        "required": [],
+                        "x-cl-class": "T",
+                        "x-cl-package": "COMMON-LISP"
+                      },
+                      "synced": {
+                        "type": "boolean"
+                      },
+                      "id": {
+                        "type": "integer"
+                      },
+                      "author-id": {
+                        "type": "integer",
+                        "description": "Идентификатор профиля автора проекта."
+                      },
+                      "title": {
+                        "type": "string"
+                      },
+                      "description": {
+                        "type": "string"
+                      },
+                      "url": {
+                        "type": "string"
+                      },
+                      "contests": {
+                        "type": "string",
+                        "description": "Текстовое описание конкурсов и хакатонов, в которых принимал участие."
+                      }
+                    },
+                    "required": [
+                      "author-id",
+                      "id",
+                      "updated-at",
+                      "created-at"
+                    ],
+                    "x-cl-class": "PROJECT",
+                    "x-cl-package": "PLATFORM/PROJECT/MODEL"
+                  },
+                  "project-id": {
+                    "type": "object",
+                    "properties": {},
+                    "required": [],
+                    "x-cl-class": "T",
+                    "x-cl-package": "COMMON-LISP"
+                  }
+                },
+                "required": [
+                  "project-id",
+                  "project",
+                  "id",
+                  "updated-at",
+                  "created-at"
+                ],
+                "x-cl-class": "TEAM",
+                "x-cl-package": "PLATFORM/TEAM/MODEL"
+              },
+              "team-id": {
+                "type": "object",
+                "properties": {},
+                "required": [],
+                "x-cl-class": "T",
+                "x-cl-package": "COMMON-LISP"
+              },
+              "title": {
+                "type": "string",
+                "description": "Должность."
+              },
+              "description": {
+                "type": "string",
+                "description": "Описание вакансии."
+              },
+              "open": {
+                "type": "boolean",
+                "description": "Признак того, что вакансия закрыта."
+              }
+            },
+            "required": [
+              "team-id",
+              "team",
+              "id",
+              "updated-at",
+              "created-at"
+            ],
+            "x-cl-class": "JOB",
+            "x-cl-package": "PLATFORM/JOB/MODEL"
+          }
+        }
+      },
+      "summary": "Возвращает вакансии команды.",
+      "description": "По-умолчанию возвращаются все, а если указан параметр only-open, то только открытые.",
+      "paramStructure": "by-name"
+    },
+    {
+      "name": "get-project",
+      "params": [
+        {
+          "name": "id",
+          "schema": {
+            "type": "integer"
+          },
+          "required": true
+        }
+      ],
+      "result": {
+        "name": "get-project-result",
+        "schema": {
+          "type": "object",
+          "properties": {
+            "created-at": {
+              "type": "object",
+              "properties": {},
+              "required": [],
+              "x-cl-class": "T",
+              "x-cl-package": "COMMON-LISP"
+            },
+            "updated-at": {
+              "type": "object",
+              "properties": {},
+              "required": [],
+              "x-cl-class": "T",
+              "x-cl-package": "COMMON-LISP"
+            },
+            "synced": {
+              "type": "boolean"
+            },
+            "id": {
+              "type": "integer"
+            },
+            "author-id": {
+              "type": "integer",
+              "description": "Идентификатор профиля автора проекта."
+            },
+            "title": {
+              "type": "string"
+            },
+            "description": {
+              "type": "string"
+            },
+            "url": {
+              "type": "string"
+            },
+            "contests": {
+              "type": "string",
+              "description": "Текстовое описание конкурсов и хакатонов, в которых принимал участие."
+            }
+          },
+          "required": [
+            "author-id",
+            "id",
+            "updated-at",
+            "created-at"
+          ],
+          "x-cl-class": "PROJECT",
+          "x-cl-package": "PLATFORM/PROJECT/MODEL"
+        }
+      },
+      "summary": "Возвращает описание проекта по его id.",
+      "paramStructure": "by-name"
+    },
+    {
+      "name": "get-job-application",
+      "params": [
+        {
+          "name": "job-id",
+          "schema": {
+            "type": "integer"
+          },
+          "required": true
+        }
+      ],
+      "result": {
+        "name": "get-job-application-result",
+        "schema": {
+          "type": "object",
+          "properties": {
+            "created-at": {
+              "type": "object",
+              "properties": {},
+              "required": [],
+              "x-cl-class": "T",
+              "x-cl-package": "COMMON-LISP"
+            },
+            "updated-at": {
+              "type": "object",
+              "properties": {},
+              "required": [],
+              "x-cl-class": "T",
+              "x-cl-package": "COMMON-LISP"
+            },
+            "synced": {
+              "type": "boolean"
+            },
+            "id": {
+              "type": "integer"
+            },
+            "user-id": {
+              "type": "integer"
+            },
+            "job": {
+              "type": "object",
+              "properties": {
+                "created-at": {
+                  "type": "object",
+                  "properties": {},
+                  "required": [],
+                  "x-cl-class": "T",
+                  "x-cl-package": "COMMON-LISP"
+                },
+                "updated-at": {
+                  "type": "object",
+                  "properties": {},
+                  "required": [],
+                  "x-cl-class": "T",
+                  "x-cl-package": "COMMON-LISP"
+                },
+                "synced": {
+                  "type": "boolean"
+                },
+                "id": {
+                  "type": "integer"
+                },
+                "team": {
+                  "type": "object",
+                  "properties": {
+                    "created-at": {
+                      "type": "object",
+                      "properties": {},
+                      "required": [],
+                      "x-cl-class": "T",
+                      "x-cl-package": "COMMON-LISP"
+                    },
+                    "updated-at": {
+                      "type": "object",
+                      "properties": {},
+                      "required": [],
+                      "x-cl-class": "T",
+                      "x-cl-package": "COMMON-LISP"
+                    },
+                    "synced": {
+                      "type": "boolean"
+                    },
+                    "id": {
+                      "type": "integer"
+                    },
+                    "title": {
+                      "type": "string"
+                    },
+                    "project": {
+                      "type": "object",
+                      "properties": {
+                        "created-at": {
+                          "type": "object",
+                          "properties": {},
+                          "required": [],
+                          "x-cl-class": "T",
+                          "x-cl-package": "COMMON-LISP"
+                        },
+                        "updated-at": {
+                          "type": "object",
+                          "properties": {},
+                          "required": [],
+                          "x-cl-class": "T",
+                          "x-cl-package": "COMMON-LISP"
+                        },
+                        "synced": {
+                          "type": "boolean"
+                        },
+                        "id": {
+                          "type": "integer"
+                        },
+                        "author-id": {
+                          "type": "integer",
+                          "description": "Идентификатор профиля автора проекта."
+                        },
+                        "title": {
+                          "type": "string"
+                        },
+                        "description": {
+                          "type": "string"
+                        },
+                        "url": {
+                          "type": "string"
+                        },
+                        "contests": {
+                          "type": "string",
+                          "description": "Текстовое описание конкурсов и хакатонов, в которых принимал участие."
+                        }
+                      },
+                      "required": [
+                        "author-id",
+                        "id",
+                        "updated-at",
+                        "created-at"
+                      ],
+                      "x-cl-class": "PROJECT",
+                      "x-cl-package": "PLATFORM/PROJECT/MODEL"
+                    },
+                    "project-id": {
+                      "type": "object",
+                      "properties": {},
+                      "required": [],
+                      "x-cl-class": "T",
+                      "x-cl-package": "COMMON-LISP"
+                    }
+                  },
+                  "required": [
+                    "project-id",
+                    "project",
+                    "id",
+                    "updated-at",
+                    "created-at"
+                  ],
+                  "x-cl-class": "TEAM",
+                  "x-cl-package": "PLATFORM/TEAM/MODEL"
+                },
+                "team-id": {
+                  "type": "object",
+                  "properties": {},
+                  "required": [],
+                  "x-cl-class": "T",
+                  "x-cl-package": "COMMON-LISP"
+                },
+                "title": {
+                  "type": "string",
+                  "description": "Должность."
+                },
+                "description": {
+                  "type": "string",
+                  "description": "Описание вакансии."
+                },
+                "open": {
+                  "type": "boolean",
+                  "description": "Признак того, что вакансия закрыта."
+                }
+              },
+              "required": [
+                "team-id",
+                "team",
+                "id",
+                "updated-at",
+                "created-at"
+              ],
+              "x-cl-class": "JOB",
+              "x-cl-package": "PLATFORM/JOB/MODEL"
+            },
+            "job-id": {
+              "type": "object",
+              "properties": {},
+              "required": [],
+              "x-cl-class": "T",
+              "x-cl-package": "COMMON-LISP"
+            },
+            "message": {
+              "type": "string",
+              "description": "Сообщение от пользователя, который подал заявку на вакансию."
+            },
+            "status": {
+              "type": "string",
+              "description": "Строка из набора \"applied\", \"accepted\", \"declined\"."
+            }
+          },
+          "required": [
+            "job-id",
+            "job",
+            "user-id",
+            "id",
+            "updated-at",
+            "created-at"
+          ],
+          "x-cl-class": "JOB-APPLICATION",
+          "x-cl-package": "PLATFORM/JOB-APPLICATION/MODEL"
+        }
+      },
+      "summary": "Возвращает последний отклик текущего пользователя на указанную вакансию.",
+      "description": "Так можно получить статус отклика.\nЕсли этот метод что-то отдаёт, то не нужно показывать пользователю кнопку “Откликнуться”.",
+      "paramStructure": "by-name"
+    },
+    {
+      "name": "apply-to-job",
+      "params": [
+        {
+          "name": "job-id",
+          "schema": {
+            "type": "integer"
+          },
+          "required": true
+        },
+        {
+          "name": "message",
+          "schema": {
+            "type": "string"
+          }
+        }
+      ],
+      "result": {
+        "name": "apply-to-job-result",
+        "schema": {
+          "type": "object",
+          "properties": {
+            "created-at": {
+              "type": "object",
+              "properties": {},
+              "required": [],
+              "x-cl-class": "T",
+              "x-cl-package": "COMMON-LISP"
+            },
+            "updated-at": {
+              "type": "object",
+              "properties": {},
+              "required": [],
+              "x-cl-class": "T",
+              "x-cl-package": "COMMON-LISP"
+            },
+            "synced": {
+              "type": "boolean"
+            },
+            "id": {
+              "type": "integer"
+            },
+            "user-id": {
+              "type": "integer"
+            },
+            "job": {
+              "type": "object",
+              "properties": {
+                "created-at": {
+                  "type": "object",
+                  "properties": {},
+                  "required": [],
+                  "x-cl-class": "T",
+                  "x-cl-package": "COMMON-LISP"
+                },
+                "updated-at": {
+                  "type": "object",
+                  "properties": {},
+                  "required": [],
+                  "x-cl-class": "T",
+                  "x-cl-package": "COMMON-LISP"
+                },
+                "synced": {
+                  "type": "boolean"
+                },
+                "id": {
+                  "type": "integer"
+                },
+                "team": {
+                  "type": "object",
+                  "properties": {
+                    "created-at": {
+                      "type": "object",
+                      "properties": {},
+                      "required": [],
+                      "x-cl-class": "T",
+                      "x-cl-package": "COMMON-LISP"
+                    },
+                    "updated-at": {
+                      "type": "object",
+                      "properties": {},
+                      "required": [],
+                      "x-cl-class": "T",
+                      "x-cl-package": "COMMON-LISP"
+                    },
+                    "synced": {
+                      "type": "boolean"
+                    },
+                    "id": {
+                      "type": "integer"
+                    },
+                    "title": {
+                      "type": "string"
+                    },
+                    "project": {
+                      "type": "object",
+                      "properties": {
+                        "created-at": {
+                          "type": "object",
+                          "properties": {},
+                          "required": [],
+                          "x-cl-class": "T",
+                          "x-cl-package": "COMMON-LISP"
+                        },
+                        "updated-at": {
+                          "type": "object",
+                          "properties": {},
+                          "required": [],
+                          "x-cl-class": "T",
+                          "x-cl-package": "COMMON-LISP"
+                        },
+                        "synced": {
+                          "type": "boolean"
+                        },
+                        "id": {
+                          "type": "integer"
+                        },
+                        "author-id": {
+                          "type": "integer",
+                          "description": "Идентификатор профиля автора проекта."
+                        },
+                        "title": {
+                          "type": "string"
+                        },
+                        "description": {
+                          "type": "string"
+                        },
+                        "url": {
+                          "type": "string"
+                        },
+                        "contests": {
+                          "type": "string",
+                          "description": "Текстовое описание конкурсов и хакатонов, в которых принимал участие."
+                        }
+                      },
+                      "required": [
+                        "author-id",
+                        "id",
+                        "updated-at",
+                        "created-at"
+                      ],
+                      "x-cl-class": "PROJECT",
+                      "x-cl-package": "PLATFORM/PROJECT/MODEL"
+                    },
+                    "project-id": {
+                      "type": "object",
+                      "properties": {},
+                      "required": [],
+                      "x-cl-class": "T",
+                      "x-cl-package": "COMMON-LISP"
+                    }
+                  },
+                  "required": [
+                    "project-id",
+                    "project",
+                    "id",
+                    "updated-at",
+                    "created-at"
+                  ],
+                  "x-cl-class": "TEAM",
+                  "x-cl-package": "PLATFORM/TEAM/MODEL"
+                },
+                "team-id": {
+                  "type": "object",
+                  "properties": {},
+                  "required": [],
+                  "x-cl-class": "T",
+                  "x-cl-package": "COMMON-LISP"
+                },
+                "title": {
+                  "type": "string",
+                  "description": "Должность."
+                },
+                "description": {
+                  "type": "string",
+                  "description": "Описание вакансии."
+                },
+                "open": {
+                  "type": "boolean",
+                  "description": "Признак того, что вакансия закрыта."
+                }
+              },
+              "required": [
+                "team-id",
+                "team",
+                "id",
+                "updated-at",
+                "created-at"
+              ],
+              "x-cl-class": "JOB",
+              "x-cl-package": "PLATFORM/JOB/MODEL"
+            },
+            "job-id": {
+              "type": "object",
+              "properties": {},
+              "required": [],
+              "x-cl-class": "T",
+              "x-cl-package": "COMMON-LISP"
+            },
+            "message": {
+              "type": "string",
+              "description": "Сообщение от пользователя, который подал заявку на вакансию."
+            },
+            "status": {
+              "type": "string",
+              "description": "Строка из набора \"applied\", \"accepted\", \"declined\"."
+            }
+          },
+          "required": [
+            "job-id",
+            "job",
+            "user-id",
+            "id",
+            "updated-at",
+            "created-at"
+          ],
+          "x-cl-class": "JOB-APPLICATION",
+          "x-cl-package": "PLATFORM/JOB-APPLICATION/MODEL"
+        }
+      },
+      "summary": "Добавляет отклик на вакансию в команде от текущего пользователя.",
+      "description": "Если у пользователя уже есть незавершенный отклик на эту вакансию, то метод вернёт его вместо нового объекта.",
+      "paramStructure": "by-name"
+    },
+    {
+      "name": "popular-jobs",
+      "params": [
+        {
+          "name": "limit",
+          "schema": {
+            "type": "integer"
+          }
+        }
+      ],
+      "result": {
+        "name": "popular-jobs-result",
+        "schema": {
+          "type": "array",
+          "items": {
+            "type": "object",
+            "properties": {
+              "created-at": {
+                "type": "object",
+                "properties": {},
+                "required": [],
+                "x-cl-class": "T",
+                "x-cl-package": "COMMON-LISP"
+              },
+              "updated-at": {
+                "type": "object",
+                "properties": {},
+                "required": [],
+                "x-cl-class": "T",
+                "x-cl-package": "COMMON-LISP"
+              },
+              "synced": {
+                "type": "boolean"
+              },
+              "id": {
+                "type": "integer"
+              },
+              "team": {
+                "type": "object",
+                "properties": {
+                  "created-at": {
+                    "type": "object",
+                    "properties": {},
+                    "required": [],
+                    "x-cl-class": "T",
+                    "x-cl-package": "COMMON-LISP"
+                  },
+                  "updated-at": {
+                    "type": "object",
+                    "properties": {},
+                    "required": [],
+                    "x-cl-class": "T",
+                    "x-cl-package": "COMMON-LISP"
+                  },
+                  "synced": {
+                    "type": "boolean"
+                  },
+                  "id": {
+                    "type": "integer"
+                  },
+                  "title": {
+                    "type": "string"
+                  },
+                  "project": {
+                    "type": "object",
+                    "properties": {
+                      "created-at": {
+                        "type": "object",
+                        "properties": {},
+                        "required": [],
+                        "x-cl-class": "T",
+                        "x-cl-package": "COMMON-LISP"
+                      },
+                      "updated-at": {
+                        "type": "object",
+                        "properties": {},
+                        "required": [],
+                        "x-cl-class": "T",
+                        "x-cl-package": "COMMON-LISP"
+                      },
+                      "synced": {
+                        "type": "boolean"
+                      },
+                      "id": {
+                        "type": "integer"
+                      },
+                      "author-id": {
+                        "type": "integer",
+                        "description": "Идентификатор профиля автора проекта."
+                      },
+                      "title": {
+                        "type": "string"
+                      },
+                      "description": {
+                        "type": "string"
+                      },
+                      "url": {
+                        "type": "string"
+                      },
+                      "contests": {
+                        "type": "string",
+                        "description": "Текстовое описание конкурсов и хакатонов, в которых принимал участие."
+                      }
+                    },
+                    "required": [
+                      "author-id",
+                      "id",
+                      "updated-at",
+                      "created-at"
+                    ],
+                    "x-cl-class": "PROJECT",
+                    "x-cl-package": "PLATFORM/PROJECT/MODEL"
+                  },
+                  "project-id": {
+                    "type": "object",
+                    "properties": {},
+                    "required": [],
+                    "x-cl-class": "T",
+                    "x-cl-package": "COMMON-LISP"
+                  }
+                },
+                "required": [
+                  "project-id",
+                  "project",
+                  "id",
+                  "updated-at",
+                  "created-at"
+                ],
+                "x-cl-class": "TEAM",
+                "x-cl-package": "PLATFORM/TEAM/MODEL"
+              },
+              "team-id": {
+                "type": "object",
+                "properties": {},
+                "required": [],
+                "x-cl-class": "T",
+                "x-cl-package": "COMMON-LISP"
+              },
+              "title": {
+                "type": "string",
+                "description": "Должность."
+              },
+              "description": {
+                "type": "string",
+                "description": "Описание вакансии."
+              },
+              "open": {
+                "type": "boolean",
+                "description": "Признак того, что вакансия закрыта."
+              }
+            },
+            "required": [
+              "team-id",
+              "team",
+              "id",
+              "updated-at",
+              "created-at"
+            ],
+            "x-cl-class": "JOB",
+            "x-cl-package": "PLATFORM/JOB/MODEL"
+          }
+        }
+      },
+      "summary": "Возвращает последние предложения вступить в команду.",
+      "paramStructure": "by-name"
+    },
+    {
+      "name": "accept-application",
+      "params": [
+        {
+          "name": "id",
+          "schema": {
+            "type": "integer"
+          },
+          "required": true,
+          "summary": "ID отклика на вакансию"
+        }
+      ],
+      "result": {
+        "name": "accept-application-result",
+        "schema": {
+          "type": "object",
+          "properties": {
+            "created-at": {
+              "type": "object",
+              "properties": {},
+              "required": [],
+              "x-cl-class": "T",
+              "x-cl-package": "COMMON-LISP"
+            },
+            "updated-at": {
+              "type": "object",
+              "properties": {},
+              "required": [],
+              "x-cl-class": "T",
+              "x-cl-package": "COMMON-LISP"
+            },
+            "synced": {
+              "type": "boolean"
+            },
+            "id": {
+              "type": "integer"
+            },
+            "user-id": {
+              "type": "integer"
+            },
+            "job": {
+              "type": "object",
+              "properties": {
+                "created-at": {
+                  "type": "object",
+                  "properties": {},
+                  "required": [],
+                  "x-cl-class": "T",
+                  "x-cl-package": "COMMON-LISP"
+                },
+                "updated-at": {
+                  "type": "object",
+                  "properties": {},
+                  "required": [],
+                  "x-cl-class": "T",
+                  "x-cl-package": "COMMON-LISP"
+                },
+                "synced": {
+                  "type": "boolean"
+                },
+                "id": {
+                  "type": "integer"
+                },
+                "team": {
+                  "type": "object",
+                  "properties": {
+                    "created-at": {
+                      "type": "object",
+                      "properties": {},
+                      "required": [],
+                      "x-cl-class": "T",
+                      "x-cl-package": "COMMON-LISP"
+                    },
+                    "updated-at": {
+                      "type": "object",
+                      "properties": {},
+                      "required": [],
+                      "x-cl-class": "T",
+                      "x-cl-package": "COMMON-LISP"
+                    },
+                    "synced": {
+                      "type": "boolean"
+                    },
+                    "id": {
+                      "type": "integer"
+                    },
+                    "title": {
+                      "type": "string"
+                    },
+                    "project": {
+                      "type": "object",
+                      "properties": {
+                        "created-at": {
+                          "type": "object",
+                          "properties": {},
+                          "required": [],
+                          "x-cl-class": "T",
+                          "x-cl-package": "COMMON-LISP"
+                        },
+                        "updated-at": {
+                          "type": "object",
+                          "properties": {},
+                          "required": [],
+                          "x-cl-class": "T",
+                          "x-cl-package": "COMMON-LISP"
+                        },
+                        "synced": {
+                          "type": "boolean"
+                        },
+                        "id": {
+                          "type": "integer"
+                        },
+                        "author-id": {
+                          "type": "integer",
+                          "description": "Идентификатор профиля автора проекта."
+                        },
+                        "title": {
+                          "type": "string"
+                        },
+                        "description": {
+                          "type": "string"
+                        },
+                        "url": {
+                          "type": "string"
+                        },
+                        "contests": {
+                          "type": "string",
+                          "description": "Текстовое описание конкурсов и хакатонов, в которых принимал участие."
+                        }
+                      },
+                      "required": [
+                        "author-id",
+                        "id",
+                        "updated-at",
+                        "created-at"
+                      ],
+                      "x-cl-class": "PROJECT",
+                      "x-cl-package": "PLATFORM/PROJECT/MODEL"
+                    },
+                    "project-id": {
+                      "type": "object",
+                      "properties": {},
+                      "required": [],
+                      "x-cl-class": "T",
+                      "x-cl-package": "COMMON-LISP"
+                    }
+                  },
+                  "required": [
+                    "project-id",
+                    "project",
+                    "id",
+                    "updated-at",
+                    "created-at"
+                  ],
+                  "x-cl-class": "TEAM",
+                  "x-cl-package": "PLATFORM/TEAM/MODEL"
+                },
+                "team-id": {
+                  "type": "object",
+                  "properties": {},
+                  "required": [],
+                  "x-cl-class": "T",
+                  "x-cl-package": "COMMON-LISP"
+                },
+                "title": {
+                  "type": "string",
+                  "description": "Должность."
+                },
+                "description": {
+                  "type": "string",
+                  "description": "Описание вакансии."
+                },
+                "open": {
+                  "type": "boolean",
+                  "description": "Признак того, что вакансия закрыта."
+                }
+              },
+              "required": [
+                "team-id",
+                "team",
+                "id",
+                "updated-at",
+                "created-at"
+              ],
+              "x-cl-class": "JOB",
+              "x-cl-package": "PLATFORM/JOB/MODEL"
+            },
+            "job-id": {
+              "type": "object",
+              "properties": {},
+              "required": [],
+              "x-cl-class": "T",
+              "x-cl-package": "COMMON-LISP"
+            },
+            "message": {
+              "type": "string",
+              "description": "Сообщение от пользователя, который подал заявку на вакансию."
+            },
+            "status": {
+              "type": "string",
+              "description": "Строка из набора \"applied\", \"accepted\", \"declined\"."
+            }
+          },
+          "required": [
+            "job-id",
+            "job",
+            "user-id",
+            "id",
+            "updated-at",
+            "created-at"
+          ],
+          "x-cl-class": "JOB-APPLICATION",
+          "x-cl-package": "PLATFORM/JOB-APPLICATION/MODEL"
+        }
+      },
+      "summary": "Подтверждает отклик и добавляет участника в команду проекта.",
+      "description": "Подтвердить участие может только владелец проекта или админ.",
+      "paramStructure": "by-name"
+    },
+    {
+      "name": "decline-application",
+      "params": [
+        {
+          "name": "id",
+          "schema": {
+            "type": "integer"
+          },
+          "required": true,
+          "summary": "ID отклика на вакансию"
+        }
+      ],
+      "result": {
+        "name": "decline-application-result",
+        "schema": {
+          "type": "object",
+          "properties": {
+            "created-at": {
+              "type": "object",
+              "properties": {},
+              "required": [],
+              "x-cl-class": "T",
+              "x-cl-package": "COMMON-LISP"
+            },
+            "updated-at": {
+              "type": "object",
+              "properties": {},
+              "required": [],
+              "x-cl-class": "T",
+              "x-cl-package": "COMMON-LISP"
+            },
+            "synced": {
+              "type": "boolean"
+            },
+            "id": {
+              "type": "integer"
+            },
+            "user-id": {
+              "type": "integer"
+            },
+            "job": {
+              "type": "object",
+              "properties": {
+                "created-at": {
+                  "type": "object",
+                  "properties": {},
+                  "required": [],
+                  "x-cl-class": "T",
+                  "x-cl-package": "COMMON-LISP"
+                },
+                "updated-at": {
+                  "type": "object",
+                  "properties": {},
+                  "required": [],
+                  "x-cl-class": "T",
+                  "x-cl-package": "COMMON-LISP"
+                },
+                "synced": {
+                  "type": "boolean"
+                },
+                "id": {
+                  "type": "integer"
+                },
+                "team": {
+                  "type": "object",
+                  "properties": {
+                    "created-at": {
+                      "type": "object",
+                      "properties": {},
+                      "required": [],
+                      "x-cl-class": "T",
+                      "x-cl-package": "COMMON-LISP"
+                    },
+                    "updated-at": {
+                      "type": "object",
+                      "properties": {},
+                      "required": [],
+                      "x-cl-class": "T",
+                      "x-cl-package": "COMMON-LISP"
+                    },
+                    "synced": {
+                      "type": "boolean"
+                    },
+                    "id": {
+                      "type": "integer"
+                    },
+                    "title": {
+                      "type": "string"
+                    },
+                    "project": {
+                      "type": "object",
+                      "properties": {
+                        "created-at": {
+                          "type": "object",
+                          "properties": {},
+                          "required": [],
+                          "x-cl-class": "T",
+                          "x-cl-package": "COMMON-LISP"
+                        },
+                        "updated-at": {
+                          "type": "object",
+                          "properties": {},
+                          "required": [],
+                          "x-cl-class": "T",
+                          "x-cl-package": "COMMON-LISP"
+                        },
+                        "synced": {
+                          "type": "boolean"
+                        },
+                        "id": {
+                          "type": "integer"
+                        },
+                        "author-id": {
+                          "type": "integer",
+                          "description": "Идентификатор профиля автора проекта."
+                        },
+                        "title": {
+                          "type": "string"
+                        },
+                        "description": {
+                          "type": "string"
+                        },
+                        "url": {
+                          "type": "string"
+                        },
+                        "contests": {
+                          "type": "string",
+                          "description": "Текстовое описание конкурсов и хакатонов, в которых принимал участие."
+                        }
+                      },
+                      "required": [
+                        "author-id",
+                        "id",
+                        "updated-at",
+                        "created-at"
+                      ],
+                      "x-cl-class": "PROJECT",
+                      "x-cl-package": "PLATFORM/PROJECT/MODEL"
+                    },
+                    "project-id": {
+                      "type": "object",
+                      "properties": {},
+                      "required": [],
+                      "x-cl-class": "T",
+                      "x-cl-package": "COMMON-LISP"
+                    }
+                  },
+                  "required": [
+                    "project-id",
+                    "project",
+                    "id",
+                    "updated-at",
+                    "created-at"
+                  ],
+                  "x-cl-class": "TEAM",
+                  "x-cl-package": "PLATFORM/TEAM/MODEL"
+                },
+                "team-id": {
+                  "type": "object",
+                  "properties": {},
+                  "required": [],
+                  "x-cl-class": "T",
+                  "x-cl-package": "COMMON-LISP"
+                },
+                "title": {
+                  "type": "string",
+                  "description": "Должность."
+                },
+                "description": {
+                  "type": "string",
+                  "description": "Описание вакансии."
+                },
+                "open": {
+                  "type": "boolean",
+                  "description": "Признак того, что вакансия закрыта."
+                }
+              },
+              "required": [
+                "team-id",
+                "team",
+                "id",
+                "updated-at",
+                "created-at"
+              ],
+              "x-cl-class": "JOB",
+              "x-cl-package": "PLATFORM/JOB/MODEL"
+            },
+            "job-id": {
+              "type": "object",
+              "properties": {},
+              "required": [],
+              "x-cl-class": "T",
+              "x-cl-package": "COMMON-LISP"
+            },
+            "message": {
+              "type": "string",
+              "description": "Сообщение от пользователя, который подал заявку на вакансию."
+            },
+            "status": {
+              "type": "string",
+              "description": "Строка из набора \"applied\", \"accepted\", \"declined\"."
+            }
+          },
+          "required": [
+            "job-id",
+            "job",
+            "user-id",
+            "id",
+            "updated-at",
+            "created-at"
+          ],
+          "x-cl-class": "JOB-APPLICATION",
+          "x-cl-package": "PLATFORM/JOB-APPLICATION/MODEL"
+        }
+      },
+      "summary": "Отклоняет отклик.",
+      "description": "Отклонить может только только владелец проекта или админ.",
+      "paramStructure": "by-name"
+    },
+    {
+      "name": "update-project",
+      "params": [
+        {
+          "name": "id",
+          "schema": {
+            "type": "integer"
+          },
+          "required": true
+        },
+        {
+          "name": "contests",
+          "schema": {
+            "type": "string"
+          }
+        },
+        {
+          "name": "url",
+          "schema": {
+            "type": "string"
+          }
+        },
+        {
+          "name": "description",
+          "schema": {
+            "type": "string"
+          }
+        },
+        {
+          "name": "title",
+          "schema": {
+            "type": "string"
+          }
+        }
+      ],
+      "result": {
+        "name": "update-project-result",
+        "schema": {
+          "type": "object",
+          "properties": {
+            "created-at": {
+              "type": "object",
+              "properties": {},
+              "required": [],
+              "x-cl-class": "T",
+              "x-cl-package": "COMMON-LISP"
+            },
+            "updated-at": {
+              "type": "object",
+              "properties": {},
+              "required": [],
+              "x-cl-class": "T",
+              "x-cl-package": "COMMON-LISP"
+            },
+            "synced": {
+              "type": "boolean"
+            },
+            "id": {
+              "type": "integer"
+            },
+            "author-id": {
+              "type": "integer",
+              "description": "Идентификатор профиля автора проекта."
+            },
+            "title": {
+              "type": "string"
+            },
+            "description": {
+              "type": "string"
+            },
+            "url": {
+              "type": "string"
+            },
+            "contests": {
+              "type": "string",
+              "description": "Текстовое описание конкурсов и хакатонов, в которых принимал участие."
+            }
+          },
+          "required": [
+            "author-id",
+            "id",
+            "updated-at",
+            "created-at"
+          ],
+          "x-cl-class": "PROJECT",
+          "x-cl-package": "PLATFORM/PROJECT/MODEL"
+        }
+      },
+      "paramStructure": "by-name"
+    },
+    {
+      "name": "get-team-members",
+      "params": [
+        {
+          "name": "team-id",
+          "schema": {
+            "type": "integer"
+          }
+        },
+        {
+          "name": "project-id",
+          "schema": {
+            "type": "integer"
+          }
+        }
+      ],
+      "result": {
+        "name": "get-team-members-result",
+        "schema": {
+          "type": "array",
+          "items": {
+            "type": "object",
+            "properties": {
+              "created-at": {
+                "type": "object",
+                "properties": {},
+                "required": [],
+                "x-cl-class": "T",
+                "x-cl-package": "COMMON-LISP"
+              },
+              "updated-at": {
+                "type": "object",
+                "properties": {},
+                "required": [],
+                "x-cl-class": "T",
+                "x-cl-package": "COMMON-LISP"
+              },
+              "synced": {
+                "type": "boolean"
+              },
+              "id": {
+                "type": "integer"
+              },
+              "user-id": {
+                "type": "integer"
+              },
+              "job": {
+                "type": "object",
+                "properties": {
+                  "created-at": {
+                    "type": "object",
+                    "properties": {},
+                    "required": [],
+                    "x-cl-class": "T",
+                    "x-cl-package": "COMMON-LISP"
+                  },
+                  "updated-at": {
+                    "type": "object",
+                    "properties": {},
+                    "required": [],
+                    "x-cl-class": "T",
+                    "x-cl-package": "COMMON-LISP"
+                  },
+                  "synced": {
+                    "type": "boolean"
+                  },
+                  "id": {
+                    "type": "integer"
+                  },
+                  "team": {
+                    "type": "object",
+                    "properties": {
+                      "created-at": {
+                        "type": "object",
+                        "properties": {},
+                        "required": [],
+                        "x-cl-class": "T",
+                        "x-cl-package": "COMMON-LISP"
+                      },
+                      "updated-at": {
+                        "type": "object",
+                        "properties": {},
+                        "required": [],
+                        "x-cl-class": "T",
+                        "x-cl-package": "COMMON-LISP"
+                      },
+                      "synced": {
+                        "type": "boolean"
+                      },
+                      "id": {
+                        "type": "integer"
+                      },
+                      "title": {
+                        "type": "string"
+                      },
+                      "project": {
+                        "type": "object",
+                        "properties": {
+                          "created-at": {
+                            "type": "object",
+                            "properties": {},
+                            "required": [],
+                            "x-cl-class": "T",
+                            "x-cl-package": "COMMON-LISP"
+                          },
+                          "updated-at": {
+                            "type": "object",
+                            "properties": {},
+                            "required": [],
+                            "x-cl-class": "T",
+                            "x-cl-package": "COMMON-LISP"
+                          },
+                          "synced": {
+                            "type": "boolean"
+                          },
+                          "id": {
+                            "type": "integer"
+                          },
+                          "author-id": {
+                            "type": "integer",
+                            "description": "Идентификатор профиля автора проекта."
+                          },
+                          "title": {
+                            "type": "string"
+                          },
+                          "description": {
+                            "type": "string"
+                          },
+                          "url": {
+                            "type": "string"
+                          },
+                          "contests": {
+                            "type": "string",
+                            "description": "Текстовое описание конкурсов и хакатонов, в которых принимал участие."
+                          }
+                        },
+                        "required": [
+                          "author-id",
+                          "id",
+                          "updated-at",
+                          "created-at"
+                        ],
+                        "x-cl-class": "PROJECT",
+                        "x-cl-package": "PLATFORM/PROJECT/MODEL"
+                      },
+                      "project-id": {
+                        "type": "object",
+                        "properties": {},
+                        "required": [],
+                        "x-cl-class": "T",
+                        "x-cl-package": "COMMON-LISP"
+                      }
+                    },
+                    "required": [
+                      "project-id",
+                      "project",
+                      "id",
+                      "updated-at",
+                      "created-at"
+                    ],
+                    "x-cl-class": "TEAM",
+                    "x-cl-package": "PLATFORM/TEAM/MODEL"
+                  },
+                  "team-id": {
+                    "type": "object",
+                    "properties": {},
+                    "required": [],
+                    "x-cl-class": "T",
+                    "x-cl-package": "COMMON-LISP"
+                  },
+                  "title": {
+                    "type": "string",
+                    "description": "Должность."
+                  },
+                  "description": {
+                    "type": "string",
+                    "description": "Описание вакансии."
+                  },
+                  "open": {
+                    "type": "boolean",
+                    "description": "Признак того, что вакансия закрыта."
+                  }
+                },
+                "required": [
+                  "team-id",
+                  "team",
+                  "id",
+                  "updated-at",
+                  "created-at"
+                ],
+                "x-cl-class": "JOB",
+                "x-cl-package": "PLATFORM/JOB/MODEL",
+                "description": "Член команды всегда должен соответствовать какой-то позиции в команде."
+              },
+              "job-id": {
+                "type": "object",
+                "properties": {},
+                "required": [],
+                "x-cl-class": "T",
+                "x-cl-package": "COMMON-LISP"
+              },
+              "title": {
+                "type": "string",
+                "description": "Сюда копируется название позиции, на которую взяли человека."
+              }
+            },
+            "required": [
+              "title",
+              "job-id",
+              "job",
+              "user-id",
+              "id",
+              "updated-at",
+              "created-at"
+            ],
+            "x-cl-class": "TEAM-MEMBER",
+            "x-cl-package": "PLATFORM/TEAM-MEMBER/MODEL"
+          }
+        }
+      },
+      "summary": "Отдаёт список участников проекта (из всех команд) или команды.",
+      "description": "Поскольку у нас микросервисы, то профили пользователей надо запросить отдельно через passport.get-profiles.",
+      "paramStructure": "by-name"
+    },
+    {
+      "name": "get-job-applications",
+      "params": [
+        {
+          "name": "project-id",
+          "schema": {
+            "type": "integer"
+          },
+          "required": true
+        }
+      ],
+      "result": {
+        "name": "get-job-applications-result",
+        "schema": {
+          "type": "array",
+          "items": {
+            "type": "object",
+            "properties": {
+              "created-at": {
+                "type": "object",
+                "properties": {},
+                "required": [],
+                "x-cl-class": "T",
+                "x-cl-package": "COMMON-LISP"
+              },
+              "updated-at": {
+                "type": "object",
+                "properties": {},
+                "required": [],
+                "x-cl-class": "T",
+                "x-cl-package": "COMMON-LISP"
+              },
+              "synced": {
+                "type": "boolean"
+              },
+              "id": {
+                "type": "integer"
+              },
+              "user-id": {
+                "type": "integer"
+              },
+              "job": {
+                "type": "object",
+                "properties": {
+                  "created-at": {
+                    "type": "object",
+                    "properties": {},
+                    "required": [],
+                    "x-cl-class": "T",
+                    "x-cl-package": "COMMON-LISP"
+                  },
+                  "updated-at": {
+                    "type": "object",
+                    "properties": {},
+                    "required": [],
+                    "x-cl-class": "T",
+                    "x-cl-package": "COMMON-LISP"
+                  },
+                  "synced": {
+                    "type": "boolean"
+                  },
+                  "id": {
+                    "type": "integer"
+                  },
+                  "team": {
+                    "type": "object",
+                    "properties": {
+                      "created-at": {
+                        "type": "object",
+                        "properties": {},
+                        "required": [],
+                        "x-cl-class": "T",
+                        "x-cl-package": "COMMON-LISP"
+                      },
+                      "updated-at": {
+                        "type": "object",
+                        "properties": {},
+                        "required": [],
+                        "x-cl-class": "T",
+                        "x-cl-package": "COMMON-LISP"
+                      },
+                      "synced": {
+                        "type": "boolean"
+                      },
+                      "id": {
+                        "type": "integer"
+                      },
+                      "title": {
+                        "type": "string"
+                      },
+                      "project": {
+                        "type": "object",
+                        "properties": {
+                          "created-at": {
+                            "type": "object",
+                            "properties": {},
+                            "required": [],
+                            "x-cl-class": "T",
+                            "x-cl-package": "COMMON-LISP"
+                          },
+                          "updated-at": {
+                            "type": "object",
+                            "properties": {},
+                            "required": [],
+                            "x-cl-class": "T",
+                            "x-cl-package": "COMMON-LISP"
+                          },
+                          "synced": {
+                            "type": "boolean"
+                          },
+                          "id": {
+                            "type": "integer"
+                          },
+                          "author-id": {
+                            "type": "integer",
+                            "description": "Идентификатор профиля автора проекта."
+                          },
+                          "title": {
+                            "type": "string"
+                          },
+                          "description": {
+                            "type": "string"
+                          },
+                          "url": {
+                            "type": "string"
+                          },
+                          "contests": {
+                            "type": "string",
+                            "description": "Текстовое описание конкурсов и хакатонов, в которых принимал участие."
+                          }
+                        },
+                        "required": [
+                          "author-id",
+                          "id",
+                          "updated-at",
+                          "created-at"
+                        ],
+                        "x-cl-class": "PROJECT",
+                        "x-cl-package": "PLATFORM/PROJECT/MODEL"
+                      },
+                      "project-id": {
+                        "type": "object",
+                        "properties": {},
+                        "required": [],
+                        "x-cl-class": "T",
+                        "x-cl-package": "COMMON-LISP"
+                      }
+                    },
+                    "required": [
+                      "project-id",
+                      "project",
+                      "id",
+                      "updated-at",
+                      "created-at"
+                    ],
+                    "x-cl-class": "TEAM",
+                    "x-cl-package": "PLATFORM/TEAM/MODEL"
+                  },
+                  "team-id": {
+                    "type": "object",
+                    "properties": {},
+                    "required": [],
+                    "x-cl-class": "T",
+                    "x-cl-package": "COMMON-LISP"
+                  },
+                  "title": {
+                    "type": "string",
+                    "description": "Должность."
+                  },
+                  "description": {
+                    "type": "string",
+                    "description": "Описание вакансии."
+                  },
+                  "open": {
+                    "type": "boolean",
+                    "description": "Признак того, что вакансия закрыта."
+                  }
+                },
+                "required": [
+                  "team-id",
+                  "team",
+                  "id",
+                  "updated-at",
+                  "created-at"
+                ],
+                "x-cl-class": "JOB",
+                "x-cl-package": "PLATFORM/JOB/MODEL"
+              },
+              "job-id": {
+                "type": "object",
+                "properties": {},
+                "required": [],
+                "x-cl-class": "T",
+                "x-cl-package": "COMMON-LISP"
+              },
+              "message": {
+                "type": "string",
+                "description": "Сообщение от пользователя, который подал заявку на вакансию."
+              },
+              "status": {
+                "type": "string",
+                "description": "Строка из набора \"applied\", \"accepted\", \"declined\"."
+              }
+            },
+            "required": [
+              "job-id",
+              "job",
+              "user-id",
+              "id",
+              "updated-at",
+              "created-at"
+            ],
+            "x-cl-class": "JOB-APPLICATION",
+            "x-cl-package": "PLATFORM/JOB-APPLICATION/MODEL"
+          }
+        }
+      },
+      "summary": "Отдаёт список открытых вакансий на проекте.",
+      "paramStructure": "by-name"
+    },
+    {
+      "name": "get-job",
+      "params": [
+        {
+          "name": "id",
+          "schema": {
+            "type": "integer"
+          },
+          "required": true
+        }
+      ],
+      "result": {
+        "name": "get-job-result",
+        "schema": {
+          "type": "object",
+          "properties": {
+            "created-at": {
+              "type": "object",
+              "properties": {},
+              "required": [],
+              "x-cl-class": "T",
+              "x-cl-package": "COMMON-LISP"
+            },
+            "updated-at": {
+              "type": "object",
+              "properties": {},
+              "required": [],
+              "x-cl-class": "T",
+              "x-cl-package": "COMMON-LISP"
+            },
+            "synced": {
+              "type": "boolean"
+            },
+            "id": {
+              "type": "integer"
+            },
+            "team": {
+              "type": "object",
+              "properties": {
+                "created-at": {
+                  "type": "object",
+                  "properties": {},
+                  "required": [],
+                  "x-cl-class": "T",
+                  "x-cl-package": "COMMON-LISP"
+                },
+                "updated-at": {
+                  "type": "object",
+                  "properties": {},
+                  "required": [],
+                  "x-cl-class": "T",
+                  "x-cl-package": "COMMON-LISP"
+                },
+                "synced": {
+                  "type": "boolean"
+                },
+                "id": {
+                  "type": "integer"
+                },
+                "title": {
+                  "type": "string"
+                },
+                "project": {
+                  "type": "object",
+                  "properties": {
+                    "created-at": {
+                      "type": "object",
+                      "properties": {},
+                      "required": [],
+                      "x-cl-class": "T",
+                      "x-cl-package": "COMMON-LISP"
+                    },
+                    "updated-at": {
+                      "type": "object",
+                      "properties": {},
+                      "required": [],
+                      "x-cl-class": "T",
+                      "x-cl-package": "COMMON-LISP"
+                    },
+                    "synced": {
+                      "type": "boolean"
+                    },
+                    "id": {
+                      "type": "integer"
+                    },
+                    "author-id": {
+                      "type": "integer",
+                      "description": "Идентификатор профиля автора проекта."
+                    },
+                    "title": {
+                      "type": "string"
+                    },
+                    "description": {
+                      "type": "string"
+                    },
+                    "url": {
+                      "type": "string"
+                    },
+                    "contests": {
+                      "type": "string",
+                      "description": "Текстовое описание конкурсов и хакатонов, в которых принимал участие."
+                    }
+                  },
+                  "required": [
+                    "author-id",
+                    "id",
+                    "updated-at",
+                    "created-at"
+                  ],
+                  "x-cl-class": "PROJECT",
+                  "x-cl-package": "PLATFORM/PROJECT/MODEL"
+                },
+                "project-id": {
+                  "type": "object",
+                  "properties": {},
+                  "required": [],
+                  "x-cl-class": "T",
+                  "x-cl-package": "COMMON-LISP"
+                }
+              },
+              "required": [
+                "project-id",
+                "project",
+                "id",
+                "updated-at",
+                "created-at"
+              ],
+              "x-cl-class": "TEAM",
+              "x-cl-package": "PLATFORM/TEAM/MODEL"
+            },
+            "team-id": {
+              "type": "object",
+              "properties": {},
+              "required": [],
+              "x-cl-class": "T",
+              "x-cl-package": "COMMON-LISP"
+            },
+            "title": {
+              "type": "string",
+              "description": "Должность."
+            },
+            "description": {
+              "type": "string",
+              "description": "Описание вакансии."
+            },
+            "open": {
+              "type": "boolean",
+              "description": "Признак того, что вакансия закрыта."
+            }
+          },
+          "required": [
+            "team-id",
+            "team",
+            "id",
+            "updated-at",
+            "created-at"
+          ],
+          "x-cl-class": "JOB",
+          "x-cl-package": "PLATFORM/JOB/MODEL"
+        }
+      },
+      "summary": "Возвращает вакансию.",
+      "paramStructure": "by-name"
+    },
+    {
+      "name": "search-project",
+      "params": [
+        {
+          "name": "page-key",
+          "schema": {
+            "type": "string"
+          }
+        },
+        {
+          "name": "limit",
+          "schema": {
+            "type": "integer"
+          }
+        },
+        {
+          "name": "query",
+          "schema": {
+            "type": "string"
+          },
+          "summary": "Запрос для поиска. По умолчанию \"*\" - выдаются все проекты, начиная с самых свежих."
+        }
+      ],
+      "result": {
+        "name": "search-project-result",
+        "schema": {
+          "type": "object",
+          "properties": {
+            "items": {
+              "type": "array",
+              "items": {
+                "type": "object",
+                "properties": {
+                  "created-at": {
+                    "type": "object",
+                    "properties": {},
+                    "required": [],
+                    "x-cl-class": "T",
+                    "x-cl-package": "COMMON-LISP"
+                  },
+                  "updated-at": {
+                    "type": "object",
+                    "properties": {},
+                    "required": [],
+                    "x-cl-class": "T",
+                    "x-cl-package": "COMMON-LISP"
+                  },
+                  "synced": {
+                    "type": "boolean"
+                  },
+                  "id": {
+                    "type": "integer"
+                  },
+                  "author-id": {
+                    "type": "integer",
+                    "description": "Идентификатор профиля автора проекта."
+                  },
+                  "title": {
+                    "type": "string"
+                  },
+                  "description": {
+                    "type": "string"
+                  },
+                  "url": {
+                    "type": "string"
+                  },
+                  "contests": {
+                    "type": "string",
+                    "description": "Текстовое описание конкурсов и хакатонов, в которых принимал участие."
+                  }
+                },
+                "required": [
+                  "author-id",
+                  "id",
+                  "updated-at",
+                  "created-at"
+                ],
+                "x-cl-class": "PROJECT",
+                "x-cl-package": "PLATFORM/PROJECT/MODEL"
+              }
+            },
+            "next-page-key": {
+              "type": "string"
+            }
+          },
+          "required": [
+            "items"
+          ],
+          "x-paginated-list": true
+        }
+      },
+      "paramStructure": "by-name"
+    },
+    {
+      "name": "search-projects",
+      "params": [
+        {
+          "name": "query",
+          "schema": {
+            "type": "string"
+          },
+          "required": true,
+          "summary": "Запрос для поиска на языке запросов ElasticSearch."
+        },
+        {
+          "name": "page-key",
+          "schema": {
+            "type": "string"
+          }
+        },
+        {
+          "name": "limit",
+          "schema": {
+            "type": "integer"
+          }
+        }
+      ],
+      "result": {
+        "name": "search-projects-result",
+        "schema": {
+          "type": "object",
+          "properties": {
+            "items": {
+              "type": "array",
+              "items": {
+                "type": "object",
+                "properties": {
+                  "created-at": {
+                    "type": "object",
+                    "properties": {},
+                    "required": [],
+                    "x-cl-class": "T",
+                    "x-cl-package": "COMMON-LISP"
+                  },
+                  "updated-at": {
+                    "type": "object",
+                    "properties": {},
+                    "required": [],
+                    "x-cl-class": "T",
+                    "x-cl-package": "COMMON-LISP"
+                  },
+                  "synced": {
+                    "type": "boolean"
+                  },
+                  "id": {
+                    "type": "integer"
+                  },
+                  "author-id": {
+                    "type": "integer",
+                    "description": "Идентификатор профиля автора проекта."
+                  },
+                  "title": {
+                    "type": "string"
+                  },
+                  "description": {
+                    "type": "string"
+                  },
+                  "url": {
+                    "type": "string"
+                  },
+                  "contests": {
+                    "type": "string",
+                    "description": "Текстовое описание конкурсов и хакатонов, в которых принимал участие."
+                  }
+                },
+                "required": [
+                  "author-id",
+                  "id",
+                  "updated-at",
+                  "created-at"
+                ],
+                "x-cl-class": "PROJECT",
+                "x-cl-package": "PLATFORM/PROJECT/MODEL"
+              }
+            },
+            "next-page-key": {
+              "type": "string"
+            }
+          },
+          "required": [
+            "items"
+          ],
+          "x-paginated-list": true
+        }
+      },
+      "summary": "Возвращает список проектов по заданному запросу.",
+      "description": "Запрос должен вводиться в формате ElasticSearch. Но для поиска по всем\n полям можно просто слова вводить.  Если передать \"*\" - выдаются все проекты, начиная с самых свежих.\n\nЭтот метод поддерживает пейджинацию и можно запрашивать следующие страницы результатов.",
+      "paramStructure": "by-name"
+    },
+    {
+      "name": "search-jobs",
+      "params": [
+        {
+          "name": "query",
+          "schema": {
+            "type": "string"
+          },
+          "required": true,
+          "summary": "Запрос для поиска на языке запросов ElasticSearch."
+        },
+        {
+          "name": "page-key",
+          "schema": {
+            "type": "string"
+          }
+        },
+        {
+          "name": "limit",
+          "schema": {
+            "type": "integer"
+          }
+        }
+      ],
+      "result": {
+        "name": "search-jobs-result",
+        "schema": {
+          "type": "object",
+          "properties": {
+            "items": {
+              "type": "array",
+              "items": {
+                "type": "object",
+                "properties": {
+                  "created-at": {
+                    "type": "object",
+                    "properties": {},
+                    "required": [],
+                    "x-cl-class": "T",
+                    "x-cl-package": "COMMON-LISP"
+                  },
+                  "updated-at": {
+                    "type": "object",
+                    "properties": {},
+                    "required": [],
+                    "x-cl-class": "T",
+                    "x-cl-package": "COMMON-LISP"
+                  },
+                  "synced": {
+                    "type": "boolean"
+                  },
+                  "id": {
+                    "type": "integer"
+                  },
+                  "team": {
+                    "type": "object",
+                    "properties": {
+                      "created-at": {
+                        "type": "object",
+                        "properties": {},
+                        "required": [],
+                        "x-cl-class": "T",
+                        "x-cl-package": "COMMON-LISP"
+                      },
+                      "updated-at": {
+                        "type": "object",
+                        "properties": {},
+                        "required": [],
+                        "x-cl-class": "T",
+                        "x-cl-package": "COMMON-LISP"
+                      },
+                      "synced": {
+                        "type": "boolean"
+                      },
+                      "id": {
+                        "type": "integer"
+                      },
+                      "title": {
+                        "type": "string"
+                      },
+                      "project": {
+                        "type": "object",
+                        "properties": {
+                          "created-at": {
+                            "type": "object",
+                            "properties": {},
+                            "required": [],
+                            "x-cl-class": "T",
+                            "x-cl-package": "COMMON-LISP"
+                          },
+                          "updated-at": {
+                            "type": "object",
+                            "properties": {},
+                            "required": [],
+                            "x-cl-class": "T",
+                            "x-cl-package": "COMMON-LISP"
+                          },
+                          "synced": {
+                            "type": "boolean"
+                          },
+                          "id": {
+                            "type": "integer"
+                          },
+                          "author-id": {
+                            "type": "integer",
+                            "description": "Идентификатор профиля автора проекта."
+                          },
+                          "title": {
+                            "type": "string"
+                          },
+                          "description": {
+                            "type": "string"
+                          },
+                          "url": {
+                            "type": "string"
+                          },
+                          "contests": {
+                            "type": "string",
+                            "description": "Текстовое описание конкурсов и хакатонов, в которых принимал участие."
+                          }
+                        },
+                        "required": [
+                          "author-id",
+                          "id",
+                          "updated-at",
+                          "created-at"
+                        ],
+                        "x-cl-class": "PROJECT",
+                        "x-cl-package": "PLATFORM/PROJECT/MODEL"
+                      },
+                      "project-id": {
+                        "type": "object",
+                        "properties": {},
+                        "required": [],
+                        "x-cl-class": "T",
+                        "x-cl-package": "COMMON-LISP"
+                      }
+                    },
+                    "required": [
+                      "project-id",
+                      "project",
+                      "id",
+                      "updated-at",
+                      "created-at"
+                    ],
+                    "x-cl-class": "TEAM",
+                    "x-cl-package": "PLATFORM/TEAM/MODEL"
+                  },
+                  "team-id": {
+                    "type": "object",
+                    "properties": {},
+                    "required": [],
+                    "x-cl-class": "T",
+                    "x-cl-package": "COMMON-LISP"
+                  },
+                  "title": {
+                    "type": "string",
+                    "description": "Должность."
+                  },
+                  "description": {
+                    "type": "string",
+                    "description": "Описание вакансии."
+                  },
+                  "open": {
+                    "type": "boolean",
+                    "description": "Признак того, что вакансия закрыта."
+                  }
+                },
+                "required": [
+                  "team-id",
+                  "team",
+                  "id",
+                  "updated-at",
+                  "created-at"
+                ],
+                "x-cl-class": "JOB",
+                "x-cl-package": "PLATFORM/JOB/MODEL"
+              }
+            },
+            "next-page-key": {
+              "type": "string"
+            }
+          },
+          "required": [
+            "items"
+          ],
+          "x-paginated-list": true
+        }
+      },
+      "summary": "Возвращает список вакансий по заданному запросу.",
+      "description": "Запрос должен вводиться в формате ElasticSearch. Но для поиска по всем\n полям можно просто слова вводить.  Если передать \"*\" - выдаются все джобы, начиная с самых свежих.\n\nЭтот метод поддерживает пейджинацию и можно запрашивать следующие страницы результатов.",
+      "paramStructure": "by-name"
+    },
+    {
+      "name": "project-chats",
+      "params": [
+        {
+          "name": "project-id",
+          "schema": {
+            "type": "integer"
+          },
+          "required": true
+        }
+      ],
+      "result": {
+        "name": "project-chats-result",
+        "schema": {
+          "type": "array",
+          "items": {
+            "type": "object",
+            "properties": {
+              "created-at": {
+                "type": "object",
+                "properties": {},
+                "required": [],
+                "x-cl-class": "T",
+                "x-cl-package": "COMMON-LISP"
+              },
+              "updated-at": {
+                "type": "object",
+                "properties": {},
+                "required": [],
+                "x-cl-class": "T",
+                "x-cl-package": "COMMON-LISP"
+              },
+              "synced": {
+                "type": "boolean"
+              },
+              "project": {
+                "type": "object",
+                "properties": {
+                  "created-at": {
+                    "type": "object",
+                    "properties": {},
+                    "required": [],
+                    "x-cl-class": "T",
+                    "x-cl-package": "COMMON-LISP"
+                  },
+                  "updated-at": {
+                    "type": "object",
+                    "properties": {},
+                    "required": [],
+                    "x-cl-class": "T",
+                    "x-cl-package": "COMMON-LISP"
+                  },
+                  "synced": {
+                    "type": "boolean"
+                  },
+                  "id": {
+                    "type": "integer"
+                  },
+                  "author-id": {
+                    "type": "integer",
+                    "description": "Идентификатор профиля автора проекта."
+                  },
+                  "title": {
+                    "type": "string"
+                  },
+                  "description": {
+                    "type": "string"
+                  },
+                  "url": {
+                    "type": "string"
+                  },
+                  "contests": {
+                    "type": "string",
+                    "description": "Текстовое описание конкурсов и хакатонов, в которых принимал участие."
+                  }
+                },
+                "required": [
+                  "author-id",
+                  "id",
+                  "updated-at",
+                  "created-at"
+                ],
+                "x-cl-class": "PROJECT",
+                "x-cl-package": "PLATFORM/PROJECT/MODEL"
+              },
+              "project-id": {
+                "type": "object",
+                "properties": {},
+                "required": [],
+                "x-cl-class": "T",
+                "x-cl-package": "COMMON-LISP"
+              },
+              "chat-id": {
+                "type": "string"
+              },
+              "private": {
+                "type": "boolean"
+              }
+            },
+            "required": [
+              "private",
+              "chat-id",
+              "project-id",
+              "project",
+              "updated-at",
+              "created-at"
+            ],
+            "x-cl-class": "PROJECT-CHAT",
+            "x-cl-package": "PLATFORM/PROJECT-CHAT/MODEL"
+          }
+        }
+      },
+      "summary": "Возвращает список чатов привязанных к проекту.",
+      "description": "Дальше уже по chat-id можно запрашивать из микросервиса чатов сообщения от пользователей.",
+      "paramStructure": "by-name"
+    }
+  ],
+  "openrpc": "1.0.0",
+  "info": {
+    "title": "Platform API",
+    "version": "0.1.0"
+  },
+  "servers": [
+    {
+      "name": "default",
+      "url": "https://localhost/"
+    }
+  ]
+}
