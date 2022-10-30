@@ -8,9 +8,10 @@
 
 (defvar *client* (make-platform))
 
-(defun connect (&optional token)
-  (jsonrpc:client-connect *client* :mode :http :url "http://localhost:8001/"
-                                   :headers (when token
-                                              (list (cons :authorization
-                                                          token)))))
+(defun connect (client &optional token)
+  (jsonrpc:client-connect client :mode :http :url "http://localhost:8001/"
+                                 :headers (when token
+                                            (list (cons :authorization
+                                                        token))))
+  (values client))
 

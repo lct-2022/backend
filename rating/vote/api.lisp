@@ -1,11 +1,13 @@
 (uiop:define-package #:rating/vote/api
-  (:use #:cl)
+  (:use #:cl
+        #:common/utils)
   (:import-from #:openrpc-server
                 #:return-error
                 #:define-rpc-method)
   (:import-from #:rating/api
                 #:rating-api)
   (:import-from #:rating/vote/model
+                #:top-item
                 #:*supported-subject-types*
                 #:vote)
   (:import-from #:serapeum
@@ -76,3 +78,18 @@
     (let ((rows (retrieve-by-sql "SELECT COUNT(*) as count FROM rating.vote WHERE subject_type = ? AND subject_id = ?"
                                  :binds (list subject-type subject-id))))
       (getf (first rows) :count))))
+
+
+(define-rpc-method (rating-api get-top) (subject-type &key (limit 10))
+  (:summary "Возвращает N объектов с наивысшим рейтингом в своей категории.")
+  (:param subject-type string "Тип объекта: project или user.")
+  (:param limit integer "Максимальное количество объектов в топе. По умолчанию 10.")
+  (:result (list-of top-item))
+
+  (check-subject-type subject-type)
+
+  (with-connection ()
+    (select-dao 'top-item
+      (where (:= :subject-type subject-type))
+      (order-by (:desc :rating))
+      (limit limit))))

@@ -1,12 +1,14 @@
 (uiop:define-package #:platform/project/api
-  (:use #:cl)
+  (:use #:cl
+        #:common/utils)
   (:import-from #:openrpc-server
                 #:return-error
                 #:define-rpc-method)
   (:import-from #:platform/api
                 #:platform-api)
   (:import-from #:platform/project/model
-                #:project)
+                #:project
+                #:project-with-rating)
   (:import-from #:common/db
                 #:with-connection)
   (:import-from #:mito
@@ -25,7 +27,9 @@
   (:import-from #:common/rpc
                 #:define-update-method)
   (:import-from #:common/event-bus
-                #:emit-event))
+                #:emit-event)
+  (:import-from #:rating/client
+                #:make-rating))
 (in-package #:platform/project/api)
 
 
@@ -74,16 +78,24 @@
   (find-dao 'project
             :id id))
 
-
 (define-rpc-method (platform-api popular-projects) (&key (limit 5))
   (:summary "Отдаёт список популярных проектов для главной страницы.")
+  (:description "Отдаёт не просто проекты, а структуру, содержащую и данные проекта и рейтинг.")
   (:param limit integer)
-  (:result (list-of project))
+  (:result (list-of project-with-rating))
   
   (with-connection ()
-    ;; Пока тупо выдаём все, позже будем делать запрос в систему рейтингов
-    ;; и потом запрашивать по ID из своей базы.
-    (or (select-dao 'project
-          (order-by (:desc :created-at))
-          (limit limit))
-        #())))
+    ;; Сначала стучимся с микросервис рейтингов, и получаем top популярных проектов
+    (let* ((client (rating/client:connect (make-rating)))
+           (top (rating/client::get-top client "project" :limit limit))
+           (top-ids (mapcar #'rating/client::top-item-subject-id top))
+           (projects
+             ;; Теперь запросим их по id и отдадим уже проекты
+             (select-dao-by-ids 'project
+                                top-ids)))
+      ;; Нам надо вернуть объект вместе с его рейтингом.
+      (loop for top-item in top
+            for project in projects
+            collect (make-instance 'project-with-rating
+                                   :project project
+                                   :rating (rating/client::top-item-rating top-item))))))

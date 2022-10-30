@@ -47,18 +47,10 @@
   (:metaclass dao-table-class))
 
 
-(defclass test-project ()
-  ((ID :initarg :id
-       :type integer
-       :col-type :serial
-       :primary-key t
-       :accessor mito.dao.mixin::%object-id)
-   (title :initarg :title
-          :initform ""
-          :type string
-          :col-type :text
-          :accessor project-title))
-  (:table-name "platform.test_project")
-  (:metaclass dao-table-class))
+(defclass project-with-rating ()
+  ((project :initarg :project
+            :type project)
+   (rating :initarg :rating
+           :type integer)))
 
 

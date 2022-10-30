@@ -8,7 +8,8 @@
   ;; Sometimes this can cause errors if DBD get's updated by some
   ;; project's check
   (:import-from #:dbd.postgres)
-  (:import-from #:mito)
+  (:import-from #:mito
+                #:select-dao)
   (:import-from #:ironclad
                 #:octets-to-integer
                 #:hmac-digest
@@ -19,6 +20,11 @@
   (:import-from #:alexandria
                 #:remove-from-plistf
                 #:with-gensyms)
+  (:import-from #:sxql
+                #:order-by
+                #:where)
+  (:import-from #:serapeum
+                #:fmt)
   (:export #:with-transaction
            #:with-connection
            #:connect-toplevel
@@ -300,3 +306,24 @@
   (format nil "(~{~A~^,~})"
           (loop repeat (length list)
                 collect "?")))
+
+
+
+;; Workaround для проблемы, которую я описал тут:
+;; https://github.com/fukamachi/mito/issues/120
+(defmethod initialize-instance :around ((class mito:dao-table-view) &rest initargs
+                                        &key direct-superclasses &allow-other-keys)
+  (unless (mito.util:contains-class-or-subclasses 'mito:dao-class direct-superclasses)
+    (push (find-class 'mito:dao-class) (getf initargs :direct-superclasses)))
+  (apply #'call-next-method class initargs))
+
+
+(defun select-dao-by-ids (class-name ids)
+  (values
+   (if ids
+       (select-dao class-name
+         (where (:in :id ids))
+         ;; Чтобы сохранился порядок элементов, такой же как в ids:
+         (order-by (:raw (fmt "array_position(array[~{~A~^, ~}]::bigint[], id)"
+                              ids))))
+       #())))

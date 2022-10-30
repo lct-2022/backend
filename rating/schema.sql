@@ -12,3 +12,10 @@ CREATE TABLE rating.vote (
 );
 
 CREATE UNIQUE INDEX vote_uniq ON rating.vote (subject_type, subject_id, user_id);
+
+
+CREATE VIEW rating.top_items_view AS
+     SELECT subject_type, subject_id, count(*) as rating
+       FROM rating.vote
+   GROUP BY subject_type, subject_id
+   ORDER BY rating DESC;

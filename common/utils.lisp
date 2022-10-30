@@ -11,12 +11,15 @@
                 #:retrieve-dao
                 #:retrieve-by-sql
                 #:find-dao)
+  (:import-from #:mito.dao
+                #:select-by-sql)
   (:import-from #:sxql
                 #:where
                 #:order-by
                 #:limit)
   (:import-from #:common/db
-                #:with-connection)
+                #:with-connection
+                #:select-dao-by-ids)
   (:export #:el
            #:dict
            #:encode-json
@@ -24,8 +27,10 @@
            ;; Полезные символы чтобы делать SQL запросы
            #:with-connection
            #:select-dao
+           #:select-dao-by-ids
            #:retrieve-dao
            #:retrieve-by-sql
+           #:select-by-sql
            #:find-dao
            #:where
            #:order-by
