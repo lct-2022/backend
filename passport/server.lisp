@@ -1,9 +1,13 @@
 (uiop:define-package #:passport/server
-  (:use #:cl)
+  (:use #:cl
+        #:common/utils)
+  (:import-from #:rating/client
+                #:make-rating)
   (:import-from #:openrpc-server
                 #:return-error
                 #:define-rpc-method)
   (:import-from #:passport/user
+                #:user-with-rating
                 #:issue-token-for
                 #:get-user-by
                 #:is-email-available-p
@@ -127,12 +131,23 @@
 
 (define-rpc-method (passport-api popular-profiles) (&key (limit 10))
   (:param limit integer)
-  (:result (list-of user))
+  (:result (list-of user-with-rating))
+
   (with-connection ()
-    (or (mito:select-dao 'user
-          (order-by (:desc :created-at))
-          (limit limit))
-        #())))
+    ;; Сначала стучимся с микросервис рейтингов, и получаем top популярных профилей
+    (let* ((client (rating/client:connect (make-rating)))
+           (top (rating/client::get-top client "user" :limit limit))
+           (top-ids (mapcar #'rating/client::top-item-subject-id top))
+           (users
+             ;; Теперь запросим их по id и отдадим уже проекты
+             (select-dao-by-ids 'user
+                                top-ids)))
+      ;; Нам надо вернуть объект вместе с его рейтингом.
+      (loop for top-item in top
+            for user in users
+            collect (make-instance 'user-with-rating
+                                   :user user
+                                   :rating (rating/client::top-item-rating top-item))))))
 
 
 (defun start-me ()

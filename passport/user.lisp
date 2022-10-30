@@ -91,6 +91,13 @@
   (:metaclass dao-table-class))
 
 
+(defclass user-with-rating ()
+  ((user :initarg :user
+         :type user)
+   (rating :initarg :rating
+           :type integer)))
+
+
 (defun get-next-user-id ()
   (let* ((rows (sql-fetch-all "select coalesce(max(id), 0) + 1 as next_id from passport.user")))
     (getf (first rows) :|next_id|)))

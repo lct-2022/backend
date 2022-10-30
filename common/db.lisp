@@ -18,6 +18,8 @@
   (:import-from #:secret-values
                 #:ensure-value-revealed)
   (:import-from #:alexandria
+                #:make-keyword
+                #:length=
                 #:remove-from-plistf
                 #:with-gensyms)
   (:import-from #:sxql
@@ -319,11 +321,29 @@
 
 
 (defun select-dao-by-ids (class-name ids)
-  (values
-   (if ids
-       (select-dao class-name
-         (where (:in :id ids))
-         ;; Чтобы сохранился порядок элементов, такой же как в ids:
-         (order-by (:raw (fmt "array_position(array[~{~A~^, ~}]::bigint[], id)"
-                              ids))))
-       #())))
+  (let* ((class (find-class class-name))
+         (pk-name (let ((value (mito.class:table-primary-key class)))
+                    (unless (length= 1 value)
+                      (error "PK should have only one column, to make select-dao-by-ids work. ~S has ~S."
+                             class-name value))
+                    (first value)))
+         (columns (mito.class:table-column-slots class))
+         (pk-column
+           (loop for column in columns
+                 for column-name = (closer-mop:slot-definition-name column)
+                 thereis (and
+                          (string-equal column-name
+                                        pk-name)
+                          column)))
+         (pk-type (when pk-column
+                    (mito.class:table-column-type pk-column))))
+    (values
+     (if ids
+         (select-dao class-name
+           (where (:in (make-keyword pk-name) ids))
+           ;; Чтобы сохранился порядок элементов, такой же как в ids:
+           (order-by (:raw (fmt "array_position(array[~{~A~^, ~}]::~A[], ~A)"
+                                ids
+                                pk-type
+                                pk-name))))
+         #()))))

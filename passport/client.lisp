@@ -9,8 +9,8 @@
 (defvar *client* (make-passport))
 
 
-(defun connect (&optional token)
-  (jsonrpc:client-connect *client* :mode :http :url "http://localhost:8000/"
-                                   :headers (when token
-                                              (list (cons :authorization
-                                                          token)))))
+(defun connect (client &optional token)
+  (jsonrpc:client-connect client :mode :http :url "http://localhost:8000/"
+                                 :headers (when token
+                                            (list (cons :authorization
+                                                        token)))))
