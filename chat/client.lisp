@@ -1,16 +1,15 @@
-(uiop:define-package #:platform/client
+(uiop:define-package #:chat/client
   (:use #:cl)
   (:import-from #:openrpc-client))
-(in-package #:platform/client)
+(in-package #:chat/client)
 
 
-(openrpc-client:generate-client platform
-                                "http://localhost:8001/openrpc.json")
+(openrpc-client:generate-client chat-api "http://localhost:8003/openrpc.json")
 
-(defvar *client* (make-platform))
+(defvar *client* (make-chat-api))
 
 (defun connect (client &optional token)
-  (jsonrpc:client-connect client :mode :http :url "http://localhost:8001/"
+  (jsonrpc:client-connect client :mode :http :url "http://localhost:8003/"
                                  :headers (when token
                                             (list (cons :authorization
                                                         token))))

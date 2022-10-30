@@ -29,7 +29,13 @@
   (:import-from #:common/event-bus
                 #:emit-event)
   (:import-from #:rating/client
-                #:make-rating))
+                #:make-rating)
+  (:import-from #:chat/client
+                #:chat-id
+                #:create-chat
+                #:make-chat-api)
+  (:import-from #:platform/project-chat/model
+                #:project-chat))
 (in-package #:platform/project/api)
 
 
@@ -49,10 +55,23 @@
                              :author-id user-id
                              :title title
                              :description description
-                             rest)))
-        (create-team (object-id project)
-                     "Команда проекта")
-        project))))
+                             rest))
+             (team (create-team (object-id project)
+                                "Команда проекта"))
+             (chat-api (chat/client::connect (make-chat-api)))
+             (public-chat (create-chat chat-api
+                                       :team-id (object-id team)))
+             (private-chat (create-chat chat-api
+                                        :team-id (object-id team)
+                                        :private t)))
+        (create-dao 'project-chat
+                    :project project
+                    :chat-id (chat-id public-chat))
+        (create-dao 'project-chat
+                    :project project
+                    :chat-id (chat-id private-chat)
+                    :private t)
+        (values project)))))
 
 
 (define-rpc-method (platform-api get-project) (id)
@@ -61,8 +80,6 @@
   (:result project)
   
   (with-connection ()
-    ;; Пока тупо выдаём все, позже будем делать запрос в систему рейтингов
-    ;; и потом запрашивать по ID из своей базы.
     (let ((project (find-dao 'project :id id)))
       (if project
           project
@@ -99,3 +116,14 @@
             collect (make-instance 'project-with-rating
                                    :project project
                                    :rating (rating/client::top-item-rating top-item))))))
+
+
+(define-rpc-method (platform-api project-chats) (project-id)
+  (:summary "Возвращает список чатов привязанных к проекту.")
+  (:description "Дальше уже по chat-id можно запрашивать из микросервиса чатов сообщения от пользователей.")
+  (:param project-id integer)
+  (:result (list-of project-chat))
+  
+  (with-connection ()
+    (values
+     (retrieve-dao 'project-chat :project-id project-id))))

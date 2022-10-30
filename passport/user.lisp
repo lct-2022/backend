@@ -19,7 +19,7 @@
 (defclass user ()
   ((id :initarg :id
        :type integer
-       :col-type :integer
+       :col-type :bigserial
        :primary-key t
        :accessor object-id)
    (email :initarg :email

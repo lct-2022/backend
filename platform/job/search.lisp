@@ -22,7 +22,7 @@
 (defmethod get-objects-to-index ((class-name (eql 'job)))
   ;; В случае с вакансиями, нам надо отдавать только открытые
   (mito:retrieve-dao class-name
-                     :open t))
+                     :open 1))
 
 
 (define-search-rpc-method (platform-api search-jobs job)

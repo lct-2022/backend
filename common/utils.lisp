@@ -4,9 +4,12 @@
                 #:get-by-json-pointer)
   (:import-from #:serapeum
                 #:dict)
+  (:import-from #:uuid)
   (:import-from #:yason
                 #:with-output-to-string*)
   (:import-from #:mito
+                #:object-id
+                #:create-dao
                 #:select-dao
                 #:retrieve-dao
                 #:retrieve-by-sql
@@ -25,6 +28,8 @@
            #:encode-json
            #:decode-json
            ;; Полезные символы чтобы делать SQL запросы
+           #:object-id
+           #:create-dao
            #:with-connection
            #:select-dao
            #:select-dao-by-ids
@@ -34,7 +39,8 @@
            #:find-dao
            #:where
            #:order-by
-           #:limit))
+           #:limit
+           #:make-uuid))
 (in-package #:common/utils)
 
 
@@ -53,3 +59,8 @@
 
 (defun decode-json (obj)
   (yason:parse obj))
+
+
+(defun make-uuid ()
+  (format nil "~(~A~)"
+          (uuid:make-v4-uuid)))

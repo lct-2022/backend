@@ -262,7 +262,7 @@
     locked?))
 
 
-(defun get-lock (lock-name &key (timeout 3000))
+(defun get-lock (lock-name &key (timeout 3))
   ""
   (unless (cl-dbi:in-transaction mito:*connection*)
     (error "To get a lock, you need to start a transaction."))
@@ -270,7 +270,7 @@
   (let ((key (make-hash-for-lock-name lock-name)))
     (when timeout
       (check-type timeout integer)
-      (execute (format nil "SET lock_timeout = ~A" timeout)))
+      (execute (format nil "SET lock_timeout = ~A" (* timeout 1000))))
     
     (handler-bind ((cl-dbi:<dbi-database-error>
                      ;; If we were unable to acquire lock because
@@ -287,7 +287,7 @@
       (execute "SELECT pg_advisory_xact_lock(?)" key))))
 
 
-(defmacro with-lock ((name &key (block t) (timeout 3000) (signal-on-failure t)) &body body)
+(defmacro with-lock ((name &key (block t) (timeout 3) (signal-on-failure t)) &body body)
   (if block
       `(block with-lock
          (handler-bind ((lock-timeout (lambda (c)
@@ -344,6 +344,11 @@
            ;; Чтобы сохранился порядок элементов, такой же как в ids:
            (order-by (:raw (fmt "array_position(array[~{~A~^, ~}]::~A[], ~A)"
                                 ids
-                                pk-type
+                                (cond
+                                  ((string-equal pk-type "bigserial")
+                                   "bigint")
+                                  ((string-equal pk-type "serial")
+                                   "integer")
+                                  (t pk-type))
                                 pk-name))))
          #()))))

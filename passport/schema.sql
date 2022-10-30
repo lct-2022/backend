@@ -31,9 +31,3 @@ UPDATE passport.user SET avatar_url = 'http://www.gravatar.com/avatar/501a6ae10e
 
 ALTER TABLE passport.user ALTER COLUMN avatar_url SET NOT NULL;
 
--- make id in user bigserial
-
-CREATE SEQUENCE temp_id_seq;
-ALTER TABLE temp ALTER COLUMN id SET NOT NULL;
-ALTER TABLE temp ALTER COLUMN id SET DEFAULT nextval('temp_id_seq');
-ALTER SEQUENCE temp_id_seq OWNED BY temp.id;

@@ -6,7 +6,9 @@
                 #:class-slots
                 #:ensure-finalized)
   (:import-from #:alexandria
+                #:write-string-into-file
                 #:symbolicate)
+  (:import-from #:dexador)
   (:import-from #:openrpc-server
                 #:define-rpc-method)
   (:import-from #:common/db
@@ -65,4 +67,17 @@
              (values object)))))))
 
 
+(defun cached-url-as (url path)
+  "Скачивает URL, если получится, кеширует результат по указанному пути и возвращает этот путь.
 
+   Это нужно, чтобы у нас все спеки микросервисов лежали в репозитории и были доступны
+   в момент, когда сами сервисы не доступны, а только происходит сборка."
+  (let ((content (ignore-errors
+                  (dex:get url))))
+    (cond
+      (content
+       (write-string-into-file content path :if-exists :supersede :if-does-not-exist :create))
+      ((not (probe-file path))
+       (error "Не удалось скачать спеку с URL ~A и на диске её тоже нет."
+              url)))
+    path))

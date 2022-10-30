@@ -59,3 +59,14 @@ ALTER TABLE platform.team_member ALTER COLUMN title DROP DEFAULT;
 
 
 ALTER TABLE platform.job ADD COLUMN open BOOLEAN DEFAULT TRUE;
+
+CREATE TABLE platform.project_chat (
+    project_id BIGINT NOT NULL,
+    chat_id UUID NOT NULL,
+    created_at TIMESTAMPTZ,
+    updated_at TIMESTAMPTZ,
+    PRIMARY KEY (project_id, chat_id)
+);
+
+
+ALTER TABLE platform.project_chat ADD COLUMN private BOOLEAN DEFAULT FALSE;
