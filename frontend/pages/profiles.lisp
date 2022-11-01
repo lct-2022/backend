@@ -21,7 +21,9 @@
                 #:rpc-error
                 #:rpc-error-message)
   (:import-from #:alexandria
-                #:appendf))
+                #:appendf)
+  (:import-from #:rating/client
+                #:make-rating))
 (in-package #:app/pages/profiles)
 
 
@@ -38,12 +40,16 @@
 
 
 (defwidget user-profile ()
-  ((fio :initarg :fio
+  ((id :initarg :id
+       :reader user-id)
+   (fio :initarg :fio
         :reader user-fio)
    (avatar-url :initarg :avatar-url
                :reader user-avatar)
    (raw-user :initarg :raw
-             :reader raw-user)))
+             :reader raw-user)
+   (rating :initarg :rating
+           :reader user-rating)))
 
 
 (defun make-profiles-widget ()
@@ -74,12 +80,20 @@
   (when (next-page-func widget)
     (multiple-value-bind (users next-page-func)
         (funcall (next-page-func widget))
-      (appendf (users-list widget)
+      (let* ((ids (mapcar #'passport/client:user-id users))
+             (rating-client (rating/client::connect (make-rating)))
+             (ratings (rating/client:get-ratings rating-client "user" ids))
+             (new-profiles
                (loop for user in users
+                     for rating in ratings
                      collect (make-instance 'user-profile
                                             :raw user
+                                            :id (passport/client:user-id user)
                                             :avatar-url (passport/client:user-avatar-url user)
-                                            :fio (passport/client:user-fio user))))
+                                            :fio (passport/client:user-fio user)
+                                            :rating rating))))
+        (appendf (users-list widget)
+                 new-profiles))
       (setf (next-page-func widget)
             next-page-func))))
 
@@ -88,7 +102,15 @@
   (with-html
     (:img :class "avatar"
           :src (user-avatar widget))
-    (:span (user-fio widget))))
+    (:span :class "fio" (user-fio widget))
+    (:span :class "invite-button"
+           (:input :class "button success"
+                   :value "Позвать"))
+    (:span :class "rating"
+           (:span :class "rating-value"
+                  ("~A" (user-rating widget)))
+           (:span :class "rating-label"
+                  "в рейтинге"))))
 
 
 (defmethod get-dependencies ((widget user-profile))
@@ -96,9 +118,38 @@
    (reblocks-lass:make-dependency
      '(.user-profile
        :margin-bottom 1em
+       :border 1px solid gray
+       :display flex
+       :flex-direction row
+       :justify-content space-between
+       :align-items center
        (.avatar
+        :display flex
         :width 50px
-        :display inline)))))
+        :height 50px)
+       (.fio
+        :display flex
+        :flex-grow 10
+        :padding-left 1rem)
+       (.invite-button
+        :display flex
+        :margin-left 1rem
+        :margin-right 1rem
+        (input :margin 0))
+       (.rating
+        :display flex                   
+        :flex-direction row             
+        :align-items center             
+        :padding 3px 10px               
+        :gap 10px                       
+
+        :width 149px                    
+        :height 36px                    
+        
+        :background "#F9F5FF"             
+        :border-radius 8px
+        (.rating-value :color "#6941C6")
+        (.rating-label :color "#344054"))))))
 
 
 (defmethod render ((widget profiles))
@@ -110,8 +161,9 @@
            (retrieve-next-page widget)
            (update widget)))
     (with-html
-      (with-html-form (:post #'do-search)
+      (with-html-form (:post #'do-search :class "search-form")
         (:input :type "text"
+                :class "search-input"
                 :name "query"
                 :value (search-query widget))
         (:input :type "submit"
@@ -119,12 +171,30 @@
                 :value "Найти"))
       (cond
         ((users-list widget)
-         (:ul (loop for user in (users-list widget)
-                    do (render user)))
+         (loop for user in (users-list widget)
+               do (render user))
          (when (next-page-func widget)
-           (with-html-form (:post #'retrieve-more-results)
+           (with-html-form (:post #'retrieve-more-results
+                                  :class "more-form")
              (:input :type "submit"
                      :class "button"
                      :value "Ещё"))))
         (t
          (:p "Нет пользователей по такому запросу"))))))
+
+
+(defmethod get-dependencies ((widget profiles))
+  (list
+   (reblocks-lass:make-dependency
+     '(.profiles
+       :width 80%
+       :margin-top 2rem
+       :margin-left auto
+       :margin-right auto
+       (.search-form
+        :display flex
+        :align-items center
+        (.search-input :margin-right 1rem))
+       (.more-form
+        :display flex
+        :justify-content center)))))

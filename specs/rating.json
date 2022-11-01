@@ -240,6 +240,41 @@
       },
       "summary": "Возвращает N объектов с наивысшим рейтингом в своей категории.",
       "paramStructure": "by-name"
+    },
+    {
+      "name": "get-ratings",
+      "params": [
+        {
+          "name": "subject-type",
+          "schema": {
+            "type": "string"
+          },
+          "required": true,
+          "summary": "Тип объекта: project или user."
+        },
+        {
+          "name": "subject-ids",
+          "schema": {
+            "type": "array",
+            "items": {
+              "type": "integer"
+            }
+          },
+          "required": true,
+          "summary": "ID объектов."
+        }
+      ],
+      "result": {
+        "name": "get-ratings-result",
+        "schema": {
+          "type": "array",
+          "items": {
+            "type": "integer"
+          }
+        }
+      },
+      "summary": "Возвращает рейтинги объектов.",
+      "paramStructure": "by-name"
     }
   ],
   "openrpc": "1.0.0",

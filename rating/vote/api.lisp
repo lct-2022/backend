@@ -80,6 +80,33 @@
       (getf (first rows) :count))))
 
 
+(define-rpc-method (rating-api get-ratings) (subject-type subject-ids)
+  (:summary "Возвращает рейтинги объектов.")
+  (:param subject-type string "Тип объекта: project или user.")
+  (:param subject-ids (list-of integer) "ID объектов.")
+  (:result (list-of integer))
+
+  (check-subject-type subject-type)
+
+  (with-connection ()
+    (loop with rows = (when subject-ids
+                        (retrieve-by-sql
+                         (sxql:select (:subject_id (:as (:raw "COUNT(*)")
+                                                    :rating))
+                           (sxql:from :rating.vote)
+                           (sxql:where (:and (:= :subject_type subject-type)
+                                             (:in :subject_id subject-ids)))
+                           (sxql:group-by :subject_id))))
+          with map = (make-hash-table :test 'equal)
+          for row in rows
+          do (setf (gethash (getf row :subject-id) map)
+                   (getf row :rating))
+          finally (return
+                    (mapcar (lambda (id)
+                              (gethash id map 0))
+                            subject-ids)))))
+
+
 (define-rpc-method (rating-api get-top) (subject-type &key (limit 10))
   (:summary "Возвращает N объектов с наивысшим рейтингом в своей категории.")
   (:param subject-type string "Тип объекта: project или user.")
