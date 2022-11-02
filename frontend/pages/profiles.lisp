@@ -102,15 +102,29 @@
   (with-html
     (:img :class "avatar"
           :src (user-avatar widget))
-    (:span :class "fio" (user-fio widget))
-    (:span :class "invite-button"
-           (:input :class "button success"
-                   :value "Позвать"))
-    (:span :class "rating"
-           (:span :class "rating-value"
-                  ("~A" (user-rating widget)))
-           (:span :class "rating-label"
-                  "в рейтинге"))))
+    (:div :class "data"
+          (:span :class "fio" (user-fio widget)
+                 ;; TODO: Добавить в модель
+                 (:span :class "fio-label"
+                        "Участник"))
+          (:span :class "specialization"
+                 "React разработчик" ;; TODO: добавить в модель
+                 )
+          (:span :class "tags"
+                 ;; TODO: добавить в модель
+                 (:span :class "tag gray"
+                        "Ищет команду")
+                 (:span :class "tag"
+                        "Хочет в хакатон")))
+    (:div :class "controls"
+          (:span :class "invite-button"
+                 (:input :class "button success small"
+                         :value "Позвать"))
+          (:span :class "rating"
+                 (:span :class "rating-value"
+                        ("~A" (user-rating widget)))
+                 (:span :class "rating-label"
+                        "в рейтинге")))))
 
 
 (defmethod get-dependencies ((widget user-profile))
@@ -118,19 +132,47 @@
    (reblocks-lass:make-dependency
      '(.user-profile
        :margin-bottom 1em
-       :border 1px solid gray
        :display flex
        :flex-direction row
        :justify-content space-between
        :align-items center
-       (.avatar
+       :background "#FFF"
+       :border 1px solid "#98A2B3"
+       :border-radius 5px
+
+       ((> .data)
         :display flex
-        :width 50px
-        :height 50px)
-       (.fio
-        :display flex
+        :flex-direction column
         :flex-grow 10
-        :padding-left 1rem)
+        :margin-left 1rem
+        :margin-bottom 0.5rem
+        (.fio
+         :font-weight bold
+         :font-size 1.2rem
+         ((> .fio-label)
+          :font-weight normal
+          :color "#6941C6"
+          :font-size 1rem
+          :margin-left 1rem))
+        ((> .specialization)
+         :color "#667085")
+        ((> .tags)
+         :margin-top 0.5rem
+         ((> .tag)
+          :margin-right 0.5rem)
+         ((> (:and .tag .gray))
+          :color "#475467"
+          :padding 4px 8px
+          :background "#F2F4F7"
+          :border-radius 8px)))
+       ((> .controls)
+        :display flex)
+       
+       ((> .avatar)
+        :width 50px
+        :height 50px
+        :margin-left 1rem)
+       
        (.invite-button
         :display flex
         :margin-left 1rem
@@ -187,10 +229,8 @@
   (list
    (reblocks-lass:make-dependency
      '(.profiles
-       :width 80%
+       :width 100%
        :margin-top 2rem
-       :margin-left auto
-       :margin-right auto
        (.search-form
         :display flex
         :align-items center

@@ -4,6 +4,7 @@
                 #:defroutes)
   (:import-from #:reblocks/app
                 #:defapp)
+  (:import-from #:reblocks-lass)
   (:import-from #:app/pages/login
                 #:make-login-page)
   (:import-from #:app/pages/landing
@@ -15,7 +16,13 @@
   (:import-from #:app/pages/logout
                 #:make-logout-page)
   (:import-from #:app/pages/profiles
-                #:make-profiles-widget))
+                #:make-profiles-widget)
+  (:import-from #:app/pages/jobs
+                #:make-jobs-widget)
+  (:import-from #:reblocks/dependencies
+                #:get-dependencies)
+  (:import-from #:app/widgets/header
+                #:make-page-with-header))
 (in-package #:app/app)
 
 
@@ -24,11 +31,25 @@
 
 
 (defroutes routes
-    ("/login" (make-login-page) )
-  ("/logout" (make-logout-page))
-  ("/profiles/" (make-profiles-widget))
-  ("/" (make-landing-page)))
+    ("/login" (make-page-with-header
+               (make-login-page)) )
+  ("/logout" (make-page-with-header
+              (make-logout-page)))
+  ("/profiles/" (make-page-with-header
+                 (make-profiles-widget)))
+  ("/jobs/" (make-page-with-header
+             (make-jobs-widget)))
+  ("/" (make-page-with-header
+        (make-landing-page))))
 
 
 (defmethod reblocks/session:init ((app app))  
   (make-routes))
+
+
+(defmethod get-dependencies ((app app))
+  (append (list
+           (reblocks-lass:make-dependency
+             '((body > div)
+               :background "#D0D5DD")))
+          (call-next-method)))
