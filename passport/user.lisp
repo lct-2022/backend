@@ -86,7 +86,13 @@
           :type boolean
           :col-type :boolean
           :accessor adminp
-          :documentation "Если этот признак True, то пользователь считается админом и может позволить себе больше, чем простые смертные."))
+          :documentation "Если этот признак True, то пользователь считается админом и может позволить себе больше, чем простые смертные.")
+   (projects :initarg :projects
+             :initform nil
+             :ghost t
+             :documentation "Эта колонка заполняется, только если в API явно запросили поле projects.
+                             Данные подтягиваются из сервиса platform."
+             :accessor user-projects))
   (:table-name "passport.user")
   (:metaclass dao-table-class))
 

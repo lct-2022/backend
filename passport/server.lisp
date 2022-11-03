@@ -40,7 +40,9 @@
   (:import-from #:mito
                 #:find-dao)
   (:import-from #:avatar-api
-                #:gravatar))
+                #:gravatar)
+  (:import-from #:platform/client
+                #:make-platform))
 (in-package #:passport/server)
 
 
@@ -93,13 +95,14 @@
                      :code 2)))))
 
 
-(define-rpc-method (passport-api my-profile) ()
+(define-rpc-method (passport-api my-profile) (&key additional-fields)
   (:summary "Отдаёт профиль текущего залогиненого пользователя.")
+  (:description "В additional-fields можно передать \"projects\", чтобы в поле \"projects\" подтянулись проекты пользователя.")
   (:result user)
   (with-connection ()
     (with-session (user-id)
-      (find-dao 'user
-                :id user-id))))
+      (let ((user (find-dao 'user
+                       :id user-id)))))))
 
 
 (define-rpc-method (passport-api my-roles) ()
@@ -116,17 +119,33 @@
               :id user-id)))
 
 
-(define-rpc-method (passport-api get-profile) (id)
+(defun enrich-with-projects (user)
+  (let* ((client (platform/client::connect
+                  (make-platform))))
+    (setf (passport/user::user-projects user)
+          (platform/client:user-projects client (object-id user)))
+    user))
+
+
+(define-rpc-method (passport-api get-profile) (id &key additional-fields)
   (:param id integer "ID пользователя")
+  (:param additional-fields (list-of string)
+          "Опциональный список полей, которые нужно заполнить для пользователя.
+           Пока поддерживается только \"projects\".")
   (:result user)
   (with-connection ()
     (let ((user (mito:find-dao 'user
                                :id id)))
-      (if user
-          user
-          (return-error (fmt "Пользователь с id = ~A не найден."
-                             id)
-                        :code 4)))))
+      (cond
+        ((and user (member "projects" additional-fields
+                           :test #'string-equal))
+         (enrich-with-projects user))
+        (user
+         user)
+        (t
+         (return-error (fmt "Пользователь с id = ~A не найден."
+                            id)
+                       :code 4))))))
 
 
 (define-rpc-method (passport-api popular-profiles) (&key (limit 10))

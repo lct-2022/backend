@@ -191,6 +191,14 @@
             "admin": {
               "type": "boolean",
               "description": "Если этот признак True, то пользователь считается админом и может позволить себе больше, чем простые смертные."
+            },
+            "projects": {
+              "type": "object",
+              "properties": {},
+              "required": [],
+              "x-cl-class": "T",
+              "x-cl-package": "COMMON-LISP",
+              "description": "Эта колонка заполняется, только если в API явно запросили поле projects.\n                             Данные подтягиваются из сервиса platform."
             }
           },
           "required": [
@@ -473,6 +481,14 @@
             "admin": {
               "type": "boolean",
               "description": "Если этот признак True, то пользователь считается админом и может позволить себе больше, чем простые смертные."
+            },
+            "projects": {
+              "type": "object",
+              "properties": {},
+              "required": [],
+              "x-cl-class": "T",
+              "x-cl-package": "COMMON-LISP",
+              "description": "Эта колонка заполняется, только если в API явно запросили поле projects.\n                             Данные подтягиваются из сервиса platform."
             }
           },
           "required": [
@@ -499,6 +515,16 @@
           },
           "required": true,
           "summary": "ID пользователя"
+        },
+        {
+          "name": "additional_fields",
+          "schema": {
+            "type": "array",
+            "items": {
+              "type": "string"
+            }
+          },
+          "summary": "Опциональный список полей, которые нужно заполнить для пользователя.\n           Пока поддерживается только \"projects\"."
         }
       ],
       "result": {
@@ -630,6 +656,14 @@
             "admin": {
               "type": "boolean",
               "description": "Если этот признак True, то пользователь считается админом и может позволить себе больше, чем простые смертные."
+            },
+            "projects": {
+              "type": "object",
+              "properties": {},
+              "required": [],
+              "x-cl-class": "T",
+              "x-cl-package": "COMMON-LISP",
+              "description": "Эта колонка заполняется, только если в API явно запросили поле projects.\n                             Данные подтягиваются из сервиса platform."
             }
           },
           "required": [
@@ -790,6 +824,14 @@
                   "admin": {
                     "type": "boolean",
                     "description": "Если этот признак True, то пользователь считается админом и может позволить себе больше, чем простые смертные."
+                  },
+                  "projects": {
+                    "type": "object",
+                    "properties": {},
+                    "required": [],
+                    "x-cl-class": "T",
+                    "x-cl-package": "COMMON-LISP",
+                    "description": "Эта колонка заполняется, только если в API явно запросили поле projects.\n                             Данные подтягиваются из сервиса platform."
                   }
                 },
                 "required": [
@@ -976,6 +1018,14 @@
                   "admin": {
                     "type": "boolean",
                     "description": "Если этот признак True, то пользователь считается админом и может позволить себе больше, чем простые смертные."
+                  },
+                  "projects": {
+                    "type": "object",
+                    "properties": {},
+                    "required": [],
+                    "x-cl-class": "T",
+                    "x-cl-package": "COMMON-LISP",
+                    "description": "Эта колонка заполняется, только если в API явно запросили поле projects.\n                             Данные подтягиваются из сервиса platform."
                   }
                 },
                 "required": [

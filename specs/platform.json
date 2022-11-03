@@ -2979,6 +2979,77 @@
       "summary": "Возвращает список проектов по заданному запросу.",
       "description": "Запрос должен вводиться в формате ElasticSearch. Но для поиска по всем\n полям можно просто слова вводить.  Если передать \"*\" - выдаются все проекты, начиная с самых свежих.\n\nЭтот метод поддерживает пейджинацию и можно запрашивать следующие страницы результатов.",
       "paramStructure": "by-name"
+    },
+    {
+      "name": "user_projects",
+      "params": [
+        {
+          "name": "user_id",
+          "schema": {
+            "type": "integer"
+          },
+          "required": true
+        }
+      ],
+      "result": {
+        "name": "user_projects_result",
+        "schema": {
+          "type": "array",
+          "items": {
+            "type": "object",
+            "properties": {
+              "created_at": {
+                "type": "object",
+                "properties": {},
+                "required": [],
+                "x-cl-class": "T",
+                "x-cl-package": "COMMON-LISP"
+              },
+              "updated_at": {
+                "type": "object",
+                "properties": {},
+                "required": [],
+                "x-cl-class": "T",
+                "x-cl-package": "COMMON-LISP"
+              },
+              "synced": {
+                "type": "boolean"
+              },
+              "id": {
+                "type": "integer"
+              },
+              "author_id": {
+                "type": "integer",
+                "description": "Идентификатор профиля автора проекта."
+              },
+              "title": {
+                "type": "string"
+              },
+              "description": {
+                "type": "string"
+              },
+              "url": {
+                "type": "string"
+              },
+              "contests": {
+                "type": "string",
+                "description": "Текстовое описание конкурсов и хакатонов, в которых принимал участие."
+              }
+            },
+            "required": [
+              "author_id",
+              "id",
+              "updated_at",
+              "created_at"
+            ],
+            "x-cl-class": "PROJECT",
+            "x-cl-package": "PLATFORM/PROJECT/MODEL"
+          }
+        }
+      },
+      "summary": "Отдаёт список проектов, в которых пользователь участник команды.",
+      "description": "Поскольку у нас микросервисы, то профили пользователей надо запросить отдельно через passport.get-profiles.",
+      "paramStructure": "by-name"
     }
   ],
   "openrpc": "1.0.0",
