@@ -37,7 +37,7 @@
   (:metaclass dao-table-class))
 
 
-(defclass top-item ()
+(defclass top-item (mito:dao-class)
   ((subject-type :initarg :subject-type
                  :type string
                  :col-type :text

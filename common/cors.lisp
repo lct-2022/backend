@@ -1,18 +1,29 @@
 (uiop:define-package #:common/cors
-  (:use #:cl))
+  (:use #:cl)
+  (:use #:log)
+  (:import-from #:alexandria
+                #:length=))
 (in-package #:common/cors)
 
 
 (defun process-cors-middleware (env app access-control allowed-headers)
-  (destructuring-bind (code headers content)
-      (funcall app env)
-    (list code
-          (append
-           (unless (member :Access-Control-Allow-Origin headers)
-             (list :Access-Control-Allow-Origin access-control))
-           (list :Access-Control-Allow-Headers allowed-headers)
-           headers)
-          content)))
+  (let ((response (funcall app env)))
+    (cond
+      ((length= 3 response)
+       (destructuring-bind (code headers content)
+           response
+         (list code
+               (append
+                (unless (member :Access-Control-Allow-Origin headers)
+                  (list :Access-Control-Allow-Origin access-control))
+                (list :Access-Control-Allow-Headers allowed-headers)
+                headers)
+               content)))
+      (t
+       (log:error "Something strange, I've got response with wrong number of items" response env)
+       (list 500
+             (list :Content-Type "application/json")
+             (list "{\"code\": -1, \"message\": \"Unhandled error.\"}"))))))
 
 
 (defun make-cors-middleware (app &key (access-control "*")

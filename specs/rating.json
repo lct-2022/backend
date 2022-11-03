@@ -14,7 +14,7 @@
       "name": "vote",
       "params": [
         {
-          "name": "subject-type",
+          "name": "subject_type",
           "schema": {
             "type": "string"
           },
@@ -22,7 +22,7 @@
           "summary": "Тип объекта: project или user."
         },
         {
-          "name": "subject-id",
+          "name": "subject_id",
           "schema": {
             "type": "integer"
           },
@@ -31,18 +31,18 @@
         }
       ],
       "result": {
-        "name": "vote-result",
+        "name": "vote_result",
         "schema": {
           "type": "object",
           "properties": {
-            "created-at": {
+            "created_at": {
               "type": "object",
               "properties": {},
               "required": [],
               "x-cl-class": "T",
               "x-cl-package": "COMMON-LISP"
             },
-            "updated-at": {
+            "updated_at": {
               "type": "object",
               "properties": {},
               "required": [],
@@ -55,25 +55,25 @@
             "id": {
               "type": "integer"
             },
-            "user-id": {
+            "user_id": {
               "type": "integer"
             },
-            "subject-type": {
+            "subject_type": {
               "type": "string",
               "description": "Тип объекта, за который оставлен голос. В базе это ENUM (project, user)"
             },
-            "subject-id": {
+            "subject_id": {
               "type": "integer",
               "description": "ID объекта, за который оставлен голос."
             }
           },
           "required": [
-            "subject-id",
-            "subject-type",
-            "user-id",
+            "subject_id",
+            "subject_type",
+            "user_id",
             "id",
-            "updated-at",
-            "created-at"
+            "updated_at",
+            "created_at"
           ],
           "x-cl-class": "VOTE",
           "x-cl-package": "RATING/VOTE/MODEL",
@@ -84,10 +84,10 @@
       "paramStructure": "by-name"
     },
     {
-      "name": "get-vote",
+      "name": "get_vote",
       "params": [
         {
-          "name": "subject-type",
+          "name": "subject_type",
           "schema": {
             "type": "string"
           },
@@ -95,7 +95,7 @@
           "summary": "Тип объекта: project или user."
         },
         {
-          "name": "subject-id",
+          "name": "subject_id",
           "schema": {
             "type": "integer"
           },
@@ -104,18 +104,18 @@
         }
       ],
       "result": {
-        "name": "get-vote-result",
+        "name": "get_vote_result",
         "schema": {
           "type": "object",
           "properties": {
-            "created-at": {
+            "created_at": {
               "type": "object",
               "properties": {},
               "required": [],
               "x-cl-class": "T",
               "x-cl-package": "COMMON-LISP"
             },
-            "updated-at": {
+            "updated_at": {
               "type": "object",
               "properties": {},
               "required": [],
@@ -128,25 +128,25 @@
             "id": {
               "type": "integer"
             },
-            "user-id": {
+            "user_id": {
               "type": "integer"
             },
-            "subject-type": {
+            "subject_type": {
               "type": "string",
               "description": "Тип объекта, за который оставлен голос. В базе это ENUM (project, user)"
             },
-            "subject-id": {
+            "subject_id": {
               "type": "integer",
               "description": "ID объекта, за который оставлен голос."
             }
           },
           "required": [
-            "subject-id",
-            "subject-type",
-            "user-id",
+            "subject_id",
+            "subject_type",
+            "user_id",
             "id",
-            "updated-at",
-            "created-at"
+            "updated_at",
+            "created_at"
           ],
           "x-cl-class": "VOTE",
           "x-cl-package": "RATING/VOTE/MODEL",
@@ -157,10 +157,10 @@
       "paramStructure": "by-name"
     },
     {
-      "name": "get-rating",
+      "name": "get_rating",
       "params": [
         {
-          "name": "subject-type",
+          "name": "subject_type",
           "schema": {
             "type": "string"
           },
@@ -168,7 +168,7 @@
           "summary": "Тип объекта: project или user."
         },
         {
-          "name": "subject-id",
+          "name": "subject_id",
           "schema": {
             "type": "integer"
           },
@@ -177,7 +177,7 @@
         }
       ],
       "result": {
-        "name": "get-rating-result",
+        "name": "get_rating_result",
         "schema": {
           "type": "integer"
         }
@@ -186,10 +186,45 @@
       "paramStructure": "by-name"
     },
     {
-      "name": "get-top",
+      "name": "get_ratings",
       "params": [
         {
-          "name": "subject-type",
+          "name": "subject_type",
+          "schema": {
+            "type": "string"
+          },
+          "required": true,
+          "summary": "Тип объекта: project или user."
+        },
+        {
+          "name": "subject_ids",
+          "schema": {
+            "type": "array",
+            "items": {
+              "type": "integer"
+            }
+          },
+          "required": true,
+          "summary": "ID объектов."
+        }
+      ],
+      "result": {
+        "name": "get_ratings_result",
+        "schema": {
+          "type": "array",
+          "items": {
+            "type": "integer"
+          }
+        }
+      },
+      "summary": "Возвращает рейтинги объектов.",
+      "paramStructure": "by-name"
+    },
+    {
+      "name": "get_top",
+      "params": [
+        {
+          "name": "subject_type",
           "schema": {
             "type": "string"
           },
@@ -205,7 +240,7 @@
         }
       ],
       "result": {
-        "name": "get-top-result",
+        "name": "get_top_result",
         "schema": {
           "type": "array",
           "items": {
@@ -214,11 +249,11 @@
               "synced": {
                 "type": "boolean"
               },
-              "subject-type": {
+              "subject_type": {
                 "type": "string",
                 "description": "Тип объекта, за который оставлен голос. В базе это ENUM (project, user)"
               },
-              "subject-id": {
+              "subject_id": {
                 "type": "integer",
                 "description": "ID объекта, из TOP."
               },
@@ -229,8 +264,8 @@
             },
             "required": [
               "rating",
-              "subject-id",
-              "subject-type"
+              "subject_id",
+              "subject_type"
             ],
             "x-cl-class": "TOP-ITEM",
             "x-cl-package": "RATING/VOTE/MODEL",
@@ -239,41 +274,6 @@
         }
       },
       "summary": "Возвращает N объектов с наивысшим рейтингом в своей категории.",
-      "paramStructure": "by-name"
-    },
-    {
-      "name": "get-ratings",
-      "params": [
-        {
-          "name": "subject-type",
-          "schema": {
-            "type": "string"
-          },
-          "required": true,
-          "summary": "Тип объекта: project или user."
-        },
-        {
-          "name": "subject-ids",
-          "schema": {
-            "type": "array",
-            "items": {
-              "type": "integer"
-            }
-          },
-          "required": true,
-          "summary": "ID объектов."
-        }
-      ],
-      "result": {
-        "name": "get-ratings-result",
-        "schema": {
-          "type": "array",
-          "items": {
-            "type": "integer"
-          }
-        }
-      },
-      "summary": "Возвращает рейтинги объектов.",
       "paramStructure": "by-name"
     }
   ],

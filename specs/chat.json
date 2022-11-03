@@ -11,10 +11,81 @@
       }
     },
     {
-      "name": "create-chat",
+      "name": "post",
       "params": [
         {
-          "name": "team-id",
+          "name": "chat_id",
+          "schema": {
+            "type": "string"
+          },
+          "required": true
+        },
+        {
+          "name": "message",
+          "schema": {
+            "type": "string"
+          },
+          "required": true
+        }
+      ],
+      "result": {
+        "name": "post_result",
+        "schema": {
+          "type": "object",
+          "properties": {
+            "created_at": {
+              "type": "object",
+              "properties": {},
+              "required": [],
+              "x-cl-class": "T",
+              "x-cl-package": "COMMON-LISP"
+            },
+            "updated_at": {
+              "type": "object",
+              "properties": {},
+              "required": [],
+              "x-cl-class": "T",
+              "x-cl-package": "COMMON-LISP"
+            },
+            "synced": {
+              "type": "boolean"
+            },
+            "id": {
+              "type": "integer"
+            },
+            "chat_id": {
+              "type": "string"
+            },
+            "user_id": {
+              "type": "integer",
+              "description": "ID пользователя, который написал сообщение."
+            },
+            "message": {
+              "type": "string",
+              "description": "Текст сообщения"
+            }
+          },
+          "required": [
+            "message",
+            "user_id",
+            "chat_id",
+            "id",
+            "updated_at",
+            "created_at"
+          ],
+          "x-cl-class": "MESSAGE",
+          "x-cl-package": "CHAT/MESSAGE/MODEL",
+          "description": "Одно сообщение из чата."
+        }
+      },
+      "summary": "Добавляет в чат сообщение от текущего пользователя.",
+      "paramStructure": "by-name"
+    },
+    {
+      "name": "create_chat",
+      "params": [
+        {
+          "name": "team_id",
           "schema": {
             "type": "integer"
           }
@@ -28,18 +99,18 @@
         }
       ],
       "result": {
-        "name": "create-chat-result",
+        "name": "create_chat_result",
         "schema": {
           "type": "object",
           "properties": {
-            "created-at": {
+            "created_at": {
               "type": "object",
               "properties": {},
               "required": [],
               "x-cl-class": "T",
               "x-cl-package": "COMMON-LISP"
             },
-            "updated-at": {
+            "updated_at": {
               "type": "object",
               "properties": {},
               "required": [],
@@ -60,8 +131,8 @@
           "required": [
             "private",
             "id",
-            "updated-at",
-            "created-at"
+            "updated_at",
+            "created_at"
           ],
           "x-cl-class": "CHAT",
           "x-cl-package": "CHAT/CHAT/MODEL",
@@ -73,10 +144,10 @@
       "paramStructure": "by-name"
     },
     {
-      "name": "get-members",
+      "name": "get_members",
       "params": [
         {
-          "name": "chat-id",
+          "name": "chat_id",
           "schema": {
             "type": "integer"
           },
@@ -84,18 +155,18 @@
         }
       ],
       "result": {
-        "name": "get-members-result",
+        "name": "get_members_result",
         "schema": {
           "type": "object",
           "properties": {
-            "created-at": {
+            "created_at": {
               "type": "object",
               "properties": {},
               "required": [],
               "x-cl-class": "T",
               "x-cl-package": "COMMON-LISP"
             },
-            "updated-at": {
+            "updated_at": {
               "type": "object",
               "properties": {},
               "required": [],
@@ -105,19 +176,19 @@
             "synced": {
               "type": "boolean"
             },
-            "chat-id": {
+            "chat_id": {
               "type": "string"
             },
-            "user-id": {
+            "user_id": {
               "type": "integer",
               "description": "ID пользователя, который состоит в чате.\n\n                            Для каждого члена команды будет такая запись,\n                            чтобы мы могли быстро определять,\n                            кто может писать в приватный чат, а кто нет."
             }
           },
           "required": [
-            "user-id",
-            "chat-id",
-            "updated-at",
-            "created-at"
+            "user_id",
+            "chat_id",
+            "updated_at",
+            "created_at"
           ],
           "x-cl-class": "CHAT-MEMBER",
           "x-cl-package": "CHAT/CHAT-MEMBER/MODEL",
@@ -128,88 +199,17 @@
       "paramStructure": "by-name"
     },
     {
-      "name": "post",
+      "name": "get_messages",
       "params": [
         {
-          "name": "chat-id",
+          "name": "chat_id",
           "schema": {
             "type": "string"
           },
           "required": true
         },
         {
-          "name": "message",
-          "schema": {
-            "type": "string"
-          },
-          "required": true
-        }
-      ],
-      "result": {
-        "name": "post-result",
-        "schema": {
-          "type": "object",
-          "properties": {
-            "created-at": {
-              "type": "object",
-              "properties": {},
-              "required": [],
-              "x-cl-class": "T",
-              "x-cl-package": "COMMON-LISP"
-            },
-            "updated-at": {
-              "type": "object",
-              "properties": {},
-              "required": [],
-              "x-cl-class": "T",
-              "x-cl-package": "COMMON-LISP"
-            },
-            "synced": {
-              "type": "boolean"
-            },
-            "id": {
-              "type": "integer"
-            },
-            "chat-id": {
-              "type": "string"
-            },
-            "user-id": {
-              "type": "integer",
-              "description": "ID пользователя, который написал сообщение."
-            },
-            "message": {
-              "type": "string",
-              "description": "Текст сообщения"
-            }
-          },
-          "required": [
-            "message",
-            "user-id",
-            "chat-id",
-            "id",
-            "updated-at",
-            "created-at"
-          ],
-          "x-cl-class": "MESSAGE",
-          "x-cl-package": "CHAT/MESSAGE/MODEL",
-          "description": "Одно сообщение из чата."
-        }
-      },
-      "summary": "Добавляет в чат сообщение от текущего пользователя.",
-      "paramStructure": "by-name"
-    },
-    {
-      "name": "get-messages",
-      "params": [
-        {
-          "name": "chat-id",
-          "schema": {
-            "type": "string"
-          },
-          "required": true
-        },
-        {
-          "name": "page-key",
+          "name": "page_key",
           "schema": {
             "type": "integer"
           }
@@ -222,7 +222,7 @@
         }
       ],
       "result": {
-        "name": "get-messages-result",
+        "name": "get_messages_result",
         "schema": {
           "type": "object",
           "properties": {
@@ -231,14 +231,14 @@
               "items": {
                 "type": "object",
                 "properties": {
-                  "created-at": {
+                  "created_at": {
                     "type": "object",
                     "properties": {},
                     "required": [],
                     "x-cl-class": "T",
                     "x-cl-package": "COMMON-LISP"
                   },
-                  "updated-at": {
+                  "updated_at": {
                     "type": "object",
                     "properties": {},
                     "required": [],
@@ -251,10 +251,10 @@
                   "id": {
                     "type": "integer"
                   },
-                  "chat-id": {
+                  "chat_id": {
                     "type": "string"
                   },
-                  "user-id": {
+                  "user_id": {
                     "type": "integer",
                     "description": "ID пользователя, который написал сообщение."
                   },
@@ -265,11 +265,11 @@
                 },
                 "required": [
                   "message",
-                  "user-id",
-                  "chat-id",
+                  "user_id",
+                  "chat_id",
                   "id",
-                  "updated-at",
-                  "created-at"
+                  "updated_at",
+                  "created_at"
                 ],
                 "x-cl-class": "MESSAGE",
                 "x-cl-package": "CHAT/MESSAGE/MODEL",

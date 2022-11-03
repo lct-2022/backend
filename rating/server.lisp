@@ -10,9 +10,7 @@
                 #:define-api)
   (:import-from #:rating/api
                 #:rating-api)
-  ;; 
-  ;; (:import-from #:rating/job/api)
-  )
+  (:import-from #:rating/vote/api))
 (in-package #:rating/server)
 
 

@@ -1,16 +1,6 @@
 {
   "methods": [
     {
-      "name": "rpc.discover",
-      "params": [],
-      "result": {
-        "name": "OpenRPC Schema",
-        "schema": {
-          "$ref": "https://raw.githubusercontent.com/open-rpc/meta-schema/master/schema.json"
-        }
-      }
-    },
-    {
       "name": "login",
       "params": [
         {
@@ -29,7 +19,7 @@
         }
       ],
       "result": {
-        "name": "login-result",
+        "name": "login_result",
         "schema": {
           "type": "string"
         }
@@ -37,21 +27,54 @@
       "paramStructure": "by-name"
     },
     {
-      "name": "my-profile",
+      "name": "signup",
+      "params": [
+        {
+          "name": "email",
+          "schema": {
+            "type": "string"
+          },
+          "required": true
+        },
+        {
+          "name": "password",
+          "schema": {
+            "type": "string"
+          },
+          "required": true
+        },
+        {
+          "name": "fio",
+          "schema": {
+            "type": "string"
+          },
+          "required": true
+        }
+      ],
+      "result": {
+        "name": "signup_result",
+        "schema": {
+          "type": "string"
+        }
+      },
+      "paramStructure": "by-name"
+    },
+    {
+      "name": "my_profile",
       "params": [],
       "result": {
-        "name": "my-profile-result",
+        "name": "my_profile_result",
         "schema": {
           "type": "object",
           "properties": {
-            "created-at": {
+            "created_at": {
               "type": "object",
               "properties": {},
               "required": [],
               "x-cl-class": "T",
               "x-cl-package": "COMMON-LISP"
             },
-            "updated-at": {
+            "updated_at": {
               "type": "object",
               "properties": {},
               "required": [],
@@ -67,10 +90,10 @@
             "email": {
               "type": "string"
             },
-            "password-hash": {
+            "password_hash": {
               "type": "string"
             },
-            "avatar-url": {
+            "avatar_url": {
               "type": "string",
               "description": "По-умолчанию, генерируем URL через Gravatar, по email пользователя. Часто это срабатывает."
             },
@@ -171,12 +194,12 @@
             }
           },
           "required": [
-            "avatar-url",
-            "password-hash",
+            "avatar_url",
+            "password_hash",
             "email",
             "id",
-            "updated-at",
-            "created-at"
+            "updated_at",
+            "created_at"
           ],
           "x-cl-class": "USER",
           "x-cl-package": "PASSPORT/USER"
@@ -186,40 +209,22 @@
       "paramStructure": "by-name"
     },
     {
-      "name": "signup",
-      "params": [
-        {
-          "name": "email",
-          "schema": {
-            "type": "string"
-          },
-          "required": true
-        },
-        {
-          "name": "password",
-          "schema": {
-            "type": "string"
-          },
-          "required": true
-        },
-        {
-          "name": "fio",
-          "schema": {
-            "type": "string"
-          },
-          "required": true
-        }
-      ],
+      "name": "my_roles",
+      "params": [],
       "result": {
-        "name": "signup-result",
+        "name": "my_roles_result",
         "schema": {
-          "type": "string"
+          "type": "array",
+          "items": {
+            "type": "string"
+          }
         }
       },
+      "summary": "Отдаёт список строк с ролями текущего залогинового пользователя.",
       "paramStructure": "by-name"
     },
     {
-      "name": "update-profile",
+      "name": "update_profile",
       "params": [
         {
           "name": "about",
@@ -340,18 +345,18 @@
         }
       ],
       "result": {
-        "name": "update-profile-result",
+        "name": "update_profile_result",
         "schema": {
           "type": "object",
           "properties": {
-            "created-at": {
+            "created_at": {
               "type": "object",
               "properties": {},
               "required": [],
               "x-cl-class": "T",
               "x-cl-package": "COMMON-LISP"
             },
-            "updated-at": {
+            "updated_at": {
               "type": "object",
               "properties": {},
               "required": [],
@@ -367,10 +372,10 @@
             "email": {
               "type": "string"
             },
-            "password-hash": {
+            "password_hash": {
               "type": "string"
             },
-            "avatar-url": {
+            "avatar_url": {
               "type": "string",
               "description": "По-умолчанию, генерируем URL через Gravatar, по email пользователя. Часто это срабатывает."
             },
@@ -471,12 +476,12 @@
             }
           },
           "required": [
-            "avatar-url",
-            "password-hash",
+            "avatar_url",
+            "password_hash",
             "email",
             "id",
-            "updated-at",
-            "created-at"
+            "updated_at",
+            "created_at"
           ],
           "x-cl-class": "USER",
           "x-cl-package": "PASSPORT/USER"
@@ -485,7 +490,7 @@
       "paramStructure": "by-name"
     },
     {
-      "name": "get-profile",
+      "name": "get_profile",
       "params": [
         {
           "name": "id",
@@ -497,18 +502,18 @@
         }
       ],
       "result": {
-        "name": "get-profile-result",
+        "name": "get_profile_result",
         "schema": {
           "type": "object",
           "properties": {
-            "created-at": {
+            "created_at": {
               "type": "object",
               "properties": {},
               "required": [],
               "x-cl-class": "T",
               "x-cl-package": "COMMON-LISP"
             },
-            "updated-at": {
+            "updated_at": {
               "type": "object",
               "properties": {},
               "required": [],
@@ -524,10 +529,10 @@
             "email": {
               "type": "string"
             },
-            "password-hash": {
+            "password_hash": {
               "type": "string"
             },
-            "avatar-url": {
+            "avatar_url": {
               "type": "string",
               "description": "По-умолчанию, генерируем URL через Gravatar, по email пользователя. Часто это срабатывает."
             },
@@ -628,12 +633,12 @@
             }
           },
           "required": [
-            "avatar-url",
-            "password-hash",
+            "avatar_url",
+            "password_hash",
             "email",
             "id",
-            "updated-at",
-            "created-at"
+            "updated_at",
+            "created_at"
           ],
           "x-cl-class": "USER",
           "x-cl-package": "PASSPORT/USER"
@@ -642,7 +647,7 @@
       "paramStructure": "by-name"
     },
     {
-      "name": "popular-profiles",
+      "name": "popular_profiles",
       "params": [
         {
           "name": "limit",
@@ -652,7 +657,7 @@
         }
       ],
       "result": {
-        "name": "popular-profiles-result",
+        "name": "popular_profiles_result",
         "schema": {
           "type": "array",
           "items": {
@@ -661,14 +666,14 @@
               "user": {
                 "type": "object",
                 "properties": {
-                  "created-at": {
+                  "created_at": {
                     "type": "object",
                     "properties": {},
                     "required": [],
                     "x-cl-class": "T",
                     "x-cl-package": "COMMON-LISP"
                   },
-                  "updated-at": {
+                  "updated_at": {
                     "type": "object",
                     "properties": {},
                     "required": [],
@@ -684,10 +689,10 @@
                   "email": {
                     "type": "string"
                   },
-                  "password-hash": {
+                  "password_hash": {
                     "type": "string"
                   },
-                  "avatar-url": {
+                  "avatar_url": {
                     "type": "string",
                     "description": "По-умолчанию, генерируем URL через Gravatar, по email пользователя. Часто это срабатывает."
                   },
@@ -788,12 +793,12 @@
                   }
                 },
                 "required": [
-                  "avatar-url",
-                  "password-hash",
+                  "avatar_url",
+                  "password_hash",
                   "email",
                   "id",
-                  "updated-at",
-                  "created-at"
+                  "updated_at",
+                  "created_at"
                 ],
                 "x-cl-class": "USER",
                 "x-cl-package": "PASSPORT/USER"
@@ -814,22 +819,7 @@
       "paramStructure": "by-name"
     },
     {
-      "name": "my-roles",
-      "params": [],
-      "result": {
-        "name": "my-roles-result",
-        "schema": {
-          "type": "array",
-          "items": {
-            "type": "string"
-          }
-        }
-      },
-      "summary": "Отдаёт список строк с ролями текущего залогинового пользователя.",
-      "paramStructure": "by-name"
-    },
-    {
-      "name": "search-users",
+      "name": "search_users",
       "params": [
         {
           "name": "query",
@@ -840,7 +830,7 @@
           "summary": "Запрос для поиска на языке запросов ElasticSearch."
         },
         {
-          "name": "page-key",
+          "name": "page_key",
           "schema": {
             "type": "string"
           }
@@ -853,7 +843,7 @@
         }
       ],
       "result": {
-        "name": "search-users-result",
+        "name": "search_users_result",
         "schema": {
           "type": "object",
           "properties": {
@@ -862,14 +852,14 @@
               "items": {
                 "type": "object",
                 "properties": {
-                  "created-at": {
+                  "created_at": {
                     "type": "object",
                     "properties": {},
                     "required": [],
                     "x-cl-class": "T",
                     "x-cl-package": "COMMON-LISP"
                   },
-                  "updated-at": {
+                  "updated_at": {
                     "type": "object",
                     "properties": {},
                     "required": [],
@@ -885,10 +875,10 @@
                   "email": {
                     "type": "string"
                   },
-                  "password-hash": {
+                  "password_hash": {
                     "type": "string"
                   },
-                  "avatar-url": {
+                  "avatar_url": {
                     "type": "string",
                     "description": "По-умолчанию, генерируем URL через Gravatar, по email пользователя. Часто это срабатывает."
                   },
@@ -989,12 +979,12 @@
                   }
                 },
                 "required": [
-                  "avatar-url",
-                  "password-hash",
+                  "avatar_url",
+                  "password_hash",
                   "email",
                   "id",
-                  "updated-at",
-                  "created-at"
+                  "updated_at",
+                  "created_at"
                 ],
                 "x-cl-class": "USER",
                 "x-cl-package": "PASSPORT/USER"

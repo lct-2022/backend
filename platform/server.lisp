@@ -11,8 +11,10 @@
   (:import-from #:platform/api
                 #:platform-api)
   (:import-from #:platform/job/api)
+  (:import-from #:platform/job/search)
   (:import-from #:platform/team/api)
   (:import-from #:platform/project/api)
+  (:import-from #:platform/project/search)
   (:import-from #:platform/job-application/api)
   (:import-from #:platform/team-member/api))
 (in-package #:platform/server)

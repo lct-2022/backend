@@ -313,11 +313,13 @@
 
 ;; Workaround для проблемы, которую я описал тут:
 ;; https://github.com/fukamachi/mito/issues/120
-(defmethod initialize-instance :around ((class mito:dao-table-view) &rest initargs
-                                        &key direct-superclasses &allow-other-keys)
-  (unless (mito.util:contains-class-or-subclasses 'mito:dao-class direct-superclasses)
-    (push (find-class 'mito:dao-class) (getf initargs :direct-superclasses)))
-  (apply #'call-next-method class initargs))
+;; Закомментил потому что работает плохо, лучше явно указать mito:dao-class
+;; для класса view
+;; (defmethod initialize-instance :around ((class mito:dao-table-view) &rest initargs
+;;                                         &key direct-superclasses &allow-other-keys)
+;;   (unless (mito.util:contains-class-or-subclasses 'mito:dao-class direct-superclasses)
+;;     (push (find-class 'mito:dao-class) (getf initargs :direct-superclasses)))
+;;   (apply #'call-next-method class initargs))
 
 
 (defun select-dao-by-ids (class-name ids)
