@@ -32,6 +32,16 @@
                 :type string
                 :col-type :text
                 :accessor project-description)
+   (stage-id :initarg :stage-id
+             :initform 1
+             :type integer
+             :col-type :bigint
+             :accessor project-stage-id)
+   (stage-title :initarg :stage-title
+                :initform 1
+                :type string
+                :ghost t
+                :accessor project-stage-title)
    (url :initarg :url
         :initform ""
         :type string

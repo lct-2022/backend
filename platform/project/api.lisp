@@ -7,6 +7,8 @@
   (:import-from #:platform/api
                 #:platform-api)
   (:import-from #:platform/project/model
+                #:project-stage-title
+                #:project-stage-id
                 #:project-team-size
                 #:project-jobs
                 #:project
@@ -50,7 +52,9 @@
   (:import-from #:group-by
                 #:group-by)
   (:import-from #:alexandria
-                #:assoc-value))
+                #:assoc-value)
+  (:import-from #:platform/stage/model
+                #:get-stage-title))
 (in-package #:platform/project/api)
 
 
@@ -118,9 +122,9 @@
                   (select (:t.project_id (:as (:raw "count(*)") :team_size))
                     (from (:as :platform.team_member :tm))
                     (join (:as :platform.job :j)
-                               :on (:= :tm.job_id :j.id))
+                          :on (:= :tm.job_id :j.id))
                     (join (:as :platform.team :t)
-                               :on (:= :j.team_id :t.id))
+                          :on (:= :j.team_id :t.id))
                     (where (:and (:in :t.project_id ids)))
                     (sxql:group-by :t.project_id))))
                (id-to-counters (loop for row in rows
@@ -130,7 +134,11 @@
                 do (setf (project-team-size project)
                          (or (assoc-value id-to-counters
                                           (object-id project))
-                             0)))))))
+                             0)))))
+      ;; Заполним названия этапов проектов
+      (loop for project in projects
+            do (setf (project-stage-title project)
+                     (get-stage-title (project-stage-id project))))))
   (values projects))
 
 
@@ -156,7 +164,7 @@
 
 
 (define-update-method (platform-api update-project project)
-                      (id title description url contests)
+                      (id title description url contests stage-id)
   (unless id
     (return-error "Параметр ID обязательный."
                   :code 5))

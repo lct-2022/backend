@@ -16,6 +16,7 @@
   (:import-from #:platform/project/api)
   (:import-from #:platform/project/search)
   (:import-from #:platform/job-application/api)
+  (:import-from #:platform/stage/api)
   (:import-from #:platform/team-member/api))
 (in-package #:platform/server)
 

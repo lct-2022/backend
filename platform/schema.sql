@@ -70,3 +70,17 @@ CREATE TABLE platform.project_chat (
 
 
 ALTER TABLE platform.project_chat ADD COLUMN private BOOLEAN DEFAULT FALSE;
+
+
+CREATE TABLE platform.project_stage (
+    id BIGSERIAL NOT NULL PRIMARY KEY,
+    title TEXT NOT NULL,
+    description TEXT NOT NULL,
+    created_at TIMESTAMPTZ,
+    updated_at TIMESTAMPTZ
+);
+
+
+ALTER TABLE platform.project ADD COLUMN stage_id BIGINT DEFAULT 1;
+
+UPDATE platform.project SET stage_id = 1 + (random() * 6)::integer;

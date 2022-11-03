@@ -119,6 +119,12 @@
                     "description": {
                       "type": "string"
                     },
+                    "stage_id": {
+                      "type": "integer"
+                    },
+                    "stage_title": {
+                      "type": "string"
+                    },
                     "url": {
                       "type": "string"
                     },
@@ -316,6 +322,12 @@
                       "type": "string"
                     },
                     "description": {
+                      "type": "string"
+                    },
+                    "stage_id": {
+                      "type": "integer"
+                    },
+                    "stage_title": {
                       "type": "string"
                     },
                     "url": {
@@ -527,6 +539,12 @@
                       "description": {
                         "type": "string"
                       },
+                      "stage_id": {
+                        "type": "integer"
+                      },
+                      "stage_title": {
+                        "type": "string"
+                      },
                       "url": {
                         "type": "string"
                       },
@@ -730,6 +748,12 @@
                       "description": {
                         "type": "string"
                       },
+                      "stage_id": {
+                        "type": "integer"
+                      },
+                      "stage_title": {
+                        "type": "string"
+                      },
                       "url": {
                         "type": "string"
                       },
@@ -907,6 +931,12 @@
                 "description": {
                   "type": "string"
                 },
+                "stage_id": {
+                  "type": "integer"
+                },
+                "stage_title": {
+                  "type": "string"
+                },
                 "url": {
                   "type": "string"
                 },
@@ -1040,6 +1070,12 @@
                   "description": {
                     "type": "string"
                   },
+                  "stage_id": {
+                    "type": "integer"
+                  },
+                  "stage_title": {
+                    "type": "string"
+                  },
                   "url": {
                     "type": "string"
                   },
@@ -1164,6 +1200,12 @@
             "description": {
               "type": "string"
             },
+            "stage_id": {
+              "type": "integer"
+            },
+            "stage_title": {
+              "type": "string"
+            },
             "url": {
               "type": "string"
             },
@@ -1221,7 +1263,8 @@
             "items": {
               "type": "string"
             }
-          }
+          },
+          "summary": "Этот список может содержать имена полей \"jobs\" или \"team-size\"."
         }
       ],
       "result": {
@@ -1257,6 +1300,12 @@
               "type": "string"
             },
             "description": {
+              "type": "string"
+            },
+            "stage_id": {
+              "type": "integer"
+            },
+            "stage_title": {
               "type": "string"
             },
             "url": {
@@ -1297,7 +1346,7 @@
         }
       },
       "summary": "Возвращает описание проекта по его id.",
-      "description": "В additional-fields можно передать список из \"jobs\" и/или \"team\",\n                 чтобы в результате были заполнены эти поля.",
+      "description": "В additional-fields можно передать список из \"jobs\" и/или \"team-size\",\n                 чтобы в результате были заполнены эти поля.",
       "paramStructure": "by-name"
     },
     {
@@ -1309,6 +1358,12 @@
             "type": "integer"
           },
           "required": true
+        },
+        {
+          "name": "stage_id",
+          "schema": {
+            "type": "integer"
+          }
         },
         {
           "name": "contests",
@@ -1370,6 +1425,12 @@
             "description": {
               "type": "string"
             },
+            "stage_id": {
+              "type": "integer"
+            },
+            "stage_title": {
+              "type": "string"
+            },
             "url": {
               "type": "string"
             },
@@ -1425,7 +1486,8 @@
             "items": {
               "type": "string"
             }
-          }
+          },
+          "summary": "Этот список может содержать имена полей \"jobs\" или \"team-size\"."
         }
       ],
       "result": {
@@ -1466,6 +1528,12 @@
                     "type": "string"
                   },
                   "description": {
+                    "type": "string"
+                  },
+                  "stage_id": {
+                    "type": "integer"
+                  },
+                  "stage_title": {
                     "type": "string"
                   },
                   "url": {
@@ -1518,7 +1586,7 @@
         }
       },
       "summary": "Отдаёт список популярных проектов для главной страницы.",
-      "description": "Отдаёт не просто проекты, а структуру, содержащую и данные проекта и рейтинг.\n\n                 В additional-fields можно передать список из \"jobs\" и/или \"team\",\n                 чтобы в результате были заполнены эти поля.",
+      "description": "Отдаёт не просто проекты, а структуру, содержащую и данные проекта и рейтинг.\n\n                 В additional-fields можно передать список из \"jobs\" и/или \"team-size\",\n                 чтобы в результате были заполнены эти поля.",
       "paramStructure": "by-name"
     },
     {
@@ -1587,6 +1655,12 @@
                     "type": "string"
                   },
                   "description": {
+                    "type": "string"
+                  },
+                  "stage_id": {
+                    "type": "integer"
+                  },
+                  "stage_title": {
                     "type": "string"
                   },
                   "url": {
@@ -1775,6 +1849,12 @@
                           "type": "string"
                         },
                         "description": {
+                          "type": "string"
+                        },
+                        "stage_id": {
+                          "type": "integer"
+                        },
+                        "stage_title": {
                           "type": "string"
                         },
                         "url": {
@@ -2028,6 +2108,12 @@
                         "description": {
                           "type": "string"
                         },
+                        "stage_id": {
+                          "type": "integer"
+                        },
+                        "stage_title": {
+                          "type": "string"
+                        },
                         "url": {
                           "type": "string"
                         },
@@ -2272,6 +2358,12 @@
                           "type": "string"
                         },
                         "description": {
+                          "type": "string"
+                        },
+                        "stage_id": {
+                          "type": "integer"
+                        },
+                        "stage_title": {
                           "type": "string"
                         },
                         "url": {
@@ -2520,6 +2612,12 @@
                         "description": {
                           "type": "string"
                         },
+                        "stage_id": {
+                          "type": "integer"
+                        },
+                        "stage_title": {
+                          "type": "string"
+                        },
                         "url": {
                           "type": "string"
                         },
@@ -2765,6 +2863,12 @@
                             "type": "string"
                           },
                           "description": {
+                            "type": "string"
+                          },
+                          "stage_id": {
+                            "type": "integer"
+                          },
+                          "stage_title": {
                             "type": "string"
                           },
                           "url": {
@@ -3019,6 +3123,12 @@
                           "description": {
                             "type": "string"
                           },
+                          "stage_id": {
+                            "type": "integer"
+                          },
+                          "stage_title": {
+                            "type": "string"
+                          },
                           "url": {
                             "type": "string"
                           },
@@ -3265,6 +3375,12 @@
                           "description": {
                             "type": "string"
                           },
+                          "stage_id": {
+                            "type": "integer"
+                          },
+                          "stage_title": {
+                            "type": "string"
+                          },
                           "url": {
                             "type": "string"
                           },
@@ -3446,6 +3562,12 @@
                   "description": {
                     "type": "string"
                   },
+                  "stage_id": {
+                    "type": "integer"
+                  },
+                  "stage_title": {
+                    "type": "string"
+                  },
                   "url": {
                     "type": "string"
                   },
@@ -3545,6 +3667,12 @@
               "description": {
                 "type": "string"
               },
+              "stage_id": {
+                "type": "integer"
+              },
+              "stage_title": {
+                "type": "string"
+              },
               "url": {
                 "type": "string"
               },
@@ -3585,6 +3713,59 @@
       },
       "summary": "Отдаёт список проектов, в которых пользователь участник команды или автор",
       "description": "Поскольку у нас микросервисы, то профили пользователей надо запросить отдельно через passport.get-profiles.",
+      "paramStructure": "by-name"
+    },
+    {
+      "name": "get_stages",
+      "params": [],
+      "result": {
+        "name": "get_stages_result",
+        "schema": {
+          "type": "array",
+          "items": {
+            "type": "object",
+            "properties": {
+              "created_at": {
+                "type": "object",
+                "properties": {},
+                "required": [],
+                "x-cl-class": "T",
+                "x-cl-package": "COMMON-LISP"
+              },
+              "updated_at": {
+                "type": "object",
+                "properties": {},
+                "required": [],
+                "x-cl-class": "T",
+                "x-cl-package": "COMMON-LISP"
+              },
+              "synced": {
+                "type": "boolean"
+              },
+              "id": {
+                "type": "integer"
+              },
+              "title": {
+                "type": "string",
+                "description": "Короткое название этапа развития проекта."
+              },
+              "description": {
+                "type": "string"
+              }
+            },
+            "required": [
+              "title",
+              "id",
+              "updated_at",
+              "created_at"
+            ],
+            "x-cl-class": "PROJECT-STAGE",
+            "x-cl-package": "PLATFORM/STAGE/MODEL"
+          }
+        }
+      },
+      "summary": "Возвращает список всех этапов, какие могут быть у проектов.",
+      "description": "ID этих объектов можно использовать, чтобы изменить в проекте его stage-id.",
       "paramStructure": "by-name"
     }
   ],
