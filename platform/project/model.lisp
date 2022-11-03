@@ -42,7 +42,13 @@
              :type string
              :col-type :text
              :accessor project-contests
-             :documentation "Текстовое описание конкурсов и хакатонов, в которых принимал участие."))
+             :documentation "Текстовое описание конкурсов и хакатонов, в которых принимал участие.")
+   (jobs :initarg :jobs
+         :initform nil
+         :type list
+         :ghost t
+         :accessor project-jobs
+         :documentation "Список открытых вакансий. Будет заполнен если в ручку передан additional-fields = [\"jobs\"]"))
   (:table-name "platform.project")
   (:metaclass dao-table-class))
 

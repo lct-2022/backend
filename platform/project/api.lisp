@@ -7,6 +7,7 @@
   (:import-from #:platform/api
                 #:platform-api)
   (:import-from #:platform/project/model
+                #:project-jobs
                 #:project
                 #:project-with-rating)
   (:import-from #:common/db
@@ -35,7 +36,11 @@
                 #:create-chat
                 #:make-chat-api)
   (:import-from #:platform/project-chat/model
-                #:project-chat))
+                #:project-chat)
+  (:import-from #:platform/job/model
+                #:job)
+  (:import-from #:mito.dao
+                #:select-by-sql))
 (in-package #:platform/project/api)
 
 
@@ -74,15 +79,33 @@
         (values project)))))
 
 
-(define-rpc-method (platform-api get-project) (id)
+(defun enrich-project (project fields)
+  ;; TODO: Не совсем оптимально делать подзапросы для каждого проекта,
+  ;; но пока так проще. В будущем надо будет сделать балковый enrich
+  (with-connection ()
+    (when (member "jobs" fields :test #'string-equal)
+      (setf (project-jobs project)
+            (select-by-sql 'job
+                           "SELECT j.*
+                      FROM platform.job as j
+                      JOIN platform.team as t ON j.team_id = t.id
+                     WHERE t.project_id = ? AND j.open"
+                           :binds (list (object-id project))))))
+  (values project))
+
+
+(define-rpc-method (platform-api get-project) (id &key additional-fields)
   (:summary "Возвращает описание проекта по его id.")
+  (:description "В additional-fields можно передать список из \"jobs\" и/или \"team\",
+                 чтобы в результате были заполнены эти поля.")
+  (:param additional-fields (list-of string))
   (:param id integer)
   (:result project)
   
   (with-connection ()
     (let ((project (find-dao 'project :id id)))
       (if project
-          project
+          (enrich-project project additional-fields)
           (return-error (fmt "Проект с id = ~A не найден." id))))))
 
 
@@ -95,9 +118,13 @@
   (find-dao 'project
             :id id))
 
-(define-rpc-method (platform-api popular-projects) (&key (limit 5))
+(define-rpc-method (platform-api popular-projects) (&key (limit 5) additional-fields)
   (:summary "Отдаёт список популярных проектов для главной страницы.")
-  (:description "Отдаёт не просто проекты, а структуру, содержащую и данные проекта и рейтинг.")
+  (:description "Отдаёт не просто проекты, а структуру, содержащую и данные проекта и рейтинг.
+
+                 В additional-fields можно передать список из \"jobs\" и/или \"team\",
+                 чтобы в результате были заполнены эти поля.")
+  (:param additional-fields (list-of string))
   (:param limit integer)
   (:result (list-of project-with-rating))
   
@@ -114,7 +141,7 @@
       (loop for top-item in top
             for project in projects
             collect (make-instance 'project-with-rating
-                                   :project project
+                                   :project (enrich-project project additional-fields)
                                    :rating (rating/client::top-item-rating top-item))))))
 
 

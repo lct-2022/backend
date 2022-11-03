@@ -125,6 +125,14 @@
                     "contests": {
                       "type": "string",
                       "description": "Текстовое описание конкурсов и хакатонов, в которых принимал участие."
+                    },
+                    "jobs": {
+                      "type": "object",
+                      "properties": {},
+                      "required": [],
+                      "x-cl-class": "LIST",
+                      "x-cl-package": "COMMON-LISP",
+                      "description": "Список открытых вакансий. Будет заполнен если в ручку передан additional-fields = [\"jobs\"]"
                     }
                   },
                   "required": [
@@ -288,6 +296,14 @@
                     "contests": {
                       "type": "string",
                       "description": "Текстовое описание конкурсов и хакатонов, в которых принимал участие."
+                    },
+                    "jobs": {
+                      "type": "object",
+                      "properties": {},
+                      "required": [],
+                      "x-cl-class": "LIST",
+                      "x-cl-package": "COMMON-LISP",
+                      "description": "Список открытых вакансий. Будет заполнен если в ручку передан additional-fields = [\"jobs\"]"
                     }
                   },
                   "required": [
@@ -460,6 +476,14 @@
                       "contests": {
                         "type": "string",
                         "description": "Текстовое описание конкурсов и хакатонов, в которых принимал участие."
+                      },
+                      "jobs": {
+                        "type": "object",
+                        "properties": {},
+                        "required": [],
+                        "x-cl-class": "LIST",
+                        "x-cl-package": "COMMON-LISP",
+                        "description": "Список открытых вакансий. Будет заполнен если в ручку передан additional-fields = [\"jobs\"]"
                       }
                     },
                     "required": [
@@ -627,6 +651,14 @@
                       "contests": {
                         "type": "string",
                         "description": "Текстовое описание конкурсов и хакатонов, в которых принимал участие."
+                      },
+                      "jobs": {
+                        "type": "object",
+                        "properties": {},
+                        "required": [],
+                        "x-cl-class": "LIST",
+                        "x-cl-package": "COMMON-LISP",
+                        "description": "Список открытых вакансий. Будет заполнен если в ручку передан additional-fields = [\"jobs\"]"
                       }
                     },
                     "required": [
@@ -776,6 +808,14 @@
                 "contests": {
                   "type": "string",
                   "description": "Текстовое описание конкурсов и хакатонов, в которых принимал участие."
+                },
+                "jobs": {
+                  "type": "object",
+                  "properties": {},
+                  "required": [],
+                  "x-cl-class": "LIST",
+                  "x-cl-package": "COMMON-LISP",
+                  "description": "Список открытых вакансий. Будет заполнен если в ручку передан additional-fields = [\"jobs\"]"
                 }
               },
               "required": [
@@ -890,6 +930,14 @@
                   "contests": {
                     "type": "string",
                     "description": "Текстовое описание конкурсов и хакатонов, в которых принимал участие."
+                  },
+                  "jobs": {
+                    "type": "object",
+                    "properties": {},
+                    "required": [],
+                    "x-cl-class": "LIST",
+                    "x-cl-package": "COMMON-LISP",
+                    "description": "Список открытых вакансий. Будет заполнен если в ручку передан additional-fields = [\"jobs\"]"
                   }
                 },
                 "required": [
@@ -995,6 +1043,14 @@
             "contests": {
               "type": "string",
               "description": "Текстовое описание конкурсов и хакатонов, в которых принимал участие."
+            },
+            "jobs": {
+              "type": "object",
+              "properties": {},
+              "required": [],
+              "x-cl-class": "LIST",
+              "x-cl-package": "COMMON-LISP",
+              "description": "Список открытых вакансий. Будет заполнен если в ручку передан additional-fields = [\"jobs\"]"
             }
           },
           "required": [
@@ -1019,6 +1075,15 @@
             "type": "integer"
           },
           "required": true
+        },
+        {
+          "name": "additional_fields",
+          "schema": {
+            "type": "array",
+            "items": {
+              "type": "string"
+            }
+          }
         }
       ],
       "result": {
@@ -1062,6 +1127,14 @@
             "contests": {
               "type": "string",
               "description": "Текстовое описание конкурсов и хакатонов, в которых принимал участие."
+            },
+            "jobs": {
+              "type": "object",
+              "properties": {},
+              "required": [],
+              "x-cl-class": "LIST",
+              "x-cl-package": "COMMON-LISP",
+              "description": "Список открытых вакансий. Будет заполнен если в ручку передан additional-fields = [\"jobs\"]"
             }
           },
           "required": [
@@ -1075,6 +1148,7 @@
         }
       },
       "summary": "Возвращает описание проекта по его id.",
+      "description": "В additional-fields можно передать список из \"jobs\" и/или \"team\",\n                 чтобы в результате были заполнены эти поля.",
       "paramStructure": "by-name"
     },
     {
@@ -1153,6 +1227,14 @@
             "contests": {
               "type": "string",
               "description": "Текстовое описание конкурсов и хакатонов, в которых принимал участие."
+            },
+            "jobs": {
+              "type": "object",
+              "properties": {},
+              "required": [],
+              "x-cl-class": "LIST",
+              "x-cl-package": "COMMON-LISP",
+              "description": "Список открытых вакансий. Будет заполнен если в ручку передан additional-fields = [\"jobs\"]"
             }
           },
           "required": [
@@ -1174,6 +1256,15 @@
           "name": "limit",
           "schema": {
             "type": "integer"
+          }
+        },
+        {
+          "name": "additional_fields",
+          "schema": {
+            "type": "array",
+            "items": {
+              "type": "string"
+            }
           }
         }
       ],
@@ -1223,6 +1314,14 @@
                   "contests": {
                     "type": "string",
                     "description": "Текстовое описание конкурсов и хакатонов, в которых принимал участие."
+                  },
+                  "jobs": {
+                    "type": "object",
+                    "properties": {},
+                    "required": [],
+                    "x-cl-class": "LIST",
+                    "x-cl-package": "COMMON-LISP",
+                    "description": "Список открытых вакансий. Будет заполнен если в ручку передан additional-fields = [\"jobs\"]"
                   }
                 },
                 "required": [
@@ -1248,7 +1347,7 @@
         }
       },
       "summary": "Отдаёт список популярных проектов для главной страницы.",
-      "description": "Отдаёт не просто проекты, а структуру, содержащую и данные проекта и рейтинг.",
+      "description": "Отдаёт не просто проекты, а структуру, содержащую и данные проекта и рейтинг.\n\n                 В additional-fields можно передать список из \"jobs\" и/или \"team\",\n                 чтобы в результате были заполнены эти поля.",
       "paramStructure": "by-name"
     },
     {
@@ -1325,6 +1424,14 @@
                   "contests": {
                     "type": "string",
                     "description": "Текстовое описание конкурсов и хакатонов, в которых принимал участие."
+                  },
+                  "jobs": {
+                    "type": "object",
+                    "properties": {},
+                    "required": [],
+                    "x-cl-class": "LIST",
+                    "x-cl-package": "COMMON-LISP",
+                    "description": "Список открытых вакансий. Будет заполнен если в ручку передан additional-fields = [\"jobs\"]"
                   }
                 },
                 "required": [
@@ -1494,6 +1601,14 @@
                         "contests": {
                           "type": "string",
                           "description": "Текстовое описание конкурсов и хакатонов, в которых принимал участие."
+                        },
+                        "jobs": {
+                          "type": "object",
+                          "properties": {},
+                          "required": [],
+                          "x-cl-class": "LIST",
+                          "x-cl-package": "COMMON-LISP",
+                          "description": "Список открытых вакансий. Будет заполнен если в ручку передан additional-fields = [\"jobs\"]"
                         }
                       },
                       "required": [
@@ -1718,6 +1833,14 @@
                         "contests": {
                           "type": "string",
                           "description": "Текстовое описание конкурсов и хакатонов, в которых принимал участие."
+                        },
+                        "jobs": {
+                          "type": "object",
+                          "properties": {},
+                          "required": [],
+                          "x-cl-class": "LIST",
+                          "x-cl-package": "COMMON-LISP",
+                          "description": "Список открытых вакансий. Будет заполнен если в ручку передан additional-fields = [\"jobs\"]"
                         }
                       },
                       "required": [
@@ -1937,6 +2060,14 @@
                         "contests": {
                           "type": "string",
                           "description": "Текстовое описание конкурсов и хакатонов, в которых принимал участие."
+                        },
+                        "jobs": {
+                          "type": "object",
+                          "properties": {},
+                          "required": [],
+                          "x-cl-class": "LIST",
+                          "x-cl-package": "COMMON-LISP",
+                          "description": "Список открытых вакансий. Будет заполнен если в ручку передан additional-fields = [\"jobs\"]"
                         }
                       },
                       "required": [
@@ -2156,6 +2287,14 @@
                         "contests": {
                           "type": "string",
                           "description": "Текстовое описание конкурсов и хакатонов, в которых принимал участие."
+                        },
+                        "jobs": {
+                          "type": "object",
+                          "properties": {},
+                          "required": [],
+                          "x-cl-class": "LIST",
+                          "x-cl-package": "COMMON-LISP",
+                          "description": "Список открытых вакансий. Будет заполнен если в ручку передан additional-fields = [\"jobs\"]"
                         }
                       },
                       "required": [
@@ -2376,6 +2515,14 @@
                           "contests": {
                             "type": "string",
                             "description": "Текстовое описание конкурсов и хакатонов, в которых принимал участие."
+                          },
+                          "jobs": {
+                            "type": "object",
+                            "properties": {},
+                            "required": [],
+                            "x-cl-class": "LIST",
+                            "x-cl-package": "COMMON-LISP",
+                            "description": "Список открытых вакансий. Будет заполнен если в ручку передан additional-fields = [\"jobs\"]"
                           }
                         },
                         "required": [
@@ -2601,6 +2748,14 @@
                           "contests": {
                             "type": "string",
                             "description": "Текстовое описание конкурсов и хакатонов, в которых принимал участие."
+                          },
+                          "jobs": {
+                            "type": "object",
+                            "properties": {},
+                            "required": [],
+                            "x-cl-class": "LIST",
+                            "x-cl-package": "COMMON-LISP",
+                            "description": "Список открытых вакансий. Будет заполнен если в ручку передан additional-fields = [\"jobs\"]"
                           }
                         },
                         "required": [
@@ -2810,6 +2965,14 @@
                           "contests": {
                             "type": "string",
                             "description": "Текстовое описание конкурсов и хакатонов, в которых принимал участие."
+                          },
+                          "jobs": {
+                            "type": "object",
+                            "properties": {},
+                            "required": [],
+                            "x-cl-class": "LIST",
+                            "x-cl-package": "COMMON-LISP",
+                            "description": "Список открытых вакансий. Будет заполнен если в ручку передан additional-fields = [\"jobs\"]"
                           }
                         },
                         "required": [
@@ -2954,6 +3117,14 @@
                   "contests": {
                     "type": "string",
                     "description": "Текстовое описание конкурсов и хакатонов, в которых принимал участие."
+                  },
+                  "jobs": {
+                    "type": "object",
+                    "properties": {},
+                    "required": [],
+                    "x-cl-class": "LIST",
+                    "x-cl-package": "COMMON-LISP",
+                    "description": "Список открытых вакансий. Будет заполнен если в ручку передан additional-fields = [\"jobs\"]"
                   }
                 },
                 "required": [
@@ -3034,6 +3205,14 @@
               "contests": {
                 "type": "string",
                 "description": "Текстовое описание конкурсов и хакатонов, в которых принимал участие."
+              },
+              "jobs": {
+                "type": "object",
+                "properties": {},
+                "required": [],
+                "x-cl-class": "LIST",
+                "x-cl-package": "COMMON-LISP",
+                "description": "Список открытых вакансий. Будет заполнен если в ручку передан additional-fields = [\"jobs\"]"
               }
             },
             "required": [
@@ -3047,7 +3226,7 @@
           }
         }
       },
-      "summary": "Отдаёт список проектов, в которых пользователь участник команды.",
+      "summary": "Отдаёт список проектов, в которых пользователь участник команды или автор",
       "description": "Поскольку у нас микросервисы, то профили пользователей надо запросить отдельно через passport.get-profiles.",
       "paramStructure": "by-name"
     }
