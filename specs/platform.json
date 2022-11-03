@@ -133,6 +133,17 @@
                       "x-cl-class": "LIST",
                       "x-cl-package": "COMMON-LISP",
                       "description": "Список открытых вакансий. Будет заполнен если в ручку передан additional-fields = [\"jobs\"]"
+                    },
+                    "team_size": {
+                      "oneOf": [
+                        {
+                          "type": "null"
+                        },
+                        {
+                          "type": "integer"
+                        }
+                      ],
+                      "description": "Суммарное количество человек, работающих над проектом. Будет заполнен если в ручку передан additional-fields = [\"team-size\"]"
                     }
                   },
                   "required": [
@@ -321,6 +332,17 @@
                       "x-cl-class": "LIST",
                       "x-cl-package": "COMMON-LISP",
                       "description": "Список открытых вакансий. Будет заполнен если в ручку передан additional-fields = [\"jobs\"]"
+                    },
+                    "team_size": {
+                      "oneOf": [
+                        {
+                          "type": "null"
+                        },
+                        {
+                          "type": "integer"
+                        }
+                      ],
+                      "description": "Суммарное количество человек, работающих над проектом. Будет заполнен если в ручку передан additional-fields = [\"team-size\"]"
                     }
                   },
                   "required": [
@@ -519,6 +541,17 @@
                         "x-cl-class": "LIST",
                         "x-cl-package": "COMMON-LISP",
                         "description": "Список открытых вакансий. Будет заполнен если в ручку передан additional-fields = [\"jobs\"]"
+                      },
+                      "team_size": {
+                        "oneOf": [
+                          {
+                            "type": "null"
+                          },
+                          {
+                            "type": "integer"
+                          }
+                        ],
+                        "description": "Суммарное количество человек, работающих над проектом. Будет заполнен если в ручку передан additional-fields = [\"team-size\"]"
                       }
                     },
                     "required": [
@@ -711,6 +744,17 @@
                         "x-cl-class": "LIST",
                         "x-cl-package": "COMMON-LISP",
                         "description": "Список открытых вакансий. Будет заполнен если в ручку передан additional-fields = [\"jobs\"]"
+                      },
+                      "team_size": {
+                        "oneOf": [
+                          {
+                            "type": "null"
+                          },
+                          {
+                            "type": "integer"
+                          }
+                        ],
+                        "description": "Суммарное количество человек, работающих над проектом. Будет заполнен если в ручку передан additional-fields = [\"team-size\"]"
                       }
                     },
                     "required": [
@@ -877,6 +921,17 @@
                   "x-cl-class": "LIST",
                   "x-cl-package": "COMMON-LISP",
                   "description": "Список открытых вакансий. Будет заполнен если в ручку передан additional-fields = [\"jobs\"]"
+                },
+                "team_size": {
+                  "oneOf": [
+                    {
+                      "type": "null"
+                    },
+                    {
+                      "type": "integer"
+                    }
+                  ],
+                  "description": "Суммарное количество человек, работающих над проектом. Будет заполнен если в ручку передан additional-fields = [\"team-size\"]"
                 }
               },
               "required": [
@@ -999,6 +1054,17 @@
                     "x-cl-class": "LIST",
                     "x-cl-package": "COMMON-LISP",
                     "description": "Список открытых вакансий. Будет заполнен если в ручку передан additional-fields = [\"jobs\"]"
+                  },
+                  "team_size": {
+                    "oneOf": [
+                      {
+                        "type": "null"
+                      },
+                      {
+                        "type": "integer"
+                      }
+                    ],
+                    "description": "Суммарное количество человек, работающих над проектом. Будет заполнен если в ручку передан additional-fields = [\"team-size\"]"
                   }
                 },
                 "required": [
@@ -1112,6 +1178,17 @@
               "x-cl-class": "LIST",
               "x-cl-package": "COMMON-LISP",
               "description": "Список открытых вакансий. Будет заполнен если в ручку передан additional-fields = [\"jobs\"]"
+            },
+            "team_size": {
+              "oneOf": [
+                {
+                  "type": "null"
+                },
+                {
+                  "type": "integer"
+                }
+              ],
+              "description": "Суммарное количество человек, работающих над проектом. Будет заполнен если в ручку передан additional-fields = [\"team-size\"]"
             }
           },
           "required": [
@@ -1196,6 +1273,17 @@
               "x-cl-class": "LIST",
               "x-cl-package": "COMMON-LISP",
               "description": "Список открытых вакансий. Будет заполнен если в ручку передан additional-fields = [\"jobs\"]"
+            },
+            "team_size": {
+              "oneOf": [
+                {
+                  "type": "null"
+                },
+                {
+                  "type": "integer"
+                }
+              ],
+              "description": "Суммарное количество человек, работающих над проектом. Будет заполнен если в ручку передан additional-fields = [\"team-size\"]"
             }
           },
           "required": [
@@ -1296,6 +1384,17 @@
               "x-cl-class": "LIST",
               "x-cl-package": "COMMON-LISP",
               "description": "Список открытых вакансий. Будет заполнен если в ручку передан additional-fields = [\"jobs\"]"
+            },
+            "team_size": {
+              "oneOf": [
+                {
+                  "type": "null"
+                },
+                {
+                  "type": "integer"
+                }
+              ],
+              "description": "Суммарное количество человек, работающих над проектом. Будет заполнен если в ручку передан additional-fields = [\"team-size\"]"
             }
           },
           "required": [
@@ -1383,6 +1482,17 @@
                     "x-cl-class": "LIST",
                     "x-cl-package": "COMMON-LISP",
                     "description": "Список открытых вакансий. Будет заполнен если в ручку передан additional-fields = [\"jobs\"]"
+                  },
+                  "team_size": {
+                    "oneOf": [
+                      {
+                        "type": "null"
+                      },
+                      {
+                        "type": "integer"
+                      }
+                    ],
+                    "description": "Суммарное количество человек, работающих над проектом. Будет заполнен если в ручку передан additional-fields = [\"team-size\"]"
                   }
                 },
                 "required": [
@@ -1493,6 +1603,17 @@
                     "x-cl-class": "LIST",
                     "x-cl-package": "COMMON-LISP",
                     "description": "Список открытых вакансий. Будет заполнен если в ручку передан additional-fields = [\"jobs\"]"
+                  },
+                  "team_size": {
+                    "oneOf": [
+                      {
+                        "type": "null"
+                      },
+                      {
+                        "type": "integer"
+                      }
+                    ],
+                    "description": "Суммарное количество человек, работающих над проектом. Будет заполнен если в ручку передан additional-fields = [\"team-size\"]"
                   }
                 },
                 "required": [
@@ -1670,6 +1791,17 @@
                           "x-cl-class": "LIST",
                           "x-cl-package": "COMMON-LISP",
                           "description": "Список открытых вакансий. Будет заполнен если в ручку передан additional-fields = [\"jobs\"]"
+                        },
+                        "team_size": {
+                          "oneOf": [
+                            {
+                              "type": "null"
+                            },
+                            {
+                              "type": "integer"
+                            }
+                          ],
+                          "description": "Суммарное количество человек, работающих над проектом. Будет заполнен если в ручку передан additional-fields = [\"team-size\"]"
                         }
                       },
                       "required": [
@@ -1910,6 +2042,17 @@
                           "x-cl-class": "LIST",
                           "x-cl-package": "COMMON-LISP",
                           "description": "Список открытых вакансий. Будет заполнен если в ручку передан additional-fields = [\"jobs\"]"
+                        },
+                        "team_size": {
+                          "oneOf": [
+                            {
+                              "type": "null"
+                            },
+                            {
+                              "type": "integer"
+                            }
+                          ],
+                          "description": "Суммарное количество человек, работающих над проектом. Будет заполнен если в ручку передан additional-fields = [\"team-size\"]"
                         }
                       },
                       "required": [
@@ -2145,6 +2288,17 @@
                           "x-cl-class": "LIST",
                           "x-cl-package": "COMMON-LISP",
                           "description": "Список открытых вакансий. Будет заполнен если в ручку передан additional-fields = [\"jobs\"]"
+                        },
+                        "team_size": {
+                          "oneOf": [
+                            {
+                              "type": "null"
+                            },
+                            {
+                              "type": "integer"
+                            }
+                          ],
+                          "description": "Суммарное количество человек, работающих над проектом. Будет заполнен если в ручку передан additional-fields = [\"team-size\"]"
                         }
                       },
                       "required": [
@@ -2380,6 +2534,17 @@
                           "x-cl-class": "LIST",
                           "x-cl-package": "COMMON-LISP",
                           "description": "Список открытых вакансий. Будет заполнен если в ручку передан additional-fields = [\"jobs\"]"
+                        },
+                        "team_size": {
+                          "oneOf": [
+                            {
+                              "type": "null"
+                            },
+                            {
+                              "type": "integer"
+                            }
+                          ],
+                          "description": "Суммарное количество человек, работающих над проектом. Будет заполнен если в ручку передан additional-fields = [\"team-size\"]"
                         }
                       },
                       "required": [
@@ -2616,6 +2781,17 @@
                             "x-cl-class": "LIST",
                             "x-cl-package": "COMMON-LISP",
                             "description": "Список открытых вакансий. Будет заполнен если в ручку передан additional-fields = [\"jobs\"]"
+                          },
+                          "team_size": {
+                            "oneOf": [
+                              {
+                                "type": "null"
+                              },
+                              {
+                                "type": "integer"
+                              }
+                            ],
+                            "description": "Суммарное количество человек, работающих над проектом. Будет заполнен если в ручку передан additional-fields = [\"team-size\"]"
                           }
                         },
                         "required": [
@@ -2857,6 +3033,17 @@
                             "x-cl-class": "LIST",
                             "x-cl-package": "COMMON-LISP",
                             "description": "Список открытых вакансий. Будет заполнен если в ручку передан additional-fields = [\"jobs\"]"
+                          },
+                          "team_size": {
+                            "oneOf": [
+                              {
+                                "type": "null"
+                              },
+                              {
+                                "type": "integer"
+                              }
+                            ],
+                            "description": "Суммарное количество человек, работающих над проектом. Будет заполнен если в ручку передан additional-fields = [\"team-size\"]"
                           }
                         },
                         "required": [
@@ -3092,6 +3279,17 @@
                             "x-cl-class": "LIST",
                             "x-cl-package": "COMMON-LISP",
                             "description": "Список открытых вакансий. Будет заполнен если в ручку передан additional-fields = [\"jobs\"]"
+                          },
+                          "team_size": {
+                            "oneOf": [
+                              {
+                                "type": "null"
+                              },
+                              {
+                                "type": "integer"
+                              }
+                            ],
+                            "description": "Суммарное количество человек, работающих над проектом. Будет заполнен если в ручку передан additional-fields = [\"team-size\"]"
                           }
                         },
                         "required": [
@@ -3186,6 +3384,16 @@
           "summary": "Запрос для поиска на языке запросов ElasticSearch."
         },
         {
+          "name": "additional_fields",
+          "schema": {
+            "type": "array",
+            "items": {
+              "type": "string"
+            }
+          },
+          "summary": "Список дополнительных полей, которые надо подгрузить из других таблиц."
+        },
+        {
           "name": "page_key",
           "schema": {
             "type": "string"
@@ -3252,6 +3460,17 @@
                     "x-cl-class": "LIST",
                     "x-cl-package": "COMMON-LISP",
                     "description": "Список открытых вакансий. Будет заполнен если в ручку передан additional-fields = [\"jobs\"]"
+                  },
+                  "team_size": {
+                    "oneOf": [
+                      {
+                        "type": "null"
+                      },
+                      {
+                        "type": "integer"
+                      }
+                    ],
+                    "description": "Суммарное количество человек, работающих над проектом. Будет заполнен если в ручку передан additional-fields = [\"team-size\"]"
                   }
                 },
                 "required": [
@@ -3340,6 +3559,17 @@
                 "x-cl-class": "LIST",
                 "x-cl-package": "COMMON-LISP",
                 "description": "Список открытых вакансий. Будет заполнен если в ручку передан additional-fields = [\"jobs\"]"
+              },
+              "team_size": {
+                "oneOf": [
+                  {
+                    "type": "null"
+                  },
+                  {
+                    "type": "integer"
+                  }
+                ],
+                "description": "Суммарное количество человек, работающих над проектом. Будет заполнен если в ручку передан additional-fields = [\"team-size\"]"
               }
             },
             "required": [

@@ -7,6 +7,7 @@
   (:import-from #:platform/api
                 #:platform-api)
   (:import-from #:platform/project/model
+                #:project-team-size
                 #:project-jobs
                 #:project
                 #:project-with-rating)
@@ -19,11 +20,16 @@
   (:import-from #:platform/team/api
                 #:create-team)
   (:import-from #:sxql
+                #:where
+                #:join
+                #:from
+                #:select
                 #:order-by
                 #:limit)
   (:import-from #:common/session
                 #:with-session)
   (:import-from #:serapeum
+                #:~>
                 #:fmt)
   (:import-from #:common/rpc
                 #:define-update-method)
@@ -40,7 +46,11 @@
   (:import-from #:platform/job/model
                 #:job)
   (:import-from #:mito.dao
-                #:select-by-sql))
+                #:select-by-sql)
+  (:import-from #:group-by
+                #:group-by)
+  (:import-from #:alexandria
+                #:assoc-value))
 (in-package #:platform/project/api)
 
 
@@ -79,26 +89,62 @@
         (values project)))))
 
 
-(defun enrich-project (project fields)
-  ;; TODO: Не совсем оптимально делать подзапросы для каждого проекта,
-  ;; но пока так проще. В будущем надо будет сделать балковый enrich
+(defun enrich-projects (projects fields)
   (with-connection ()
-    (when (member "jobs" fields :test #'string-equal)
-      (setf (project-jobs project)
-            (select-by-sql 'job
-                           "SELECT j.*
-                      FROM platform.job as j
-                      JOIN platform.team as t ON j.team_id = t.id
-                     WHERE t.project_id = ? AND j.open"
-                           :binds (list (object-id project))))))
-  (values project))
+    (let ((ids (mapcar #'object-id projects)))
+      (when (member "jobs" fields :test #'string-equal)
+        (let* ((rows
+                 (retrieve-by-sql
+                  (select (:t.project_id :j.*)
+                    (from (:as :platform.job :j))
+                    (join (:as :platform.team :t)
+                          :on (:= :j.team_id :t.id))
+                    (where (:and (:in :t.project_id ids)
+                            :j.open)))))
+               (id-to-jobs (group-by rows
+                                     :key (lambda (item)
+                                            (~> item (getf :project-id)))
+                                     :value (lambda (item)
+                                              (apply #'mito:make-dao-instance
+                                                     'job (cddr item))))))
+          (loop for project in projects
+                do (setf (project-jobs project)
+                         (assoc-value id-to-jobs
+                                      (object-id project))))))
+      
+      (when (member "team-size" fields :test #'string-equal)
+        (let* ((rows
+                 (retrieve-by-sql
+                  (select (:t.project_id (:as (:raw "count(*)") :team_size))
+                    (from (:as :platform.team_member :tm))
+                    (join (:as :platform.job :j)
+                               :on (:= :tm.job_id :j.id))
+                    (join (:as :platform.team :t)
+                               :on (:= :j.team_id :t.id))
+                    (where (:and (:in :t.project_id ids)))
+                    (sxql:group-by :t.project_id))))
+               (id-to-counters (loop for row in rows
+                                     collect (cons (getf row :project-id)
+                                                   (getf row :team-size)))))
+          (loop for project in projects
+                do (setf (project-team-size project)
+                         (or (assoc-value id-to-counters
+                                          (object-id project))
+                             0)))))))
+  (values projects))
+
+
+(defun enrich-project (project fields)
+  (enrich-projects (list project) fields)
+  project)
 
 
 (define-rpc-method (platform-api get-project) (id &key additional-fields)
   (:summary "Возвращает описание проекта по его id.")
-  (:description "В additional-fields можно передать список из \"jobs\" и/или \"team\",
+  (:description "В additional-fields можно передать список из \"jobs\" и/или \"team-size\",
                  чтобы в результате были заполнены эти поля.")
-  (:param additional-fields (list-of string))
+  (:param additional-fields (list-of string)
+          "Этот список может содержать имена полей \"jobs\" или \"team-size\".")
   (:param id integer)
   (:result project)
   
@@ -122,9 +168,10 @@
   (:summary "Отдаёт список популярных проектов для главной страницы.")
   (:description "Отдаёт не просто проекты, а структуру, содержащую и данные проекта и рейтинг.
 
-                 В additional-fields можно передать список из \"jobs\" и/или \"team\",
+                 В additional-fields можно передать список из \"jobs\" и/или \"team-size\",
                  чтобы в результате были заполнены эти поля.")
-  (:param additional-fields (list-of string))
+  (:param additional-fields (list-of string)
+          "Этот список может содержать имена полей \"jobs\" или \"team-size\".")
   (:param limit integer)
   (:result (list-of project-with-rating))
   

@@ -98,11 +98,13 @@
 (define-rpc-method (passport-api my-profile) (&key additional-fields)
   (:summary "Отдаёт профиль текущего залогиненого пользователя.")
   (:description "В additional-fields можно передать \"projects\", чтобы в поле \"projects\" подтянулись проекты пользователя.")
+  (:param additional-fields (list-of string)
+          "В этом списке строк можно указывать только \"projects\".")
   (:result user)
   (with-connection ()
     (with-session (user-id)
       (let ((user (find-dao 'user
-                       :id user-id)))))))
+                            :id user-id)))))))
 
 
 (define-rpc-method (passport-api my-roles) ()

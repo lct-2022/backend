@@ -48,7 +48,13 @@
          :type list
          :ghost t
          :accessor project-jobs
-         :documentation "Список открытых вакансий. Будет заполнен если в ручку передан additional-fields = [\"jobs\"]"))
+         :documentation "Список открытых вакансий. Будет заполнен если в ручку передан additional-fields = [\"jobs\"]")
+   (team-size :initarg :team-size
+              :initform nil
+              :type (or null integer)
+              :ghost t
+              :accessor project-team-size
+              :documentation "Суммарное количество человек, работающих над проектом. Будет заполнен если в ручку передан additional-fields = [\"team-size\"]"))
   (:table-name "platform.project")
   (:metaclass dao-table-class))
 

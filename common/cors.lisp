@@ -1,6 +1,6 @@
 (uiop:define-package #:common/cors
   (:use #:cl)
-  (:use #:log)
+  (:import-from #:log)
   (:import-from #:alexandria
                 #:length=))
 (in-package #:common/cors)

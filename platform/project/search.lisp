@@ -10,7 +10,9 @@
                 #:platform-api)
   (:import-from #:common/search
                 #:make-document-for-index
-                #:define-search-rpc-method))
+                #:define-search-rpc-method)
+  (:import-from #:platform/project/api
+                #:enrich-projects))
 (in-package #:platform/project/search)
 
 
@@ -20,7 +22,7 @@
         "contests" (project-contests project)))
 
 
-(define-search-rpc-method (platform-api search-projects project)
+(define-search-rpc-method (platform-api search-projects project :enrich-func 'enrich-projects)
   (:summary "Возвращает список проектов по заданному запросу.")
   (:description "Запрос должен вводиться в формате ElasticSearch. Но для поиска по всем
  полям можно просто слова вводить.  Если передать \"*\" - выдаются все проекты, начиная с самых свежих.
