@@ -155,6 +155,34 @@
           existing)))))
 
 
+(define-rpc-method (platform-api cancel-application) (id)
+  (:summary "Отменяет отклик на вакансию.")
+  (:description "Отменить может только автор отклика.")
+  (:param id integer "ID отклика на вакансию")
+  (:result job-application)
+
+  (with-session (user-id)
+    (with-connection ()
+      (let ((existing (find-dao 'job-application :id id)))
+        (when existing
+          (unless (= (application-user-id existing)
+                     user-id)
+            (return-error (fmt "Отменить отклик на вакансию может только сам пользователь который на неё откликнулся.")))
+          
+          (unless (string-equal (application-status existing)
+                                "applied")
+            (return-error (fmt "Отменить можно только отклик в статусе \"applied\", а у этого ~S."
+                               (application-status existing))))
+
+          ;; Поменяем статус
+          (setf (application-status existing)
+                "canceled")
+          (save-dao existing)
+
+          ;; Вернём "отклик"
+          existing)))))
+
+
 (define-rpc-method (platform-api get-job-applications) (project-id)
   (:summary "Отдаёт список открытых вакансий на проекте.")
   (:param project-id integer)

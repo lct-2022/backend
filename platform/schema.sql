@@ -84,3 +84,6 @@ CREATE TABLE platform.project_stage (
 ALTER TABLE platform.project ADD COLUMN stage_id BIGINT DEFAULT 1;
 
 UPDATE platform.project SET stage_id = 1 + (random() * 6)::integer;
+
+
+ALTER TYPE job_application_status ADD VALUE 'canceled';
