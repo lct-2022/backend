@@ -35,6 +35,11 @@
          :type boolean
          :col-type :boolean
          :documentation "Признак того, что вакансия закрыта."
-         :accessor job-open-p))
+         :accessor job-open-p)
+   (job-application :initform t
+                    :ghost t
+                    :documentation "Информация об job-application текущего пользователя.
+                                    Заполняется только если в ручку передан аргумент additional-fields = [\"job-application\"]"
+                    :accessor current-user-job-application))
   (:table-name "platform.job")
   (:metaclass dao-table-class))

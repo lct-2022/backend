@@ -180,6 +180,14 @@
             "open": {
               "type": "boolean",
               "description": "Признак того, что вакансия закрыта."
+            },
+            "job_application": {
+              "type": "object",
+              "properties": {},
+              "required": [],
+              "x-cl-class": "T",
+              "x-cl-package": "COMMON-LISP",
+              "description": "Информация об job-application текущего пользователя.\n                                    Заполняется только если в ручку передан аргумент additional-fields = [\"job-application\"]"
             }
           },
           "required": [
@@ -204,6 +212,15 @@
             "type": "integer"
           },
           "required": true
+        },
+        {
+          "name": "additional_fields",
+          "schema": {
+            "type": "array",
+            "items": {
+              "type": "string"
+            }
+          }
         }
       ],
       "result": {
@@ -351,6 +368,14 @@
             "open": {
               "type": "boolean",
               "description": "Признак того, что вакансия закрыта."
+            },
+            "job_application": {
+              "type": "object",
+              "properties": {},
+              "required": [],
+              "x-cl-class": "T",
+              "x-cl-package": "COMMON-LISP",
+              "description": "Информация об job-application текущего пользователя.\n                                    Заполняется только если в ручку передан аргумент additional-fields = [\"job-application\"]"
             }
           },
           "required": [
@@ -365,6 +390,7 @@
         }
       },
       "summary": "Возвращает вакансию.",
+      "description": "В additional-fields можно передать список из \"job-application\",\n                 чтобы в результате было заполнено это поле. Но это работает лишь если пользователь залогинен.",
       "paramStructure": "by-name"
     },
     {
@@ -376,6 +402,15 @@
             "type": "integer"
           },
           "required": true
+        },
+        {
+          "name": "additional_fields",
+          "schema": {
+            "type": "array",
+            "items": {
+              "type": "string"
+            }
+          }
         },
         {
           "name": "only_open",
@@ -531,6 +566,14 @@
               "open": {
                 "type": "boolean",
                 "description": "Признак того, что вакансия закрыта."
+              },
+              "job_application": {
+                "type": "object",
+                "properties": {},
+                "required": [],
+                "x-cl-class": "T",
+                "x-cl-package": "COMMON-LISP",
+                "description": "Информация об job-application текущего пользователя.\n                                    Заполняется только если в ручку передан аргумент additional-fields = [\"job-application\"]"
               }
             },
             "required": [
@@ -546,12 +589,21 @@
         }
       },
       "summary": "Возвращает вакансии команды.",
-      "description": "По-умолчанию возвращаются все, а если указан параметр only-open, то только открытые.",
+      "description": "По-умолчанию возвращаются все, а если указан параметр only-open, то только открытые.\n                 В additional-fields можно передать список из \"job-application\",\n                 чтобы в результате было заполнено это поле. Но это работает лишь если пользователь залогинен.",
       "paramStructure": "by-name"
     },
     {
       "name": "popular_jobs",
       "params": [
+        {
+          "name": "additional_fields",
+          "schema": {
+            "type": "array",
+            "items": {
+              "type": "string"
+            }
+          }
+        },
         {
           "name": "limit",
           "schema": {
@@ -706,6 +758,14 @@
               "open": {
                 "type": "boolean",
                 "description": "Признак того, что вакансия закрыта."
+              },
+              "job_application": {
+                "type": "object",
+                "properties": {},
+                "required": [],
+                "x-cl-class": "T",
+                "x-cl-package": "COMMON-LISP",
+                "description": "Информация об job-application текущего пользователя.\n                                    Заполняется только если в ручку передан аргумент additional-fields = [\"job-application\"]"
               }
             },
             "required": [
@@ -721,6 +781,7 @@
         }
       },
       "summary": "Возвращает последние предложения вступить в команду.",
+      "description": "В additional-fields можно передать список из \"job-application\",\n                 чтобы в результате было заполнено это поле. Но это работает лишь если пользователь залогинен.",
       "paramStructure": "by-name"
     },
     {
@@ -1656,6 +1717,14 @@
                 "open": {
                   "type": "boolean",
                   "description": "Признак того, что вакансия закрыта."
+                },
+                "job_application": {
+                  "type": "object",
+                  "properties": {},
+                  "required": [],
+                  "x-cl-class": "T",
+                  "x-cl-package": "COMMON-LISP",
+                  "description": "Информация об job-application текущего пользователя.\n                                    Заполняется только если в ручку передан аргумент additional-fields = [\"job-application\"]"
                 }
               },
               "required": [
@@ -1888,6 +1957,14 @@
                 "open": {
                   "type": "boolean",
                   "description": "Признак того, что вакансия закрыта."
+                },
+                "job_application": {
+                  "type": "object",
+                  "properties": {},
+                  "required": [],
+                  "x-cl-class": "T",
+                  "x-cl-package": "COMMON-LISP",
+                  "description": "Информация об job-application текущего пользователя.\n                                    Заполняется только если в ручку передан аргумент additional-fields = [\"job-application\"]"
                 }
               },
               "required": [
@@ -2115,6 +2192,14 @@
                 "open": {
                   "type": "boolean",
                   "description": "Признак того, что вакансия закрыта."
+                },
+                "job_application": {
+                  "type": "object",
+                  "properties": {},
+                  "required": [],
+                  "x-cl-class": "T",
+                  "x-cl-package": "COMMON-LISP",
+                  "description": "Информация об job-application текущего пользователя.\n                                    Заполняется только если в ручку передан аргумент additional-fields = [\"job-application\"]"
                 }
               },
               "required": [
@@ -2342,6 +2427,14 @@
                 "open": {
                   "type": "boolean",
                   "description": "Признак того, что вакансия закрыта."
+                },
+                "job_application": {
+                  "type": "object",
+                  "properties": {},
+                  "required": [],
+                  "x-cl-class": "T",
+                  "x-cl-package": "COMMON-LISP",
+                  "description": "Информация об job-application текущего пользователя.\n                                    Заполняется только если в ручку передан аргумент additional-fields = [\"job-application\"]"
                 }
               },
               "required": [
@@ -2570,6 +2663,14 @@
                   "open": {
                     "type": "boolean",
                     "description": "Признак того, что вакансия закрыта."
+                  },
+                  "job_application": {
+                    "type": "object",
+                    "properties": {},
+                    "required": [],
+                    "x-cl-class": "T",
+                    "x-cl-package": "COMMON-LISP",
+                    "description": "Информация об job-application текущего пользователя.\n                                    Заполняется только если в ручку передан аргумент additional-fields = [\"job-application\"]"
                   }
                 },
                 "required": [
@@ -2803,6 +2904,14 @@
                   "open": {
                     "type": "boolean",
                     "description": "Признак того, что вакансия закрыта."
+                  },
+                  "job_application": {
+                    "type": "object",
+                    "properties": {},
+                    "required": [],
+                    "x-cl-class": "T",
+                    "x-cl-package": "COMMON-LISP",
+                    "description": "Информация об job-application текущего пользователя.\n                                    Заполняется только если в ручку передан аргумент additional-fields = [\"job-application\"]"
                   }
                 },
                 "required": [
@@ -2856,6 +2965,16 @@
           },
           "required": true,
           "summary": "Запрос для поиска на языке запросов ElasticSearch."
+        },
+        {
+          "name": "additional_fields",
+          "schema": {
+            "type": "array",
+            "items": {
+              "type": "string"
+            }
+          },
+          "summary": "Список дополнительных полей, которые надо подгрузить из других таблиц."
         },
         {
           "name": "page_key",
@@ -3020,6 +3139,14 @@
                   "open": {
                     "type": "boolean",
                     "description": "Признак того, что вакансия закрыта."
+                  },
+                  "job_application": {
+                    "type": "object",
+                    "properties": {},
+                    "required": [],
+                    "x-cl-class": "T",
+                    "x-cl-package": "COMMON-LISP",
+                    "description": "Информация об job-application текущего пользователя.\n                                    Заполняется только если в ручку передан аргумент additional-fields = [\"job-application\"]"
                   }
                 },
                 "required": [

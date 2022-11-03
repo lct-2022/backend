@@ -260,7 +260,14 @@
             do (index-object obj)))))
 
 
-(defmacro define-search-rpc-method ((api-name method-name class-name) &body metadata)
+(defun noop-enricher (objects fields)
+  (declare (ignore fields))
+  objects)
+
+
+(defmacro define-search-rpc-method ((api-name method-name class-name
+                                     &key (enrich-func ''noop-enricher))
+                                    &body metadata)
   "Генератор методов для поиска по разным типам объектов.
    Просто чтобы не повторять примерно один и тот же код."
   (let* ((index-func-name (symbolicate "INDEX-" class-name "S-IN-THREAD"))
@@ -268,10 +275,12 @@
          (update-event (make-keyword (symbolicate class-name "-UPDATED")))
          (delete-event (make-keyword (symbolicate class-name "-DELETED"))))
     `(progn
-       (define-rpc-method (,api-name ,method-name) (query &key (limit 10) page-key)
+       (define-rpc-method (,api-name ,method-name) (query &key (limit 10) page-key additional-fields)
          (:param query string "Запрос для поиска на языке запросов ElasticSearch.")
          (:param limit integer)
          (:param page-key string)
+         (:param additional-fields (list-of string)
+                 "Список дополнительных полей, которые надо подгрузить из других таблиц.")
          (:result (paginated-list-of ,class-name))
          ,@metadata
 
@@ -295,8 +304,10 @@
                                collect (el result "id")))
                     (results (when ids
                                (with-connection ()
-                                 (mito:select-dao ',class-name
-                                   (where (:in :id ids)))))))
+                                 (funcall ,enrich-func
+                                          (mito:select-dao ',class-name
+                                            (where (:in :id ids)))
+                                          additional-fields)))))
                (if next-page-key
                    (values results
                            (encode-json next-page-key))

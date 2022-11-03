@@ -37,10 +37,12 @@
                   for key = (string-downcase var)
                   collect (cond
                             ((string= key "roles")
-                             `(,var (loop for role in (gethash "roles" ,session-var)
-                                          collect (make-keyword (string-upcase role)))))
+                             `(,var (when ,session-var
+                                      (loop for role in (gethash "roles" ,session-var)
+                                            collect (make-keyword (string-upcase role))))))
                             (t
-                             `(,var (gethash ,key ,session-var)))))))
+                             `(,var (when ,session-var
+                                      (gethash ,key ,session-var))))))))
       `(let ((,session-var (decode-current-jwt-token)))
          (when (and ,require
                     (not ,session-var))

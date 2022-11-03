@@ -10,7 +10,9 @@
   (:import-from #:common/search
                 #:get-objects-to-index
                 #:make-document-for-index
-                #:define-search-rpc-method))
+                #:define-search-rpc-method)
+  (:import-from #:platform/job/api
+                #:enrich-jobs))
 (in-package #:platform/job/search)
 
 
@@ -25,7 +27,7 @@
                      :open 1))
 
 
-(define-search-rpc-method (platform-api search-jobs job)
+(define-search-rpc-method (platform-api search-jobs job :enrich-func 'enrich-jobs)
   (:summary "Возвращает список вакансий по заданному запросу.")
   (:description "Запрос должен вводиться в формате ElasticSearch. Но для поиска по всем
  полям можно просто слова вводить.  Если передать \"*\" - выдаются все джобы, начиная с самых свежих.

@@ -9,6 +9,7 @@
   ;; project's check
   (:import-from #:dbd.postgres)
   (:import-from #:mito
+                #:object-id
                 #:select-dao)
   (:import-from #:ironclad
                 #:octets-to-integer
@@ -37,7 +38,8 @@
            #:get-lock
            #:execute
            #:connect-toplevel-in-dev
-           #:lock-timeout))
+           #:lock-timeout
+           #:map-by-id))
 (in-package #:common/db)
 
 
@@ -354,3 +356,11 @@
                                   (t pk-type))
                                 pk-name))))
          #()))))
+
+
+(defun map-by-id (dao-objects)
+  (loop with result = (make-hash-table)
+        for obj in dao-objects
+        do (setf (gethash (object-id obj) result)
+                 obj)
+        finally (return result)))
