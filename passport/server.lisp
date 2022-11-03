@@ -104,7 +104,8 @@
   (with-connection ()
     (with-session (user-id)
       (let ((user (find-dao 'user
-                            :id user-id)))))))
+                            :id user-id)))
+        (enrich-user user additional-fields)))))
 
 
 (define-rpc-method (passport-api my-roles) ()
@@ -115,18 +116,37 @@
 
 
 (define-update-method (passport-api update-profile user)
-                      (fio birthday gender phone country city education job about)
+                      (fio
+                       birthday
+                       gender
+                       phone
+                       country
+                       city
+                       education
+                       job
+                       about
+                       looking-for-job
+                       looking-for-hackathon)
   (with-session (user-id)
     (find-dao 'user
               :id user-id)))
 
 
-(defun enrich-with-projects (user)
-  (let* ((client (platform/client::connect
-                  (make-platform))))
-    (setf (passport/user::user-projects user)
-          (platform/client:user-projects client (object-id user)))
-    user))
+(defun enrich-users (users additional-fields)
+  (when (member "projects" additional-fields
+                :test #'string-equal)
+    (loop for user in users
+          do (let* ((client (platform/client::connect
+                             (make-platform))))
+               (setf (passport/user::user-projects user)
+                     (platform/client:user-projects client (object-id user)))
+               user)))
+  users)
+
+
+(defun enrich-user (user additional-fields)
+  (enrich-users (list user) additional-fields)
+  user)
 
 
 (define-rpc-method (passport-api get-profile) (id &key additional-fields)
@@ -139,11 +159,8 @@
     (let ((user (mito:find-dao 'user
                                :id id)))
       (cond
-        ((and user (member "projects" additional-fields
-                           :test #'string-equal))
-         (enrich-with-projects user))
         (user
-         user)
+         (enrich-user user additional-fields))
         (t
          (return-error (fmt "Пользователь с id = ~A не найден."
                             id)

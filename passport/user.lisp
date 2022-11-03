@@ -76,6 +76,16 @@
         :type (or null string)
         :col-type (or :null :text)
         :accessor user-job)
+   (looking-for-job :initarg :looking-for-job
+                    :initform nil
+                    :type boolean
+                    :col-type :boolean
+                    :accessor looking-for-job-p)
+   (looking-for-hackathon :initarg :looking-for-hackathon
+                          :initform nil
+                          :type boolean
+                          :col-type :boolean
+                          :accessor looking-for-hackathon-p)
    (about :initarg :about
           :initform nil
           :type (or null string)

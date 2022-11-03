@@ -23,7 +23,10 @@
   (:import-from #:alexandria
                 #:appendf)
   (:import-from #:rating/client
-                #:make-rating))
+                #:make-rating)
+  (:import-from #:passport/user
+                #:looking-for-job-p
+                #:looking-for-hackathon-p))
 (in-package #:app/pages/profiles)
 
 
@@ -112,10 +115,12 @@
                  )
           (:span :class "tags"
                  ;; TODO: добавить в модель
-                 (:span :class "tag gray"
-                        "Ищет команду")
-                 (:span :class "tag"
-                        "Хочет в хакатон")))
+                 (when (passport/client::user-looking-for-job (raw-user widget))
+                   (:span :class "tag gray"
+                          "Ищет команду"))
+                 (when (passport/client::user-looking-for-hackathon (raw-user widget))
+                   (:span :class "tag"
+                          "Хочет в хакатон"))))
     (:div :class "controls"
           (:span :class "invite-button"
                  (:input :class "button success small"

@@ -61,7 +61,18 @@
     },
     {
       "name": "my_profile",
-      "params": [],
+      "params": [
+        {
+          "name": "additional_fields",
+          "schema": {
+            "type": "array",
+            "items": {
+              "type": "string"
+            }
+          },
+          "summary": "В этом списке строк можно указывать только \"projects\"."
+        }
+      ],
       "result": {
         "name": "my_profile_result",
         "schema": {
@@ -178,6 +189,12 @@
                 }
               ]
             },
+            "looking_for_job": {
+              "type": "boolean"
+            },
+            "looking_for_hackathon": {
+              "type": "boolean"
+            },
             "about": {
               "oneOf": [
                 {
@@ -214,6 +231,7 @@
         }
       },
       "summary": "Отдаёт профиль текущего залогиненого пользователя.",
+      "description": "В additional-fields можно передать \"projects\", чтобы в поле \"projects\" подтянулись проекты пользователя.",
       "paramStructure": "by-name"
     },
     {
@@ -234,6 +252,18 @@
     {
       "name": "update_profile",
       "params": [
+        {
+          "name": "looking_for_hackathon",
+          "schema": {
+            "type": "boolean"
+          }
+        },
+        {
+          "name": "looking_for_job",
+          "schema": {
+            "type": "boolean"
+          }
+        },
         {
           "name": "about",
           "schema": {
@@ -468,6 +498,12 @@
                 }
               ]
             },
+            "looking_for_job": {
+              "type": "boolean"
+            },
+            "looking_for_hackathon": {
+              "type": "boolean"
+            },
             "about": {
               "oneOf": [
                 {
@@ -643,6 +679,12 @@
                 }
               ]
             },
+            "looking_for_job": {
+              "type": "boolean"
+            },
+            "looking_for_hackathon": {
+              "type": "boolean"
+            },
             "about": {
               "oneOf": [
                 {
@@ -811,6 +853,12 @@
                       }
                     ]
                   },
+                  "looking_for_job": {
+                    "type": "boolean"
+                  },
+                  "looking_for_hackathon": {
+                    "type": "boolean"
+                  },
                   "about": {
                     "oneOf": [
                       {
@@ -870,6 +918,16 @@
           },
           "required": true,
           "summary": "Запрос для поиска на языке запросов ElasticSearch."
+        },
+        {
+          "name": "additional_fields",
+          "schema": {
+            "type": "array",
+            "items": {
+              "type": "string"
+            }
+          },
+          "summary": "Список дополнительных полей, которые надо подгрузить из других таблиц."
         },
         {
           "name": "page_key",
@@ -1004,6 +1062,12 @@
                         "type": "string"
                       }
                     ]
+                  },
+                  "looking_for_job": {
+                    "type": "boolean"
+                  },
+                  "looking_for_hackathon": {
+                    "type": "boolean"
                   },
                   "about": {
                     "oneOf": [

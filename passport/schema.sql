@@ -31,3 +31,11 @@ UPDATE passport.user SET avatar_url = 'http://www.gravatar.com/avatar/501a6ae10e
 
 ALTER TABLE passport.user ALTER COLUMN avatar_url SET NOT NULL;
 
+
+ALTER TABLE passport.user
+ ADD COLUMN looking_for_job BOOLEAN DEFAULT FALSE,
+ ADD COLUMN looking_for_hackathon BOOLEAN DEFAULT FALSE;
+
+-- Чтобы как-то разнообразить данные
+UPDATE passport.user SET looking_for_job = (random() * 2)::integer::boolean,
+                         looking_for_hackathon = (random() * 2)::integer::boolean;
