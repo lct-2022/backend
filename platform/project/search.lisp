@@ -2,6 +2,9 @@
   (:use #:cl
         #:common/utils)
   (:import-from #:platform/project/model
+                #:project-industry
+                #:project-innovation-type
+                #:project-innovations
                 #:project-author-id
                 #:project-stage-id
                 #:project-title
@@ -26,7 +29,10 @@
         "author_id" (project-author-id project)
         "stage_id" (project-stage-id project)
         "stage" (get-stage-title (project-stage-id project))
-        "contests" (project-contests project)))
+        "contests" (project-contests project)
+        "industry" (project-industry project)
+        "innovation_type" (project-innovation-type project)
+        "innovations" (project-innovations project)))
 
 
 (define-search-rpc-method (platform-api search-projects project :enrich-func 'enrich-projects)

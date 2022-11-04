@@ -55,6 +55,24 @@
              :col-type :text
              :accessor project-contests
              :documentation "Текстовое описание конкурсов и хакатонов, в которых принимал участие.")
+   (industry :initarg :industry
+             :initform ""
+             :type string
+             :col-type :text
+             :accessor project-industry
+             :documentation "Индустрия, к которой относится проект (значения можно брать из метода get-industries).")
+   (innovation-type :initarg :innovation-type
+                    :initform ""
+                    :type string
+                    :col-type :text
+                    :accessor project-innovation-type
+                    :documentation "Категория инновационности (значения можно брать из метода get-innovation-types).")
+   (innovations :initarg :innovations
+                :initform ""
+                :type string
+                :col-type :text
+                :accessor project-innovations
+                :documentation "Описание инновационной идеи проекта.")
    (jobs :initarg :jobs
          :initform nil
          :type list

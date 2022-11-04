@@ -104,3 +104,9 @@ CREATE TABLE platform.skill (
     created_at TIMESTAMPTZ,
     updated_at TIMESTAMPTZ
 );
+
+
+ALTER TABLE platform.project
+ ADD COLUMN industry TEXT NOT NULL DEFAULT '',
+ ADD COLUMN innovation_type TEXT NOT NULL DEFAULT '',
+ ADD COLUMN innovations TEXT NOT NULL DEFAULT '';

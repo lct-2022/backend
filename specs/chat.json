@@ -11,77 +11,6 @@
       }
     },
     {
-      "name": "post",
-      "params": [
-        {
-          "name": "chat_id",
-          "schema": {
-            "type": "string"
-          },
-          "required": true
-        },
-        {
-          "name": "message",
-          "schema": {
-            "type": "string"
-          },
-          "required": true
-        }
-      ],
-      "result": {
-        "name": "post_result",
-        "schema": {
-          "type": "object",
-          "properties": {
-            "created_at": {
-              "type": "object",
-              "properties": {},
-              "required": [],
-              "x-cl-class": "T",
-              "x-cl-package": "COMMON-LISP"
-            },
-            "updated_at": {
-              "type": "object",
-              "properties": {},
-              "required": [],
-              "x-cl-class": "T",
-              "x-cl-package": "COMMON-LISP"
-            },
-            "synced": {
-              "type": "boolean"
-            },
-            "id": {
-              "type": "integer"
-            },
-            "chat_id": {
-              "type": "string"
-            },
-            "user_id": {
-              "type": "integer",
-              "description": "ID пользователя, который написал сообщение."
-            },
-            "message": {
-              "type": "string",
-              "description": "Текст сообщения"
-            }
-          },
-          "required": [
-            "message",
-            "user_id",
-            "chat_id",
-            "id",
-            "updated_at",
-            "created_at"
-          ],
-          "x-cl-class": "MESSAGE",
-          "x-cl-package": "CHAT/MESSAGE/MODEL",
-          "description": "Одно сообщение из чата."
-        }
-      },
-      "summary": "Добавляет в чат сообщение от текущего пользователя.",
-      "paramStructure": "by-name"
-    },
-    {
       "name": "create_chat",
       "params": [
         {
@@ -196,6 +125,77 @@
         }
       },
       "summary": "Возвращает user-id всех участников чата.",
+      "paramStructure": "by-name"
+    },
+    {
+      "name": "post",
+      "params": [
+        {
+          "name": "chat_id",
+          "schema": {
+            "type": "string"
+          },
+          "required": true
+        },
+        {
+          "name": "message",
+          "schema": {
+            "type": "string"
+          },
+          "required": true
+        }
+      ],
+      "result": {
+        "name": "post_result",
+        "schema": {
+          "type": "object",
+          "properties": {
+            "created_at": {
+              "type": "object",
+              "properties": {},
+              "required": [],
+              "x-cl-class": "T",
+              "x-cl-package": "COMMON-LISP"
+            },
+            "updated_at": {
+              "type": "object",
+              "properties": {},
+              "required": [],
+              "x-cl-class": "T",
+              "x-cl-package": "COMMON-LISP"
+            },
+            "synced": {
+              "type": "boolean"
+            },
+            "id": {
+              "type": "integer"
+            },
+            "chat_id": {
+              "type": "string"
+            },
+            "user_id": {
+              "type": "integer",
+              "description": "ID пользователя, который написал сообщение."
+            },
+            "message": {
+              "type": "string",
+              "description": "Текст сообщения"
+            }
+          },
+          "required": [
+            "message",
+            "user_id",
+            "chat_id",
+            "id",
+            "updated_at",
+            "created_at"
+          ],
+          "x-cl-class": "MESSAGE",
+          "x-cl-package": "CHAT/MESSAGE/MODEL",
+          "description": "Одно сообщение из чата."
+        }
+      },
+      "summary": "Добавляет в чат сообщение от текущего пользователя.",
       "paramStructure": "by-name"
     },
     {

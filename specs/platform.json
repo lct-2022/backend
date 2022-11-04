@@ -132,6 +132,18 @@
                       "type": "string",
                       "description": "Текстовое описание конкурсов и хакатонов, в которых принимал участие."
                     },
+                    "industry": {
+                      "type": "string",
+                      "description": "Индустрия, к которой относится проект (значения можно брать из метода get-industries)."
+                    },
+                    "innovation_type": {
+                      "type": "string",
+                      "description": "Категория инновационности (значения можно брать из метода get-innovation-types)."
+                    },
+                    "innovations": {
+                      "type": "string",
+                      "description": "Описание инновационной идеи проекта."
+                    },
                     "jobs": {
                       "type": "object",
                       "properties": {},
@@ -336,6 +348,18 @@
                     "contests": {
                       "type": "string",
                       "description": "Текстовое описание конкурсов и хакатонов, в которых принимал участие."
+                    },
+                    "industry": {
+                      "type": "string",
+                      "description": "Индустрия, к которой относится проект (значения можно брать из метода get-industries)."
+                    },
+                    "innovation_type": {
+                      "type": "string",
+                      "description": "Категория инновационности (значения можно брать из метода get-innovation-types)."
+                    },
+                    "innovations": {
+                      "type": "string",
+                      "description": "Описание инновационной идеи проекта."
                     },
                     "jobs": {
                       "type": "object",
@@ -552,6 +576,18 @@
                         "type": "string",
                         "description": "Текстовое описание конкурсов и хакатонов, в которых принимал участие."
                       },
+                      "industry": {
+                        "type": "string",
+                        "description": "Индустрия, к которой относится проект (значения можно брать из метода get-industries)."
+                      },
+                      "innovation_type": {
+                        "type": "string",
+                        "description": "Категория инновационности (значения можно брать из метода get-innovation-types)."
+                      },
+                      "innovations": {
+                        "type": "string",
+                        "description": "Описание инновационной идеи проекта."
+                      },
                       "jobs": {
                         "type": "object",
                         "properties": {},
@@ -760,6 +796,18 @@
                       "contests": {
                         "type": "string",
                         "description": "Текстовое описание конкурсов и хакатонов, в которых принимал участие."
+                      },
+                      "industry": {
+                        "type": "string",
+                        "description": "Индустрия, к которой относится проект (значения можно брать из метода get-industries)."
+                      },
+                      "innovation_type": {
+                        "type": "string",
+                        "description": "Категория инновационности (значения можно брать из метода get-innovation-types)."
+                      },
+                      "innovations": {
+                        "type": "string",
+                        "description": "Описание инновационной идеи проекта."
                       },
                       "jobs": {
                         "type": "object",
@@ -988,6 +1036,18 @@
                             "type": "string",
                             "description": "Текстовое описание конкурсов и хакатонов, в которых принимал участие."
                           },
+                          "industry": {
+                            "type": "string",
+                            "description": "Индустрия, к которой относится проект (значения можно брать из метода get-industries)."
+                          },
+                          "innovation_type": {
+                            "type": "string",
+                            "description": "Категория инновационности (значения можно брать из метода get-innovation-types)."
+                          },
+                          "innovations": {
+                            "type": "string",
+                            "description": "Описание инновационной идеи проекта."
+                          },
                           "jobs": {
                             "type": "object",
                             "properties": {},
@@ -1180,6 +1240,18 @@
                   "type": "string",
                   "description": "Текстовое описание конкурсов и хакатонов, в которых принимал участие."
                 },
+                "industry": {
+                  "type": "string",
+                  "description": "Индустрия, к которой относится проект (значения можно брать из метода get-industries)."
+                },
+                "innovation_type": {
+                  "type": "string",
+                  "description": "Категория инновационности (значения можно брать из метода get-innovation-types)."
+                },
+                "innovations": {
+                  "type": "string",
+                  "description": "Описание инновационной идеи проекта."
+                },
                 "jobs": {
                   "type": "object",
                   "properties": {},
@@ -1319,6 +1391,18 @@
                     "type": "string",
                     "description": "Текстовое описание конкурсов и хакатонов, в которых принимал участие."
                   },
+                  "industry": {
+                    "type": "string",
+                    "description": "Индустрия, к которой относится проект (значения можно брать из метода get-industries)."
+                  },
+                  "innovation_type": {
+                    "type": "string",
+                    "description": "Категория инновационности (значения можно брать из метода get-innovation-types)."
+                  },
+                  "innovations": {
+                    "type": "string",
+                    "description": "Описание инновационной идеи проекта."
+                  },
                   "jobs": {
                     "type": "object",
                     "properties": {},
@@ -1449,6 +1533,18 @@
               "type": "string",
               "description": "Текстовое описание конкурсов и хакатонов, в которых принимал участие."
             },
+            "industry": {
+              "type": "string",
+              "description": "Индустрия, к которой относится проект (значения можно брать из метода get-industries)."
+            },
+            "innovation_type": {
+              "type": "string",
+              "description": "Категория инновационности (значения можно брать из метода get-innovation-types)."
+            },
+            "innovations": {
+              "type": "string",
+              "description": "Описание инновационной идеи проекта."
+            },
             "jobs": {
               "type": "object",
               "properties": {},
@@ -1551,6 +1647,18 @@
               "type": "string",
               "description": "Текстовое описание конкурсов и хакатонов, в которых принимал участие."
             },
+            "industry": {
+              "type": "string",
+              "description": "Индустрия, к которой относится проект (значения можно брать из метода get-industries)."
+            },
+            "innovation_type": {
+              "type": "string",
+              "description": "Категория инновационности (значения можно брать из метода get-innovation-types)."
+            },
+            "innovations": {
+              "type": "string",
+              "description": "Описание инновационной идеи проекта."
+            },
             "jobs": {
               "type": "object",
               "properties": {},
@@ -1599,6 +1707,24 @@
           "name": "stage_id",
           "schema": {
             "type": "integer"
+          }
+        },
+        {
+          "name": "innovations",
+          "schema": {
+            "type": "string"
+          }
+        },
+        {
+          "name": "innovation_type",
+          "schema": {
+            "type": "string"
+          }
+        },
+        {
+          "name": "industry",
+          "schema": {
+            "type": "string"
           }
         },
         {
@@ -1673,6 +1799,18 @@
             "contests": {
               "type": "string",
               "description": "Текстовое описание конкурсов и хакатонов, в которых принимал участие."
+            },
+            "industry": {
+              "type": "string",
+              "description": "Индустрия, к которой относится проект (значения можно брать из метода get-industries)."
+            },
+            "innovation_type": {
+              "type": "string",
+              "description": "Категория инновационности (значения можно брать из метода get-innovation-types)."
+            },
+            "innovations": {
+              "type": "string",
+              "description": "Описание инновационной идеи проекта."
             },
             "jobs": {
               "type": "object",
@@ -1778,6 +1916,18 @@
                   "contests": {
                     "type": "string",
                     "description": "Текстовое описание конкурсов и хакатонов, в которых принимал участие."
+                  },
+                  "industry": {
+                    "type": "string",
+                    "description": "Индустрия, к которой относится проект (значения можно брать из метода get-industries)."
+                  },
+                  "innovation_type": {
+                    "type": "string",
+                    "description": "Категория инновационности (значения можно брать из метода get-innovation-types)."
+                  },
+                  "innovations": {
+                    "type": "string",
+                    "description": "Описание инновационной идеи проекта."
                   },
                   "jobs": {
                     "type": "object",
@@ -1905,6 +2055,18 @@
                   "contests": {
                     "type": "string",
                     "description": "Текстовое описание конкурсов и хакатонов, в которых принимал участие."
+                  },
+                  "industry": {
+                    "type": "string",
+                    "description": "Индустрия, к которой относится проект (значения можно брать из метода get-industries)."
+                  },
+                  "innovation_type": {
+                    "type": "string",
+                    "description": "Категория инновационности (значения можно брать из метода get-innovation-types)."
+                  },
+                  "innovations": {
+                    "type": "string",
+                    "description": "Описание инновационной идеи проекта."
                   },
                   "jobs": {
                     "type": "object",
@@ -2052,6 +2214,18 @@
                   "contests": {
                     "type": "string",
                     "description": "Текстовое описание конкурсов и хакатонов, в которых принимал участие."
+                  },
+                  "industry": {
+                    "type": "string",
+                    "description": "Индустрия, к которой относится проект (значения можно брать из метода get-industries)."
+                  },
+                  "innovation_type": {
+                    "type": "string",
+                    "description": "Категория инновационности (значения можно брать из метода get-innovation-types)."
+                  },
+                  "innovations": {
+                    "type": "string",
+                    "description": "Описание инновационной идеи проекта."
                   },
                   "jobs": {
                     "type": "object",
@@ -2230,6 +2404,18 @@
                         "contests": {
                           "type": "string",
                           "description": "Текстовое описание конкурсов и хакатонов, в которых принимал участие."
+                        },
+                        "industry": {
+                          "type": "string",
+                          "description": "Индустрия, к которой относится проект (значения можно брать из метода get-industries)."
+                        },
+                        "innovation_type": {
+                          "type": "string",
+                          "description": "Категория инновационности (значения можно брать из метода get-innovation-types)."
+                        },
+                        "innovations": {
+                          "type": "string",
+                          "description": "Описание инновационной идеи проекта."
                         },
                         "jobs": {
                           "type": "object",
@@ -2488,6 +2674,18 @@
                           "type": "string",
                           "description": "Текстовое описание конкурсов и хакатонов, в которых принимал участие."
                         },
+                        "industry": {
+                          "type": "string",
+                          "description": "Индустрия, к которой относится проект (значения можно брать из метода get-industries)."
+                        },
+                        "innovation_type": {
+                          "type": "string",
+                          "description": "Категория инновационности (значения можно брать из метода get-innovation-types)."
+                        },
+                        "innovations": {
+                          "type": "string",
+                          "description": "Описание инновационной идеи проекта."
+                        },
                         "jobs": {
                           "type": "object",
                           "properties": {},
@@ -2739,6 +2937,18 @@
                         "contests": {
                           "type": "string",
                           "description": "Текстовое описание конкурсов и хакатонов, в которых принимал участие."
+                        },
+                        "industry": {
+                          "type": "string",
+                          "description": "Индустрия, к которой относится проект (значения можно брать из метода get-industries)."
+                        },
+                        "innovation_type": {
+                          "type": "string",
+                          "description": "Категория инновационности (значения можно брать из метода get-innovation-types)."
+                        },
+                        "innovations": {
+                          "type": "string",
+                          "description": "Описание инновационной идеи проекта."
                         },
                         "jobs": {
                           "type": "object",
@@ -2992,6 +3202,18 @@
                           "type": "string",
                           "description": "Текстовое описание конкурсов и хакатонов, в которых принимал участие."
                         },
+                        "industry": {
+                          "type": "string",
+                          "description": "Индустрия, к которой относится проект (значения можно брать из метода get-industries)."
+                        },
+                        "innovation_type": {
+                          "type": "string",
+                          "description": "Категория инновационности (значения можно брать из метода get-innovation-types)."
+                        },
+                        "innovations": {
+                          "type": "string",
+                          "description": "Описание инновационной идеи проекта."
+                        },
                         "jobs": {
                           "type": "object",
                           "properties": {},
@@ -3243,6 +3465,18 @@
                         "contests": {
                           "type": "string",
                           "description": "Текстовое описание конкурсов и хакатонов, в которых принимал участие."
+                        },
+                        "industry": {
+                          "type": "string",
+                          "description": "Индустрия, к которой относится проект (значения можно брать из метода get-industries)."
+                        },
+                        "innovation_type": {
+                          "type": "string",
+                          "description": "Категория инновационности (значения можно брать из метода get-innovation-types)."
+                        },
+                        "innovations": {
+                          "type": "string",
+                          "description": "Описание инновационной идеи проекта."
                         },
                         "jobs": {
                           "type": "object",
@@ -3496,6 +3730,18 @@
                           "contests": {
                             "type": "string",
                             "description": "Текстовое описание конкурсов и хакатонов, в которых принимал участие."
+                          },
+                          "industry": {
+                            "type": "string",
+                            "description": "Индустрия, к которой относится проект (значения можно брать из метода get-industries)."
+                          },
+                          "innovation_type": {
+                            "type": "string",
+                            "description": "Категория инновационности (значения можно брать из метода get-innovation-types)."
+                          },
+                          "innovations": {
+                            "type": "string",
+                            "description": "Описание инновационной идеи проекта."
                           },
                           "jobs": {
                             "type": "object",
@@ -3808,6 +4054,18 @@
                             "type": "string",
                             "description": "Текстовое описание конкурсов и хакатонов, в которых принимал участие."
                           },
+                          "industry": {
+                            "type": "string",
+                            "description": "Индустрия, к которой относится проект (значения можно брать из метода get-industries)."
+                          },
+                          "innovation_type": {
+                            "type": "string",
+                            "description": "Категория инновационности (значения можно брать из метода get-innovation-types)."
+                          },
+                          "innovations": {
+                            "type": "string",
+                            "description": "Описание инновационной идеи проекта."
+                          },
                           "jobs": {
                             "type": "object",
                             "properties": {},
@@ -3984,6 +4242,18 @@
               "contests": {
                 "type": "string",
                 "description": "Текстовое описание конкурсов и хакатонов, в которых принимал участие."
+              },
+              "industry": {
+                "type": "string",
+                "description": "Индустрия, к которой относится проект (значения можно брать из метода get-industries)."
+              },
+              "innovation_type": {
+                "type": "string",
+                "description": "Категория инновационности (значения можно брать из метода get-innovation-types)."
+              },
+              "innovations": {
+                "type": "string",
+                "description": "Описание инновационной идеи проекта."
               },
               "jobs": {
                 "type": "object",

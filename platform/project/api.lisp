@@ -164,7 +164,15 @@
 
 
 (define-update-method (platform-api update-project project)
-                      (id title description url contests stage-id)
+                      (id
+                       title
+                       description
+                       url
+                       contests
+                       industry
+                       innovation-type
+                       innovations
+                       stage-id)
   (unless id
     (return-error "Параметр ID обязательный."
                   :code 5))
