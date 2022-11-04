@@ -310,6 +310,12 @@
           }
         },
         {
+          "name": "profession_id",
+          "schema": {
+            "type": "integer"
+          }
+        },
+        {
           "name": "city",
           "schema": {
             "oneOf": [

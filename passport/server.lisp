@@ -128,6 +128,7 @@
                        phone
                        country
                        city
+                       profession-id
                        education
                        job
                        about
