@@ -2,6 +2,7 @@
   (:use #:cl
         #:common/utils)
   (:import-from #:platform/project/model
+                #:project-author-id
                 #:project-stage-id
                 #:project-title
                 #:project-description
@@ -22,6 +23,7 @@
 (defmethod make-document-for-index ((project project))
   (dict "title" (project-title project)
         "description" (project-description project)
+        "author_id" (project-author-id project)
         "stage_id" (project-stage-id project)
         "stage" (get-stage-title (project-stage-id project))
         "contests" (project-contests project)))

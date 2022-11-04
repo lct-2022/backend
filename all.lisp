@@ -1,5 +1,6 @@
 (uiop:define-package #:all/all
   (:use #:cl)
+  (:import-from #:app/server)
   (:import-from #:chat/server)
   (:import-from #:passport/server)
   (:import-from #:rating/server)
@@ -10,6 +11,7 @@
 
 
 (defun start-all ()
+  (app/server::start)
   (chat/server::start-me)
   (passport/server::start-me)
   (rating/server::start-me)

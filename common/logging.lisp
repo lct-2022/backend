@@ -16,13 +16,13 @@
                            "development")
              (list '(this-console
                      :layout :plain
-                     :filter :warn)))
+                     :filter :debug)))
             (t
              (list `(this-console
                      :stream ,*standard-output*
                      :layout :json
-                     :filter :warn))))))
+                     :filter :debug))))))
 
     (log4cl-extras/config:setup
-     (list :level :info
+     (list :level :warn
            :appenders appenders))))

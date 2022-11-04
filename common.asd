@@ -8,6 +8,8 @@
          :test #'equal)
 (pushnew "~/lisp/gen-deps-system/" asdf:*central-registry*
          :test #'equal)
+(pushnew "~/lisp/reblocks/" asdf:*central-registry*
+         :test #'equal)
 
 (defsystem common
   :class :package-inferred-system

@@ -5,7 +5,9 @@
                 #:defwidget)
   (:import-from #:reblocks/session)
   (:import-from #:reblocks/html
-                #:with-html))
+                #:with-html)
+  (:import-from #:app/utils
+                #:get-user-token))
 (in-package #:app/pages/landing)
 
 
@@ -18,7 +20,7 @@
 
 
 (defmethod render ((widget landing-page))
-  (let ((token (reblocks/session:get-value :auth-token)))
+  (let* ((token (get-user-token)))
     (cond
       (token
        (let* ((client (passport/client::connect (passport/client::make-passport) token))
@@ -26,10 +28,10 @@
          (with-html
            (:h1 ("Привет ~A!"
                  (passport/client::user-fio profile)))
-           (:p (:a :href "/alternative/logout"
-                 "Выйти")))))
+           (:p (:a :href "/alternative/logout/"
+                   "Выйти")))))
       (t
        (with-html
          (:h1 "Похоже, что нужно залогиниться.")
-         (:p (:a :href "/alternative/login"
+         (:p (:a :href "/alternative/login/"
                  "Войти")))))))

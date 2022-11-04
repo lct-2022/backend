@@ -19,7 +19,15 @@
 
 
 (defmethod render ((widget logout-page))
-  (setf (reblocks/session:get-value :auth-token)
-        nil)
-  (reblocks/response:redirect (fmt "~A/" *url-prefix*)))
+  (log4cl-extras/error:with-log-unhandled ()
+    (setf (reblocks/session:get-value :auth-token)
+          nil)
+    (reblocks/response:set-cookie
+     (list :name "auth_token"
+           :value ""
+           :path "/"
+           :expires (get-universal-time)
+           :secure t
+           :samesite :lax))
+    (reblocks/response:redirect (fmt "~A/" *url-prefix*))))
 

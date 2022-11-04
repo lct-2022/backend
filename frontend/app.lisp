@@ -31,9 +31,9 @@
 
 
 (defroutes routes
-    ("/login" (make-page-with-header
+    ("/login/" (make-page-with-header
                (make-login-page)) )
-  ("/logout" (make-page-with-header
+  ("/logout/" (make-page-with-header
               (make-logout-page)))
   ("/profiles/" (make-page-with-header
                  (make-profiles-widget)))
