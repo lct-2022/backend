@@ -1,8 +1,12 @@
 (pushnew "~/lisp/openrpc/" asdf:*central-registry*
          :test #'equal)
+(pushnew "~/lisp/jsonrpc/" asdf:*central-registry*
+         :test #'equal)
 (pushnew "~/lisp/cl-json-web-tokens/" asdf:*central-registry*
          :test #'equal)
 (pushnew "~/lisp/log4cl-extras/" asdf:*central-registry*
+         :test #'equal)
+(pushnew "~/lisp/gen-deps-system/" asdf:*central-registry*
          :test #'equal)
 
 (defsystem common

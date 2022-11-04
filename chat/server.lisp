@@ -1,4 +1,4 @@
-(uiop:define-package #:platform/server
+(uiop:define-package #:chat/server
   (:use #:cl)
   (:import-from #:common/server)
   (:import-from #:chat/api
@@ -6,7 +6,7 @@
   (:import-from #:chat/chat/api)
   (:import-from #:chat/chat-member/api)
   (:import-from #:chat/message/api))
-(in-package #:platform/server)
+(in-package #:chat/server)
 
 
 

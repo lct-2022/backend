@@ -95,3 +95,12 @@ CREATE TABLE platform.profession (
     created_at TIMESTAMPTZ,
     updated_at TIMESTAMPTZ
 );
+
+
+CREATE TABLE platform.skill (
+    id BIGSERIAL NOT NULL PRIMARY KEY,
+    title TEXT NOT NULL,
+    hard BOOLEAN NOT NULL,
+    created_at TIMESTAMPTZ,
+    updated_at TIMESTAMPTZ
+);

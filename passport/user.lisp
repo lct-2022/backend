@@ -4,6 +4,7 @@
                 #:transform-result
                 #:type-to-schema)
   (:import-from #:serapeum
+                #:soft-list-of
                 #:dict)
   (:import-from #:cl-json-web-tokens)
   (:import-from #:mito
@@ -12,7 +13,12 @@
   (:import-from #:common/db
                 #:sql-fetch-all)
   (:import-from #:common/token
-                #:get-jwt-secret))
+                #:get-jwt-secret)
+  (:import-from #:common/permissions
+                #:assert-can-modify)
+  (:import-from #:common/utils
+                #:decode-json
+                #:encode-json))
 (in-package #:passport/user)
 
 
@@ -75,6 +81,20 @@
                :type string
                :ghost t
                :accessor user-profession)
+   
+   (skill-ids :initarg :skill-ids
+              :initform nil
+              :type (soft-list-of integer)
+              :col-type :jsonb
+              :deflate #'encode-json
+              :inflate #'decode-json
+              :accessor user-skill-ids)
+   (skills :initarg :skills
+           :initform nil
+           :type (soft-list-of string)
+           :ghost t
+           :accessor user-skills)
+   
    (education :initarg :education
               :initform nil
               :type (or null string)
@@ -117,6 +137,13 @@
   (:metaclass dao-table-class))
 
 
+(defmethod print-object ((user user) stream)
+  (print-unreadable-object (user stream :type t)
+    (format stream "ID=~A EMAIL=~S"
+            (object-id user)
+            (user-email user))))
+
+
 (defclass user-with-rating ()
   ((user :initarg :user
          :type user)
@@ -151,3 +178,15 @@
                               ;; :expiration (+ (get-universal-time)
                               ;;                (* 15 60))
                               )))
+
+
+(defmethod assert-can-modify ((user-id integer) (obj user))
+  ;; Пользователь может редактировать свой собственный профиль,
+  ;; а админ может редактировать любой:
+  (let* ((is-admin
+           (mito:retrieve-by-sql
+            "select 1 FROM passport.user as p
+                 where p.id = ? AND p.admin"
+            :binds (list user-id))))
+    (or (= user-id (object-id obj))
+        is-admin)))

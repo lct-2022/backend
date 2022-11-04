@@ -44,3 +44,6 @@ UPDATE passport.user SET looking_for_job = (random() * 2)::integer::boolean,
 ALTER TABLE passport.user ADD COLUMN profession_id BIGINT DEFAULT 42;
 
 UPDATE passport.user SET profession_id = 1 + (random() * 42)::integer;
+
+
+ALTER TABLE passport.user ADD COLUMN skill_ids JSONB DEFAULT '[]';

@@ -4,7 +4,9 @@
                 #:dao-table-class
                 #:object-id)
   (:import-from #:common/event-bus
-                #:emit-event))
+                #:emit-event)
+  (:import-from #:serapeum
+                #:soft-list-of))
 (in-package #:platform/project/model)
 
 
@@ -56,6 +58,8 @@
    (jobs :initarg :jobs
          :initform nil
          :type list
+         ;; TODO: придумать, что делать с циклической зависимостью между модулями
+         ;; :type (soft-list-of job)
          :ghost t
          :accessor project-jobs
          :documentation "Список открытых вакансий. Будет заполнен если в ручку передан additional-fields = [\"jobs\"]")

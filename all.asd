@@ -5,4 +5,5 @@
                "platform"
                "passport"
                "rating"
-               "chat"))
+               "chat"
+               "all/all"))

@@ -18,7 +18,9 @@
   (:import-from #:platform/job-application/api)
   (:import-from #:platform/stage/api)
   (:import-from #:platform/team-member/api)
-  (:import-from #:platform/profession/api))
+  (:import-from #:platform/profession/api)
+  (:import-from #:common/server)
+  (:import-from #:platform/skill/api))
 (in-package #:platform/server)
 
 

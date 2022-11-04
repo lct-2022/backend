@@ -1,6 +1,16 @@
 {
   "methods": [
     {
+      "name": "rpc.discover",
+      "params": [],
+      "result": {
+        "name": "OpenRPC Schema",
+        "schema": {
+          "$ref": "https://raw.githubusercontent.com/open-rpc/meta-schema/master/schema.json"
+        }
+      }
+    },
+    {
       "name": "login",
       "params": [
         {
@@ -174,6 +184,18 @@
             "profession": {
               "type": "string"
             },
+            "skill_ids": {
+              "type": "array",
+              "items": {
+                "type": "integer"
+              }
+            },
+            "skills": {
+              "type": "array",
+              "items": {
+                "type": "string"
+              }
+            },
             "education": {
               "oneOf": [
                 {
@@ -307,6 +329,15 @@
                 "type": "string"
               }
             ]
+          }
+        },
+        {
+          "name": "skill_ids",
+          "schema": {
+            "type": "array",
+            "items": {
+              "type": "integer"
+            }
           }
         },
         {
@@ -495,6 +526,18 @@
             "profession": {
               "type": "string"
             },
+            "skill_ids": {
+              "type": "array",
+              "items": {
+                "type": "integer"
+              }
+            },
+            "skills": {
+              "type": "array",
+              "items": {
+                "type": "string"
+              }
+            },
             "education": {
               "oneOf": [
                 {
@@ -682,6 +725,18 @@
             "profession": {
               "type": "string"
             },
+            "skill_ids": {
+              "type": "array",
+              "items": {
+                "type": "integer"
+              }
+            },
+            "skills": {
+              "type": "array",
+              "items": {
+                "type": "string"
+              }
+            },
             "education": {
               "oneOf": [
                 {
@@ -861,6 +916,18 @@
                   },
                   "profession": {
                     "type": "string"
+                  },
+                  "skill_ids": {
+                    "type": "array",
+                    "items": {
+                      "type": "integer"
+                    }
+                  },
+                  "skills": {
+                    "type": "array",
+                    "items": {
+                      "type": "string"
+                    }
                   },
                   "education": {
                     "oneOf": [
@@ -1077,6 +1144,18 @@
                   },
                   "profession": {
                     "type": "string"
+                  },
+                  "skill_ids": {
+                    "type": "array",
+                    "items": {
+                      "type": "integer"
+                    }
+                  },
+                  "skills": {
+                    "type": "array",
+                    "items": {
+                      "type": "string"
+                    }
                   },
                   "education": {
                     "oneOf": [
