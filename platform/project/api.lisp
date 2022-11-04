@@ -217,3 +217,40 @@
   (with-connection ()
     (values
      (retrieve-dao 'project-chat :project-id project-id))))
+
+
+;; TODO: Уже нет времени вносить такие мелкие словари в БД. Но по хорошему - надо потом переделать.
+(defparameter *industries*
+  (list "Здравоохранение и медицина"
+        "Образование"
+        "Производство"
+        "Рестораны и питание"
+        "Сельское хозяйство"
+        "Сервисы неселению"
+        "Социальная"
+        "Товары"
+        "Торговля и ecommerce"
+        "Транспорт и перевозки"))
+
+
+(define-rpc-method (platform-api get-industries) ()
+  (:summary "Возвращает список строк, которые можно подставлять в поле industry проекта.")
+  (:result (list-of string))
+  *industries*)
+
+
+(defparameter *innovation-types*
+  (list "Автоматизция процессов"
+        "Нестандартный подход"
+        "Нет инновации"
+        "Новая бизнес-модель"
+        "Новая технология"
+        "Социальная"
+        "Уникальный сервис"
+        "Уникальный товар"))
+
+
+(define-rpc-method (platform-api get-innovation-types) ()
+  (:summary "Возвращает список строк, которые можно подставлять в поле innovation-type проекта.")
+  (:result (list-of string))
+  *innovation-types*)

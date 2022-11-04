@@ -4394,6 +4394,36 @@
       "summary": "Возвращает список всех профессий, какие могут быть у экспертов.",
       "description": "ID этих объектов можно использовать, чтобы изменить в профиле пользователя его skill-ids.",
       "paramStructure": "by-name"
+    },
+    {
+      "name": "get_industries",
+      "params": [],
+      "result": {
+        "name": "get_industries_result",
+        "schema": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          }
+        }
+      },
+      "summary": "Возвращает список строк, которые можно подставлять в поле industry проекта.",
+      "paramStructure": "by-name"
+    },
+    {
+      "name": "get_innovation_types",
+      "params": [],
+      "result": {
+        "name": "get_innovation_types_result",
+        "schema": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          }
+        }
+      },
+      "summary": "Возвращает список строк, которые можно подставлять в поле innovation-type проекта.",
+      "paramStructure": "by-name"
     }
   ],
   "openrpc": "1.0.0",
