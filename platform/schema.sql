@@ -87,3 +87,11 @@ UPDATE platform.project SET stage_id = 1 + (random() * 6)::integer;
 
 
 ALTER TYPE job_application_status ADD VALUE 'canceled';
+
+
+CREATE TABLE platform.profession (
+    id BIGSERIAL NOT NULL PRIMARY KEY,
+    title TEXT NOT NULL,
+    created_at TIMESTAMPTZ,
+    updated_at TIMESTAMPTZ
+);

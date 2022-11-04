@@ -4019,6 +4019,56 @@
       "summary": "Отменяет отклик на вакансию.",
       "description": "Отменить может только автор отклика.",
       "paramStructure": "by-name"
+    },
+    {
+      "name": "get_professions",
+      "params": [],
+      "result": {
+        "name": "get_professions_result",
+        "schema": {
+          "type": "array",
+          "items": {
+            "type": "object",
+            "properties": {
+              "created_at": {
+                "type": "object",
+                "properties": {},
+                "required": [],
+                "x-cl-class": "T",
+                "x-cl-package": "COMMON-LISP"
+              },
+              "updated_at": {
+                "type": "object",
+                "properties": {},
+                "required": [],
+                "x-cl-class": "T",
+                "x-cl-package": "COMMON-LISP"
+              },
+              "synced": {
+                "type": "boolean"
+              },
+              "id": {
+                "type": "integer"
+              },
+              "title": {
+                "type": "string",
+                "description": "Короткое название профессии."
+              }
+            },
+            "required": [
+              "title",
+              "id",
+              "updated_at",
+              "created_at"
+            ],
+            "x-cl-class": "PROFESSION",
+            "x-cl-package": "PLATFORM/PROFESSION/MODEL"
+          }
+        }
+      },
+      "summary": "Возвращает список всех профессий, какие могут быть у экспертов.",
+      "description": "ID этих объектов можно использовать, чтобы изменить в профиле пользователя его profession-id.",
+      "paramStructure": "by-name"
     }
   ],
   "openrpc": "1.0.0",

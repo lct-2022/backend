@@ -39,3 +39,8 @@ ALTER TABLE passport.user
 -- Чтобы как-то разнообразить данные
 UPDATE passport.user SET looking_for_job = (random() * 2)::integer::boolean,
                          looking_for_hackathon = (random() * 2)::integer::boolean;
+
+
+ALTER TABLE passport.user ADD COLUMN profession_id BIGINT DEFAULT 42;
+
+UPDATE passport.user SET profession_id = 1 + (random() * 42)::integer;

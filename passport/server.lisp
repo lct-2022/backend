@@ -7,6 +7,8 @@
                 #:return-error
                 #:define-rpc-method)
   (:import-from #:passport/user
+                #:user-profession-id
+                #:user-profession
                 #:user-with-rating
                 #:issue-token-for
                 #:get-user-by
@@ -42,12 +44,16 @@
   (:import-from #:avatar-api
                 #:gravatar)
   (:import-from #:platform/client
-                #:make-platform))
+                #:make-platform)
+  (:import-from #:function-cache
+                #:defcached))
 (in-package #:passport/server)
 
 
 (defparameter *default-avatar*
   "http://www.gravatar.com/avatar/501a6ae10e3fc3956ad1052cfc6d38d9?s=200")
+
+(defparameter *default-profession-id* 42)
 
 
 (define-api (passport-api :title "Passport API"))
@@ -132,6 +138,16 @@
               :id user-id)))
 
 
+(defcached (get-professions-map :timeout (* 15 60)) ()
+  (loop with client = (platform/client::connect (make-platform))
+        with items = (platform/client:get-professions client)
+        with result = (make-hash-table)
+        for item in items
+        do (setf (gethash (platform/client::profession-id item) result)
+                 (platform/client::profession-title item))
+        finally (return result)))
+
+
 (defun enrich-users (users additional-fields)
   (when (member "projects" additional-fields
                 :test #'string-equal)
@@ -141,6 +157,12 @@
                (setf (passport/user::user-projects user)
                      (platform/client:user-projects client (object-id user)))
                user)))
+
+  (loop with professions = (get-professions-map)
+        for user in users
+        do (setf (user-profession user)
+                 (gethash (user-profession-id user) professions *default-profession-id*)))
+  
   users)
 
 

@@ -168,6 +168,12 @@
                 }
               ]
             },
+            "profession_id": {
+              "type": "integer"
+            },
+            "profession": {
+              "type": "string"
+            },
             "education": {
               "oneOf": [
                 {
@@ -477,6 +483,12 @@
                 }
               ]
             },
+            "profession_id": {
+              "type": "integer"
+            },
+            "profession": {
+              "type": "string"
+            },
             "education": {
               "oneOf": [
                 {
@@ -658,6 +670,12 @@
                 }
               ]
             },
+            "profession_id": {
+              "type": "integer"
+            },
+            "profession": {
+              "type": "string"
+            },
             "education": {
               "oneOf": [
                 {
@@ -831,6 +849,12 @@
                         "type": "string"
                       }
                     ]
+                  },
+                  "profession_id": {
+                    "type": "integer"
+                  },
+                  "profession": {
+                    "type": "string"
                   },
                   "education": {
                     "oneOf": [
@@ -1041,6 +1065,12 @@
                         "type": "string"
                       }
                     ]
+                  },
+                  "profession_id": {
+                    "type": "integer"
+                  },
+                  "profession": {
+                    "type": "string"
                   },
                   "education": {
                     "oneOf": [

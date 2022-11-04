@@ -65,6 +65,16 @@
          :type (or null string)
          :col-type (or :null :text)
          :accessor user-city)
+   (profession-id :initarg :profession-id
+                  :initform 1
+                  :type integer
+                  :col-type :bigint
+                  :accessor user-profession-id)
+   (profession :initarg :profession
+               :initform 1
+               :type string
+               :ghost t
+               :accessor user-profession)
    (education :initarg :education
               :initform nil
               :type (or null string)
