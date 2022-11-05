@@ -5,7 +5,7 @@
 ("ultralisp" .
  (:class qlot/source/dist:source-dist
   :initargs (:distribution "http://dist.ultralisp.org/" :%version :latest)
-  :version "20221027134501"))
+  :version "20221104193500"))
 ("slynk" .
  (:class qlot/source/github:source-github
   :initargs (:repos "svetlyak40wt/sly" :ref nil :branch "patches" :tag nil)
@@ -17,7 +17,7 @@
 ("jsonrpc" .
  (:class qlot/source/github:source-github
   :initargs (:repos "svetlyak40wt/jsonrpc" :ref nil :branch "separate-clack-builder" :tag nil)
-  :version "github-62be10e477bb9ad2047e1c06afeb70aed2dcbd99"))
+  :version "github-12bc0abfa33497fff0b9974f7c23b7df25b6a979"))
 ("cl-json-web-tokens" .
  (:class qlot/source/github:source-github
   :initargs (:repos "svetlyak40wt/cl-json-web-tokens" :ref nil :branch "fix-padding-on-decode" :tag nil)
