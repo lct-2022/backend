@@ -1219,8 +1219,15 @@
                 "x-cl-package": "PASSPORT/USER"
               }
             },
-            "next-page-key": {
-              "type": "string"
+            "next_page_key": {
+              "oneOf": [
+                {
+                  "type": "string"
+                },
+                {
+                  "type": "int"
+                }
+              ]
             }
           },
           "required": [

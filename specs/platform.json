@@ -1134,8 +1134,15 @@
                 "x-cl-package": "PLATFORM/JOB/MODEL"
               }
             },
-            "next-page-key": {
-              "type": "string"
+            "next_page_key": {
+              "oneOf": [
+                {
+                  "type": "string"
+                },
+                {
+                  "type": "int"
+                }
+              ]
             }
           },
           "required": [
@@ -2257,8 +2264,15 @@
                 "x-cl-package": "PLATFORM/PROJECT/MODEL"
               }
             },
-            "next-page-key": {
-              "type": "string"
+            "next_page_key": {
+              "oneOf": [
+                {
+                  "type": "string"
+                },
+                {
+                  "type": "int"
+                }
+              ]
             }
           },
           "required": [

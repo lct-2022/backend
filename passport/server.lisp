@@ -17,8 +17,6 @@
                 #:user-email
                 #:user-password-hash
                 #:user)
-  (:import-from #:sha1
-                #:sha1-hex)
   (:import-from #:common/token
                 #:get-jwt-secret)
   (:import-from #:openrpc-server/api
@@ -41,17 +39,16 @@
                 #:order-by)
   (:import-from #:mito
                 #:find-dao)
-  (:import-from #:avatar-api
-                #:gravatar)
   (:import-from #:platform/client
                 #:make-platform)
   (:import-from #:function-cache
-                #:defcached))
+                #:defcached)
+  (:import-from #:common/permissions
+                #:get-password-hash)
+  (:import-from #:common/avatar
+                #:get-avatar-url-for))
 (in-package #:passport/server)
 
-
-(defparameter *default-avatar*
-  "http://www.gravatar.com/avatar/501a6ae10e3fc3956ad1052cfc6d38d9?s=200")
 
 (defparameter *default-profession-id* 42)
 
@@ -64,7 +61,7 @@
   (:param password string)
   (:result string)
   (with-connection ()
-    (let* ((hash (sha1-hex password))
+    (let* ((hash (get-password-hash password))
            (user (get-user-by email))
            (user-hash (when user
                         (user-password-hash user))))
@@ -88,12 +85,8 @@
                                     :id (get-next-user-id)
                                     :email email
                                     :fio fio
-                                    :avatar-url (handler-case (gravatar email 200)
-                                                  (error (err)
-                                                    (log:error "Unable to retrieve avatar for ~A because of: ~A"
-                                                               email err)
-                                                    *default-avatar*))
-                                    :password-hash (sha1-hex password))))
+                                    :avatar-url (get-avatar-url-for email)
+                                    :password-hash (get-password-hash password))))
          (issue-token-for user)))
       (t
        (return-error (format nil "Email ~A уже занят."

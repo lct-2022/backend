@@ -13,8 +13,6 @@
                 #:get-dependencies)
   (:import-from #:serapeum
                 #:fmt)
-  (:import-from #:app/vars
-                #:*url-prefix*)
   (:import-from #:passport/client
                 #:make-passport)
   (:import-from #:openrpc-client/error

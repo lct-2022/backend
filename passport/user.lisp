@@ -18,7 +18,9 @@
                 #:assert-can-modify)
   (:import-from #:common/utils
                 #:decode-json
-                #:encode-json))
+                #:encode-json)
+  (:import-from #:common/avatar
+                #:get-avatar-url-for))
 (in-package #:passport/user)
 
 
@@ -190,3 +192,21 @@
             :binds (list user-id))))
     (or (= user-id (object-id obj))
         is-admin)))
+
+
+(defun randomize-skills ()
+  (common/db::with-connection ()
+    (loop for user in (mito:retrieve-dao 'user)
+          for skills = (list (+ (random 133))
+                             (+ (random 133))
+                             (+ (random 133)))
+          do (setf (user-skill-ids user)
+                   skills)
+             (mito:save-dao user))))
+
+(defun randomize-avatars ()
+  (common/db::with-connection ()
+    (loop for user in (mito:retrieve-dao 'user)
+          do (setf (avatar-url user)
+                   (get-avatar-url-for (user-email user)))
+             (mito:save-dao user))))

@@ -1,10 +1,18 @@
 (uiop:define-package #:common/permissions
   (:use #:cl)
+  (:import-from #:sha1
+                #:sha1-hex)
   (:import-from #:openrpc-server
                 #:return-error)
   (:import-from #:serapeum
-                #:fmt))
+                #:fmt)
+  (:export
+   #:get-password-hash))
 (in-package #:common/permissions)
+
+
+(defun get-password-hash (password)
+  (sha1-hex password))
 
 
 (defgeneric assert-can-modify (user-id object)

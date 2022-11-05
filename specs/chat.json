@@ -276,8 +276,15 @@
                 "description": "Одно сообщение из чата."
               }
             },
-            "next-page-key": {
-              "type": "string"
+            "next_page_key": {
+              "oneOf": [
+                {
+                  "type": "string"
+                },
+                {
+                  "type": "int"
+                }
+              ]
             }
           },
           "required": [

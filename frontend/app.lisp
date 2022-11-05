@@ -22,7 +22,9 @@
   (:import-from #:reblocks/dependencies
                 #:get-dependencies)
   (:import-from #:app/widgets/header
-                #:make-page-with-header))
+                #:make-page-with-header)
+  (:import-from #:app/pages/edit-profile
+                #:make-edit-profile-widget))
 (in-package #:app/app)
 
 
@@ -37,6 +39,8 @@
               (make-logout-page)))
   ("/profiles/" (make-page-with-header
                  (make-profiles-widget)))
+  ("/profiles/add/" (make-page-with-header
+                     (make-edit-profile-widget)))
   ("/jobs/" (make-page-with-header
              (make-jobs-widget)))
   ("/" (make-page-with-header
