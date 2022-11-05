@@ -1,6 +1,6 @@
 FROM 40ants/base-lisp-image:latest-sbcl
 
-EXPOSE 8000
+EXPOSE 80
 EXPOSE 4005
 
 # These a dev dependencies to simplify log reading and support

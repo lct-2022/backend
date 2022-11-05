@@ -1480,6 +1480,27 @@
           "required": true
         },
         {
+          "name": "innovations",
+          "schema": {
+            "type": "string"
+          },
+          "summary": "Более подробное описание инновации"
+        },
+        {
+          "name": "innovation_type",
+          "schema": {
+            "type": "string"
+          },
+          "summary": "Тип инновации."
+        },
+        {
+          "name": "industry",
+          "schema": {
+            "type": "string"
+          },
+          "summary": "Индустрия в которой значим проект."
+        },
+        {
           "name": "contests",
           "schema": {
             "type": "string"
@@ -4437,6 +4458,39 @@
         }
       },
       "summary": "Возвращает список строк, которые можно подставлять в поле innovation-type проекта.",
+      "paramStructure": "by-name"
+    },
+    {
+      "name": "get_stats",
+      "params": [],
+      "result": {
+        "name": "get_stats_result",
+        "schema": {
+          "type": "object",
+          "properties": {
+            "num_projects": {
+              "type": "integer",
+              "description": "Количество проектов в базе."
+            },
+            "supported_projects": {
+              "type": "integer",
+              "description": "Количество проектов получивших поддержку (с голосами)."
+            },
+            "num_jobs": {
+              "type": "integer",
+              "description": "Количество открытых вакансий."
+            }
+          },
+          "required": [
+            "num_jobs",
+            "supported_projects",
+            "num_projects"
+          ],
+          "x-cl-class": "PROJECT-STATS",
+          "x-cl-package": "PLATFORM/PROJECT/API"
+        }
+      },
+      "summary": "Возвращает словарь со статистикой по проектам.",
       "paramStructure": "by-name"
     }
   ],

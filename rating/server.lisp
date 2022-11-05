@@ -2,8 +2,7 @@
   (:use #:cl)
   (:import-from #:openrpc-server
                 #:define-rpc-method)
-  (:import-from #:sha1
-                #:sha1-hex)
+  (:import-from #:common/server)
   (:import-from #:common/token
                 #:get-jwt-secret)
   (:import-from #:openrpc-server/api
@@ -14,9 +13,12 @@
 (in-package #:rating/server)
 
 
+(defvar *default-port* 8002)
 
-(defun start-me ()
-  (common/server::start rating-api 8002))
 
-(defun stop-me ()
-  (common/server::stop 8002))
+(defun start-me (&key (port *default-port*))
+  (common/server::start rating-api port))
+
+
+(defun stop-me (&key (port *default-port*))
+  (common/server::stop port))

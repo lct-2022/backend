@@ -6,7 +6,7 @@ ENV APP=${APP}
 COPY . /app
 
 RUN qlot exec ros build \
-    /app/scripts/app.ros
+    /app/scripts/${APP}.ros
 
 COPY ./docker/s6-app /etc/s6
 

@@ -1,6 +1,8 @@
 (uiop:define-package #:platform/project/api
   (:use #:cl
         #:common/utils)
+  (:import-from #:common/csv
+                #:parse-csv)
   (:import-from #:openrpc-server
                 #:return-error
                 #:define-rpc-method)
@@ -29,8 +31,11 @@
                 #:order-by
                 #:limit)
   (:import-from #:common/session
+                #:*test-token*
                 #:with-session)
   (:import-from #:serapeum
+                #:random-in-range
+                #:dict
                 #:~>
                 #:fmt)
   (:import-from #:common/rpc
@@ -54,16 +59,21 @@
   (:import-from #:alexandria
                 #:assoc-value)
   (:import-from #:platform/stage/model
-                #:get-stage-title))
+                #:get-stage-title)
+  (:import-from #:random-sample
+                #:random-sample))
 (in-package #:platform/project/api)
 
 
-(define-rpc-method (platform-api create-project) (title description &rest rest &key url contests)
+(define-rpc-method (platform-api create-project) (title description &rest rest &key url contests industry innovation-type innovations)
   (:summary "Создаёт проект, одну команду под него, и наполняет команду примером вакансий.")
   (:param title string)
   (:param description string)
   (:param url string)
   (:param contests string)
+  (:param industry string "Индустрия в которой значим проект.")
+  (:param innovation-type string "Тип инновации.")
+  (:param innovations string "Более подробное описание инновации")
   (:result project)
   (declare (ignore url contests))
 
@@ -74,6 +84,9 @@
                              :author-id user-id
                              :title title
                              :description description
+                             :industry industry
+                             :innovation-type innovation-type
+                             :innovations innovations
                              rest))
              (team (create-team (object-id project)
                                 "Команда проекта"))
@@ -254,3 +267,79 @@
   (:summary "Возвращает список строк, которые можно подставлять в поле innovation-type проекта.")
   (:result (list-of string))
   *innovation-types*)
+
+
+(defclass project-stats ()
+  ((num-projects :initarg :num-projects
+                 :type integer
+                 :documentation "Количество проектов в базе.")
+   (supported-projects :initarg :supported-projects
+                       :type integer
+                       :documentation "Количество проектов получивших поддержку (с голосами).")
+   (num-jobs :initarg :num-jobs
+             :type integer
+             :documentation "Количество открытых вакансий.")))
+
+
+(define-rpc-method (platform-api get-stats) ()
+  (:summary "Возвращает словарь со статистикой по проектам.")
+  (:result project-stats)
+  (flet ((sql (query)
+           (getf (first (mito.db:retrieve-by-sql query))
+                 :cnt)))
+    (with-connection ()
+      (make-instance 'project-stats
+                     :num-projects (sql "SELECT COUNT(*) as cnt FROM platform.project")
+                     :supported-projects (sql "SELECT COUNT(DISTINCT subject_id) as cnt FROM rating.vote WHERE subject_type = 'project'")
+                     :num-jobs (sql "SELECT COUNT(open) as cnt FROM platform.job")))))
+
+
+(defun random-author-id (&key (starting-from 38))
+  (with-connection ()
+    (loop for row in (mito:retrieve-by-sql "select id from passport.user where id > ?"
+                                           :binds (list starting-from))
+          collect (getf row :id) into ids
+          finally (return (car (random-sample ids 1))))))
+
+
+(defun get-n-random-project-ids (n &key (starting-from 1))
+  (with-connection ()
+    (random-sample
+     (loop for row in (mito:retrieve-by-sql "select id from platform.project where id >= ?"
+                                            :binds (list starting-from))
+           collect (getf row :id))
+     n
+     :with-replacement nil)))
+
+
+(defun load-from-csv ()
+  (let* ((lines
+           (loop for row in (nthcdr 12 (parse-csv "~/DataSet.csv"))
+                 unless (alexandria:length= 1 row)
+                   collect (cdr row)))
+         (header (mapcar #'string-downcase
+                         (first lines)))
+         (data (rest lines)))
+    (loop for line in data
+          for dict = (alexandria:alist-hash-table
+                      (mapcar #'cons header line)
+                      :test 'equal)
+          for author-id = (random-author-id)
+          for common/session::*test-token* = (dict "user-id" author-id)
+          for title = (gethash "название" dict)
+          do (log:info "Adding project with title ~S" title)
+             (create-project title
+                             (gethash "описание" dict)
+                             :industry (gethash "индустрия" dict)
+                             :innovation-type (gethash "тип инновации" dict)
+                             :innovations (gethash "описание новшества" dict)))))
+
+
+(defun add-random-votes ()
+  (loop for project-id in (get-n-random-project-ids 10 :starting-from 68)
+        for num-votes = (random-in-range 3 10)
+        do (loop repeat num-votes
+                 for author-id = (random-author-id)
+                 for *test-token* = (dict "user-id" author-id)
+                 do (uiop:symbol-call :rating/vote/api :vote
+                                      "project" project-id))))

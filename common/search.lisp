@@ -255,7 +255,7 @@
   "Индексируем все объекты указанного типа.
    Для прода надо будет сделать какой-то pipeline, чтобы добавлять в индекс только новые или обновлённые."
   (with-connection ()
-    (common/db:with-lock ((fmt "index-~A" class-name) :timeout 60)
+    (common/db:with-lock ((fmt "index-~A" class-name) :timeout 600)
       (loop for obj in (get-objects-to-index class-name)
             do (index-object obj)))))
 

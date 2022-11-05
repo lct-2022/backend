@@ -5,7 +5,7 @@ exec ros -Q -- $0 "$@"
 |#
 (progn ;;init forms
   (ros:ensure-asdf)
-  #+quicklisp(ql:quickload '("app") :silent t))
+  #+quicklisp(ql:quickload '("rating") :silent t))
 
 (defpackage :ros.script.app
   (:use :cl))
@@ -14,6 +14,6 @@ exec ros -Q -- $0 "$@"
 
 (defun main (&rest argv)
   (declare (ignorable argv))
-  (cl-user::start-server))
+  (rating/server::start-me :port 80))
 
 ;;; vim: set ft=lisp lisp:

@@ -13,20 +13,31 @@
   (:import-from #:alexandria
                 #:ensure-list
                 #:make-keyword
-                #:with-gensyms))
+                #:with-gensyms)
+  (:import-from #:serapeum
+                #:defvar-unbound))
 (in-package #:common/session)
 
 
+(defvar-unbound *test-token*
+  "Тестовый hash представляющий собой содержимое токена, чтобы дергать из временных скриптов
+методы требующие аутентификации.")
+
+
 (defun decode-current-jwt-token ()
-  (let* ((headers (request-headers *current-request*))
-         (token (gethash "authorization" headers)))
-    (when token
-      (handler-case
-          (with-log-unhandled ()
-            (decode token))
-        (error (c)
-          (openrpc-server:return-error (format nil "Невозможно распарсить Authorization токен: ~A"
-                                               c)))))))
+  (cond
+    ((boundp '*test-token*)
+     *test-token*)
+    (t
+     (let* ((headers (request-headers *current-request*))
+            (token (gethash "authorization" headers)))
+       (when token
+         (handler-case
+             (with-log-unhandled ()
+               (decode token))
+           (error (c)
+             (openrpc-server:return-error (format nil "Невозможно распарсить Authorization токен: ~A"
+                                                  c)))))))))
 
 
 (defmacro with-session (((&rest bindings) &key (require t))
