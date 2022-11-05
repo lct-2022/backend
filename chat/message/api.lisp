@@ -46,9 +46,9 @@
     (let ((results
             (select-dao 'message
               (if page-key
-                  (where (:and (:= chat-id chat-id)
+                  (where (:and (:= :chat_id chat-id)
                                (:> :id page-key)) )
-                  (where (:= chat-id chat-id) ))
+                  (where (:= :chat_id chat-id) ))
               (order-by :id)
               (limit limit))))
       (when results

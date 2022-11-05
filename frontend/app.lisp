@@ -24,7 +24,9 @@
   (:import-from #:app/widgets/header
                 #:make-page-with-header)
   (:import-from #:app/pages/edit-profile
-                #:make-edit-profile-widget))
+                #:make-edit-profile-widget)
+  (:import-from #:app/pages/chat
+                #:make-chat-page))
 (in-package #:app/app)
 
 
@@ -43,6 +45,8 @@
                      (make-edit-profile-widget)))
   ("/jobs/" (make-page-with-header
              (make-jobs-widget)))
+  ("/chat/.*" (make-page-with-header
+               (make-chat-page)))
   ("/" (make-page-with-header
         (make-landing-page))))
 
