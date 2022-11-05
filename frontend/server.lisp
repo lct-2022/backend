@@ -119,6 +119,8 @@
   (common/logging::setup)
   (log:info "Server started")
   (setf *arguments* args)
+  ;; Чтобы не выскакивал дебаггер
+  (setf reblocks/variables:*ignore-missing-actions* t)
   (values))
 
 

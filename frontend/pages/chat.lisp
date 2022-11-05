@@ -5,6 +5,7 @@
                 #:widget
                 #:render
                 #:defwidget)
+  (:import-from #:parenscript)
   (:import-from #:reblocks-lass)
   (:import-from #:reblocks/html
                 #:with-html)
@@ -38,6 +39,14 @@
                 #:appendf)
   (:import-from #:function-cache
                 #:defcached)
+  (:import-from #:local-time
+                #:parse-timestring)
+  (:import-from #:local-time-duration
+                #:timestamp-difference)
+  (:import-from #:humanize-duration
+                #:humanize-duration)
+  (:import-from #:bordeaux-threads
+                #:make-recursive-lock)
   (:export
    #:make-chat-page))
 (in-package #:app/pages/chat)
@@ -53,12 +62,21 @@
   ((chat-id :initarg :chat-id
             :accessor chat-id)))
 
+(defun make-known-ids-hash ()
+  (make-hash-table :synchronized t))
+
 
 (defwidget chat-page ()
   ((chat-id :initform nil
             :accessor chat-id)
    (messages :initform nil
              :accessor messages)
+   (known-ids :initform (make-known-ids-hash)
+              :accessor known-ids)
+   (add-messages-lock :initform (make-recursive-lock "add-chat-messages")
+                      :reader add-messages-lock)
+   (next-page-key :initform nil
+                  :accessor next-page-key)
    (post-form :initarg :post-form
               :accessor post-form)))
 
@@ -69,11 +87,15 @@
                                    :post-form form)))
     (flet ((add-new-message-to-the-list (message)
              (log:info "Adding message to the list" message)
-             (let ((widget (make-message-widget message))
-                   (prev-message-widget (lastcar (messages chat-page))))
-               (push-end widget
-                         (messages chat-page))
-               (reblocks/widget:update widget :inserted-after prev-message-widget))))
+             (bt:with-lock-held ((add-messages-lock chat-page))
+               (let ((widget (make-message-widget message))
+                     (prev-message-widget (lastcar (messages chat-page))))
+                 (setf (gethash (chat/client:message-id message)
+                                (known-ids chat-page))
+                       t)
+                 (push-end widget
+                           (messages chat-page))
+                 (reblocks/widget:update widget :inserted-after prev-message-widget)))))
       (event-emitter:on :new-message-posted form
                         #'add-new-message-to-the-list)
       (values chat-page))))
@@ -87,19 +109,63 @@
                  :message message))
 
 
-(defun fetch-recent-messages (chat-id)
-  (let ((api (chat/client::connect
-              (make-chat-api)
-              (get-user-token))))
-    (mapcar #'make-message-widget
-            (chat/client:get-messages api chat-id))))
+(defun fetch-new-messages (widget &key insert-to-dom)
+  ;; (let ((page-key (next-page-key widget)))
+  ;;   (log:info "Checking next messages with key" page-key))
+  
+  (bt:with-lock-held ((add-messages-lock widget))
+    (let* ((chat-id (chat-id widget))
+           (api (chat/client::connect
+                 (make-chat-api)
+                 (get-user-token)))
+           (retrieve-first-page-func (lambda ()
+                                       (chat/client:get-messages api chat-id :page-key (next-page-key widget))))
+           (messages
+             (loop for retrieve-func = retrieve-first-page-func then retrieve-next-page-func
+                   while retrieve-func
+                   for (messages-chunk retrieve-next-page-func) = (multiple-value-list
+                                                                   (funcall retrieve-func))
+                   append messages-chunk))
+           (last-msg (lastcar messages))
+           (prev-message-widget (lastcar (messages widget)))
+           (next-page-key (when last-msg
+                            (chat/client:message-id last-msg)))
+           (new-widgets
+             (loop for message in messages
+                   for message-id = (chat/client:message-id message)
+                   unless (gethash message-id (known-ids widget))
+                     do (setf (gethash message-id (known-ids widget))
+                              t)
+                     and
+                       collect (make-message-widget message))))
+      ;; Сделаем так, чтобы новые сообщения появились на странице
+      (when insert-to-dom
+        (loop for message-widget in new-widgets
+              do (log:info "Inserting message after" prev-message-widget)
+                 (reblocks/widget:update message-widget :inserted-after prev-message-widget)
+                 (setf prev-message-widget message-widget)))
+
+      ;; Добавим их в кэш
+      (appendf (messages widget)
+               new-widgets)
+      ;; Если подтянули новые сообщения, то сдвинем указатель, чтобы при следующих обновлениях получить только новые сообщения
+      (when next-page-key
+        (setf (next-page-key widget)
+              next-page-key))
+      (values))))
 
 
-(defcached (get-current-user-profile :timeout 15) ()
+(defcached (%get-current-user-profile :timeout 15) (token)
   (let* ((api (passport/client::connect
                (make-passport)
-               (get-user-token))))
+               token)))
     (passport/client:my-profile api)))
+
+
+(defun get-current-user-profile ()
+  (let ((token (get-user-token)))
+    (when token
+      (%get-current-user-profile token))))
 
 
 (defcached (get-user-profile :timeout 15) (user-id)
@@ -110,11 +176,12 @@
 
 
 (defun get-current-user-id ()
-  (handler-case
-      (passport/client:user-id
-       (get-current-user-profile))
-    (openrpc-client/error:rpc-error ()
-      nil)))
+  (let ((profile (get-current-user-profile)))
+    (when profile
+      (handler-case
+          (passport/client:user-id profile)
+        (openrpc-client/error:rpc-error ()
+          nil)))))
 
 
 (defun get-current-user-avatar ()
@@ -126,9 +193,6 @@
    (get-user-profile user-id)))
 
 
-
-
-
 (defmethod render ((widget chat-page))
   (setf *widget* widget)
 
@@ -138,30 +202,51 @@
                           (chat-id widget))
       (setf (chat-id (post-form widget)) current-chat-id
             (chat-id widget) current-chat-id
-            (messages widget)
-            (fetch-recent-messages current-chat-id))))
+            (messages widget) nil
+            (known-ids widget) (make-known-ids-hash))
+      (fetch-new-messages widget)))
   
-  (with-html
-    (cond
-      ((messages widget)
-       (:div :class "messages"
-             (mapc #'render (messages widget))))
-      (t
-       (:p "В этом чате пока нет сообщений. Стань первым!")))
-    (render (post-form widget))))
+  (flet ((retrieve-messages (&key &allow-other-keys)
+           (fetch-new-messages widget :insert-to-dom t)))
+    (let* ((action-code (reblocks/actions:make-action #'retrieve-messages))
+           ;; TODO: позже надо будет прикрутить отправку новых сообщений через websocket или server-side-events
+           (action (ps:ps* `(set-interval
+                             (lambda ()
+                               (ps:chain console
+                                         (log "Fetching fresh messages"))
+                               (initiate-action ,action-code)
+                               nil)
+                             3000))))
+      (with-html
+        (:script (:raw action))
+        (cond
+          ((messages widget)
+           (:div :class "messages"
+                 (mapc #'render (messages widget))))
+          (t
+           (:p "В этом чате пока нет сообщений. Стань первым!")))
+        (render (post-form widget))))))
 
 
 (defmethod render ((widget message-widget))
   (with-html
     (let* ((msg (message widget))
            (author-id (chat/client:message-user-id msg))
-           (current-user-id (get-current-user-id))
+           (created-at (parse-timestring (chat/client:message-created-at msg)))
+           (since (timestamp-difference (local-time:now)
+                                        created-at))
+           (since-as-str (humanize-duration since
+                                            :n-parts 1
+                                            :format-part #'humanize-duration/ru:format-part))
            (avatar-url (get-user-avatar author-id)))
       
       (:img :class "message-avatar"
             :src avatar-url)
-      (:div :class "message-text"
-            (chat/client:message-message msg)))))
+      (:div :class "message-body"
+            (:div :class "message-text"
+                  (chat/client:message-message msg))
+            (:div :class "message-time"
+                  since-as-str)))))
 
 
 (defmethod get-css-classes ((widget message-widget))
@@ -219,10 +304,17 @@
          (.message-avatar
           :width 3rem
           :height 3rem)
-         (.message-text
-          :background white
-          :padding 0.5rem
-          :border-radius 0.5rem))
+         (.message-body
+          :display flex
+          :flex-direction column
+          :align-items flex-end
+          (.message-time
+           :font-size 0.7rem
+           :color gray)
+          (.message-text
+           :background white
+           :padding 0.5rem
+           :border-radius 0.5rem)))
         ((:and .message-widget .from-current-user)
          :flex-direction row-reverse))))))
 
