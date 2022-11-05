@@ -16,8 +16,10 @@
 (defvar *default-port* 8002)
 
 
-(defun start-me (&key (port *default-port*))
-  (common/server::start rating-api port))
+(defun start-me (&key (port *default-port*)
+                   (interface "localhost"))
+  (common/server::start rating-api port
+                        :interface interface))
 
 
 (defun stop-me (&key (port *default-port*))

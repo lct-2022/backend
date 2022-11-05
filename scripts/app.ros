@@ -21,6 +21,8 @@ exec ros -Q -- $0 "$@"
                              (or (uiop:getenv "APP")
                                  "app")))
                     "START-ME"
-                    :port 80))
+                    :port 80
+                    :interface "0.0.0.0")
+  (loop do (sleep 15)))
 
 ;;; vim: set ft=lisp lisp:
