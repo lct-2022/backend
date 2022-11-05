@@ -36,7 +36,9 @@
 
 (defwidget edit-profile ()
   ((added :initform nil
-          :accessor user-added)))
+          :accessor user-added)
+   (error :initform nil
+          :accessor user-error)))
 
 
 (defun make-edit-profile-widget ()
@@ -80,55 +82,73 @@
            (declare (ignorable id email fio birthday gender phone country city profession skills
                                education job looking-for-job looking-for-hackathon about
                                avatar-url))
-           (setf args
-                 (loop for (key value) on args by #'cddr
-                       unless (or (null value)
-                                  (string= value "")
-                                  (string-equal key "action"))
-                         append (list key value)))
+           (handler-case
+               (progn
+                 (setf args
+                       (loop for (key value) on args by #'cddr
+                             unless (or (null value)
+                                        (string= value "")
+                                        (string-equal key "action"))
+                               append (list key value)))
            
-           (setf (getf args :looking-for-job)
-                 (parse-bool looking-for-job))
-           (setf (getf args :profession-id)
-                 (get-profession-id profession-id))
-           (setf (getf args :skill-ids)
-                 (get-skill-ids skill-ids))
-           (setf (getf args :password-hash)
-                 (get-password-hash "test"))
-           (setf (getf args :looking-for-hackathon)
-                 (parse-bool looking-for-hackathon))
-           (setf (getf args :avatar-url)
-                 (get-avatar-url-for email))
+                 (setf (getf args :looking-for-job)
+                       (parse-bool looking-for-job))
+                 (setf (getf args :profession-id)
+                       (get-profession-id profession-id))
+                 (setf (getf args :skill-ids)
+                       (get-skill-ids skill-ids))
+                 (setf (getf args :password-hash)
+                       (get-password-hash "test"))
+                 (setf (getf args :looking-for-hackathon)
+                       (parse-bool looking-for-hackathon))
+                 (setf (getf args :avatar-url)
+                       (get-avatar-url-for email))
 
-           (log:info "Creating user" args)
+                 (log:info "Creating user" args)
            
-           (with-connection ()
-             (cond
-               ((and id
-                     (not (string= id "")))
-                (let ((obj (mito:find-dao 'user
-                                          :id id)))
-                  (error "Обновление ~A пока не поддерживается." obj)))
-               (t
-                (apply #'mito:create-dao
-                       'user
-                       args))))
-           (setf (user-added widget) t)
+                 (with-connection ()
+                   (cond
+                     ((and id
+                           (not (string= id "")))
+                      (let ((obj (mito:find-dao 'user
+                                                :id id)))
+                        (error "Обновление ~A пока не поддерживается." obj)))
+                     (t
+                      (apply #'mito:create-dao
+                             'user
+                             args))))
+                 (setf (user-added widget) t))
+             (error (c)
+               (setf (user-error widget) c)))
            (update widget))
          (add-another (&rest args)
            (declare (ignore args))
            (setf (user-added widget) nil)
+           (setf (user-error widget) nil)
            (update widget)))
+
+    (with-html
+      (:h1 "Добавление тестовой учётки")
+      (:p "У добавленного пользователя будет пароль \"test\"."))
     
     (cond
+      ((user-error widget)
+       (with-html-form (:post #'add-another)
+         (:p "При добавлении пользователя произошла ошибка:")
+         (:code ("~A" (user-error widget)))
+         
+         (:p "Попробовать снова?")
+         (:p (:button :type "submit"
+                      :class "button success"
+                      "А давай!"))))
       ((user-added widget)
        (with-html-form (:post #'add-another)
-         (:p "Пользователь добавлен. Добавить ещё?"
-             (:button :type "submit"
+         (:p "Пользователь добавлен. Добавить ещё?")
+         (:p (:button :type "submit"
                       :class "button success"
                       "А давай!"))))
       (t
-        (with-html-form (:post #'create-user)
+       (with-html-form (:post #'create-user)
          (let* ((slots (get-editable-slots 'user)))
            (:ul
             (loop for slot in slots
