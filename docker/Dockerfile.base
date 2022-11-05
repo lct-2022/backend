@@ -25,22 +25,18 @@ RUN set -x; \
     ./configure --with-lib=/usr/lib/execline && make install && \
     cd / && rm -fr /tmp/s6
 
-RUN set -x; \
-    curl https://bin.equinox.io/c/4VmDzA7iaHb/ngrok-stable-linux-386.zip --output ngrok.zip && \
-    unzip ngrok.zip && \
-    chmod +x ngrok
+# RUN set -x; \
+#     curl https://bin.equinox.io/c/4VmDzA7iaHb/ngrok-stable-linux-386.zip --output ngrok.zip && \
+#     unzip ngrok.zip && \
+#     chmod +x ngrok
 
 ENV CC=gcc
-COPY qlfile qlfile.lock app-deps.asd /app/
+COPY all-deps.asd /app/app-deps.asd
+RUN sed -i 's/all-deps/app-deps/' /app/app-deps.asd
+
+COPY qlfile qlfile.lock /app/
 
 RUN set -x; \
     install-dependencies
 
-COPY . /app
-
-RUN qlot exec ros build \
-    /app/app.ros
-
-COPY ./docker/s6-app /etc/s6
-ENTRYPOINT ["s6-svscan", "/etc/s6"]
 
