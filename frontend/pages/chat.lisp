@@ -50,6 +50,8 @@
                 #:make-recursive-lock)
   (:import-from #:reblocks/widgets/dom
                 #:dom-id)
+  (:import-from #:3bmd
+                #:parse-string-and-print-to-stream)
   (:export
    #:make-chat-page))
 (in-package #:app/pages/chat)
@@ -286,13 +288,19 @@
                              (humanize-duration since
                                                 :n-parts 1
                                                 :format-part #'humanize-duration/ru:format-part)))
-           (avatar-url (get-user-avatar author-id)))
-      
+           (avatar-url (get-user-avatar author-id))
+           (message-text (chat/client:message-message msg))
+           (processed-message (with-output-to-string (s)
+                                (parse-string-and-print-to-stream
+                                 (str:replace-all (coerce (list #\Return) 'string)
+                                                  "" message-text)
+                                 s))))
+
       (:img :class "message-avatar"
             :src avatar-url)
       (:div :class "message-body"
             (:div :class "message-text"
-                  (chat/client:message-message msg))
+                  (:raw processed-message))
             (:div :class "message-time"
                   since-as-str)))))
 
