@@ -17,7 +17,9 @@
                 #:make-platform)
   (:import-from #:mito
                 #:object-id
-                #:create-dao))
+                #:create-dao)
+  (:import-from #:serapeum
+                #:fmt))
 (in-package #:chat/chat/api)
 
 
@@ -46,3 +48,26 @@
                                :chat-id chat-id
                                :user-id user-id))))
       (values chat))))
+
+
+(define-rpc-method (chat-api get-chat) (id)
+  (:summary "Запрашивает данные о чате.")
+  (:description "Если чат не найден, то возвращает ошибку.")
+  (:param id string)
+  (:result chat)
+
+  (handler-bind
+      ((error (lambda (err)
+                (unless (typep err 'jsonrpc:jsonrpc-error)
+                  (openrpc-server:return-error (fmt "Ошибка: ~S" err)
+                                               :code 11)))))
+    ;; Провалидируем что id это корректный uuid
+    (uuid:make-uuid-from-string id)
+
+    (with-connection ()
+      (let ((chat (find-dao 'chat :id id)))
+        (cond
+          (chat chat)
+          (t
+           (openrpc-server:return-error (fmt "Чат с id ~S не найден." id)
+                                        :code 10)))))))

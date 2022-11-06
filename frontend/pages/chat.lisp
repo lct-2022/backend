@@ -74,6 +74,8 @@
             :accessor chat-id)
    (messages :initform nil
              :accessor messages)
+   (error-message :initform nil
+                  :accessor error-message)
    (known-ids :initform (make-known-ids-hash)
               :accessor known-ids)
    (add-messages-lock :initform (make-recursive-lock "add-chat-messages")
@@ -219,40 +221,57 @@
       ("^/chat/(.*)$" (get-path))
     (unless (string-equal current-chat-id
                           (chat-id widget))
-      (setf (chat-id (post-form widget)) current-chat-id
-            (chat-id widget) current-chat-id
-            (messages widget) nil
-            (known-ids widget) (make-known-ids-hash))
-      (fetch-new-messages widget)))
-  
-  (flet ((retrieve-messages (&key &allow-other-keys)
-           (fetch-new-messages widget :insert-to-dom t)))
-    (let* ((action-code (reblocks/actions:make-action #'retrieve-messages))
-           ;; TODO: позже надо будет прикрутить отправку новых сообщений через websocket или server-side-events
-           (action (ps:ps* `(set-interval
-                             (lambda ()
-                               (ps:chain console
-                                         (log "Fetching fresh messages"))
-                               (initiate-action ,action-code)
-                               nil)
-                             3000))
-                   ;; (ps:ps* `(defun fetch-messages ()
-                   ;;            (ps:chain console
-                   ;;                      (log "Fetching fresh messages"))
-                   ;;            (initiate-action ,action-code)
-                   ;;            nil))
-                   ))
-      (with-html
-        (:script (:raw action))
-        (cond
-          ((messages widget)
-           (:div :class "messages"
-                 (mapc #'render (messages widget)))
-           (scroll-to (lastcar (messages widget))
-                      :smooth nil))
-          (t
-           (:p "В этом чате пока нет сообщений. Стань первым!")))
-        (render (post-form widget))))))
+      ;; Сначала убедимся, что такой чат есть
+      (let* ((api (chat/client::connect
+                   (make-chat-api)
+                   (get-user-token))))
+
+        (handler-case
+            (progn (chat/client:get-chat api current-chat-id)
+                   (setf (chat-id (post-form widget)) current-chat-id
+                         (chat-id widget) current-chat-id
+                         (error-message widget) nil
+                         (messages widget) nil
+                         (known-ids widget) (make-known-ids-hash))
+                   (fetch-new-messages widget))
+          (openrpc-client/error:rpc-error (e)
+            (setf (error-message widget)
+                  (openrpc-client/error:rpc-error-message e)))))))
+
+  (cond
+    ((error-message widget)
+     (with-html
+       (:p :class "error"
+           (error-message widget))))
+    (t
+     (flet ((retrieve-messages (&key &allow-other-keys)
+              (fetch-new-messages widget :insert-to-dom t)))
+       (let* ((action-code (reblocks/actions:make-action #'retrieve-messages))
+              ;; TODO: позже надо будет прикрутить отправку новых сообщений через websocket или server-side-events
+              (action (ps:ps* `(set-interval
+                                (lambda ()
+                                  (ps:chain console
+                                            (log "Fetching fresh messages"))
+                                  (initiate-action ,action-code)
+                                  nil)
+                                3000))
+                      ;; (ps:ps* `(defun fetch-messages ()
+                      ;;            (ps:chain console
+                      ;;                      (log "Fetching fresh messages"))
+                      ;;            (initiate-action ,action-code)
+                      ;;            nil))
+                      ))
+         (with-html
+           (:script (:raw action))
+           (cond
+             ((messages widget)
+              (:div :class "messages"
+                    (mapc #'render (messages widget)))
+              (scroll-to (lastcar (messages widget))
+                         :smooth nil))
+             (t
+              (:p "В этом чате пока нет сообщений. Стань первым!")))
+           (render (post-form widget))))))))
 
 
 (defmethod render ((widget message-widget))

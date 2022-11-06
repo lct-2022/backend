@@ -296,6 +296,62 @@
       "summary": "Отдаёт сообщения из чата, с пейджинацией.",
       "description": "После того, как метод отдал пустую страницу, можно периодически\nвызывать его с тем же page-key, чтобы дождаться появления новых сообщений.\n\nПо-хорошему, в проде надо будет вместо поллинга использовать websocket или server-side-events.",
       "paramStructure": "by-name"
+    },
+    {
+      "name": "get_chat",
+      "params": [
+        {
+          "name": "id",
+          "schema": {
+            "type": "string"
+          },
+          "required": true
+        }
+      ],
+      "result": {
+        "name": "get_chat_result",
+        "schema": {
+          "type": "object",
+          "properties": {
+            "created_at": {
+              "type": "object",
+              "properties": {},
+              "required": [],
+              "x-cl-class": "T",
+              "x-cl-package": "COMMON-LISP"
+            },
+            "updated_at": {
+              "type": "object",
+              "properties": {},
+              "required": [],
+              "x-cl-class": "T",
+              "x-cl-package": "COMMON-LISP"
+            },
+            "synced": {
+              "type": "boolean"
+            },
+            "id": {
+              "type": "string"
+            },
+            "private": {
+              "type": "string",
+              "description": "Тип чата. Если private, то писать/читать его могут только члены команды."
+            }
+          },
+          "required": [
+            "private",
+            "id",
+            "updated_at",
+            "created_at"
+          ],
+          "x-cl-class": "CHAT",
+          "x-cl-package": "CHAT/CHAT/MODEL",
+          "description": "Информация о чате."
+        }
+      },
+      "summary": "Запрашивает данные о чате.",
+      "description": "Если чат не найден, то возвращает ошибку.",
+      "paramStructure": "by-name"
     }
   ],
   "openrpc": "1.0.0",
