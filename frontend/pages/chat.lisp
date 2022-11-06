@@ -12,6 +12,7 @@
   (:import-from #:reblocks/dependencies
                 #:get-dependencies)
   (:import-from #:serapeum
+                #:length>
                 #:push-end
                 #:fmt)
   (:import-from #:app/vars
@@ -35,6 +36,7 @@
                 #:emit
                 #:event-emitter)
   (:import-from #:alexandria
+                #:length=
                 #:lastcar
                 #:appendf)
   (:import-from #:function-cache
@@ -52,6 +54,11 @@
                 #:dom-id)
   (:import-from #:3bmd
                 #:parse-string-and-print-to-stream)
+  (:import-from #:str
+                #:join
+                #:replace-all)
+  (:import-from #:cl-emoji
+                #:with-emoji-list)
   (:export
    #:make-chat-page))
 (in-package #:app/pages/chat)
@@ -276,6 +283,43 @@
            (render (post-form widget))))))))
 
 
+(defvar *caret-return* (coerce (list #\Return) 'string))
+
+
+(defun render-emoji (text)
+  (if (and (length> text 2)
+           (char-equal (elt text 0)
+                       #\:)
+           (char-equal (elt text (1- (length text)))
+                       #\:))
+      (or (cl-emoji:alpha-code text)
+          text)
+      text))
+
+
+(defvar *all-emoji*
+           (with-emoji-list (el)
+             (reduce (lambda (s e) (concatenate 'string s (getf e :characters)))
+                     el :initial-value "")))
+
+
+(defun only-one-emoji (text)
+  "Возвращает True если строка состоит из одного единственного Emoji символа."
+  (and (length= 1 text)
+       (find (elt text 0) *all-emoji*)))
+
+
+(defun render-message-text (text)
+  (let* ((without-caret-return (replace-all *caret-return* "" text))
+         (trimmed (str:trim without-caret-return))
+         (maybe-with-emoji (render-emoji trimmed))
+         (html (with-output-to-string (s)
+                 (parse-string-and-print-to-stream maybe-with-emoji
+                                                   s))))
+    (values html
+            (only-one-emoji maybe-with-emoji))))
+
+
 (defmethod render ((widget message-widget))
   (with-html
     (let* ((msg (message widget))
@@ -288,21 +332,20 @@
                              (humanize-duration since
                                                 :n-parts 1
                                                 :format-part #'humanize-duration/ru:format-part)))
-           (avatar-url (get-user-avatar author-id))
-           (message-text (chat/client:message-message msg))
-           (processed-message (with-output-to-string (s)
-                                (parse-string-and-print-to-stream
-                                 (str:replace-all (coerce (list #\Return) 'string)
-                                                  "" message-text)
-                                 s))))
+           (avatar-url (get-user-avatar author-id)))
+      (multiple-value-bind (processed-message one-emoji)
+          (render-message-text (chat/client:message-message msg))
 
-      (:img :class "message-avatar"
-            :src avatar-url)
-      (:div :class "message-body"
-            (:div :class "message-text"
-                  (:raw processed-message))
-            (:div :class "message-time"
-                  since-as-str)))))
+        (let ((classes (append (list "message-text")
+                               (when one-emoji
+                                 (list "only-one-emoji")))))
+          (:img :class "message-avatar"
+                :src avatar-url)
+          (:div :class "message-body"
+                (:div :class (join " " classes)
+                      (:raw processed-message))
+                (:div :class "message-time"
+                      since-as-str)))))))
 
 
 (defmethod get-css-classes ((widget message-widget))
@@ -366,7 +409,8 @@
          :gap 1rem
          (.message-avatar
           :width 3rem
-          :height 3rem)
+          :height 3rem
+          :border-radius 1.5rem)
          (.message-body
           :display flex
           :flex-direction column
@@ -377,7 +421,9 @@
           (.message-text
            :background white
            :padding 0.5rem
-           :border-radius 0.5rem)))
+           :border-radius 0.5rem)
+          ((:and .message-text .only-one-emoji)
+           :font-size 10rem)))
         ((:and .message-widget .from-current-user)
          :flex-direction row-reverse))))))
 
