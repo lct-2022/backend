@@ -59,5 +59,5 @@
   (append (list
            (reblocks-lass:make-dependency
              '((body > div)
-               :background "#D0D5DD")))
+               :background "#f3f4f7")))
           (call-next-method)))
