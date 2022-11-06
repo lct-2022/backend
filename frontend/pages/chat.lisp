@@ -42,11 +42,14 @@
   (:import-from #:local-time
                 #:parse-timestring)
   (:import-from #:local-time-duration
+                #:duration-as
                 #:timestamp-difference)
   (:import-from #:humanize-duration
                 #:humanize-duration)
   (:import-from #:bordeaux-threads
                 #:make-recursive-lock)
+  (:import-from #:reblocks/widgets/dom
+                #:dom-id)
   (:export
    #:make-chat-page))
 (in-package #:app/pages/chat)
@@ -81,6 +84,19 @@
               :accessor post-form)))
 
 
+(defun scroll-to (widget &key (smooth t))
+  (reblocks/response:send-script
+   (ps:ps* `(progn
+              (ps:chain console
+                        (log "Scrolling to element " ,(dom-id widget)))
+              (ps:chain document
+                        (get-element-by-id ,(dom-id widget))
+                        (scroll-into-view
+                         (ps:create "behavior" ,(if smooth
+                                                    "smooth"
+                                                    "auto"))))))))
+
+
 (defun make-chat-page ()
   (let* ((form (make-instance 'post-form-widget))
          (chat-page (make-instance 'chat-page
@@ -95,13 +111,11 @@
                        t)
                  (push-end widget
                            (messages chat-page))
-                 (reblocks/widget:update widget :inserted-after prev-message-widget)))))
+                 (reblocks/widget:update widget :inserted-after prev-message-widget)
+                 (scroll-to widget)))))
       (event-emitter:on :new-message-posted form
                         #'add-new-message-to-the-list)
       (values chat-page))))
-
-
-(defmethod initialize-instance :after chat-page)
 
 
 (defun make-message-widget (message)
@@ -148,6 +162,11 @@
       ;; Добавим их в кэш
       (appendf (messages widget)
                new-widgets)
+
+      ;; Прокрутим окно чата:
+      (when new-widgets
+        (scroll-to (lastcar new-widgets)))
+      
       ;; Если подтянули новые сообщения, то сдвинем указатель, чтобы при следующих обновлениях получить только новые сообщения
       (when next-page-key
         (setf (next-page-key widget)
@@ -216,13 +235,21 @@
                                          (log "Fetching fresh messages"))
                                (initiate-action ,action-code)
                                nil)
-                             3000))))
+                             3000))
+                   ;; (ps:ps* `(defun fetch-messages ()
+                   ;;            (ps:chain console
+                   ;;                      (log "Fetching fresh messages"))
+                   ;;            (initiate-action ,action-code)
+                   ;;            nil))
+                   ))
       (with-html
         (:script (:raw action))
         (cond
           ((messages widget)
            (:div :class "messages"
-                 (mapc #'render (messages widget))))
+                 (mapc #'render (messages widget)))
+           (scroll-to (lastcar (messages widget))
+                      :smooth nil))
           (t
            (:p "В этом чате пока нет сообщений. Стань первым!")))
         (render (post-form widget))))))
@@ -235,9 +262,11 @@
            (created-at (parse-timestring (chat/client:message-created-at msg)))
            (since (timestamp-difference (local-time:now)
                                         created-at))
-           (since-as-str (humanize-duration since
-                                            :n-parts 1
-                                            :format-part #'humanize-duration/ru:format-part))
+           (since-as-str (if (zerop (duration-as since :sec))
+                             "только что"
+                             (humanize-duration since
+                                                :n-parts 1
+                                                :format-part #'humanize-duration/ru:format-part)))
            (avatar-url (get-user-avatar author-id)))
       
       (:img :class "message-avatar"
@@ -263,11 +292,16 @@
 
 (defmethod render ((widget post-form-widget))
   (flet ((post-message (&key message &allow-other-keys)
-           (let* ((api (chat/client::connect
-                        (make-chat-api)
-                        (get-user-token)))
-                  (message (chat/client:post api (chat-id widget) message)))
-             (emit :new-message-posted widget message))))
+           (setf message
+                 (str:trim message))
+           (unless (string-equal message "")
+             (let* ((api (chat/client::connect
+                          (make-chat-api)
+                          (get-user-token)))
+                    (message (chat/client:post api (chat-id widget) message)))
+               ;; Сбросим состояние окна для ввода сообщения
+               (reblocks/widget:update widget)
+               (emit :new-message-posted widget message)))))
     (cond
       ((get-user-token)
        (with-html-form (:post #'post-message)
@@ -297,6 +331,8 @@
         :display flex
         :flex-direction column
         :gap 1rem
+        :max-height 80vh
+        :overflow scroll
         (.message-widget
          :display flex
          :flex-direction row

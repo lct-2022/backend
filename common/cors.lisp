@@ -2,7 +2,9 @@
   (:use #:cl)
   (:import-from #:log)
   (:import-from #:alexandria
-                #:length=))
+                #:length=)
+  (:import-from #:serapeum
+                #:fmt))
 (in-package #:common/cors)
 
 
