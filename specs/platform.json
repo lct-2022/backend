@@ -2157,6 +2157,69 @@
       "paramStructure": "by-name"
     },
     {
+      "name": "get_industries",
+      "params": [],
+      "result": {
+        "name": "get_industries_result",
+        "schema": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          }
+        }
+      },
+      "summary": "Возвращает список строк, которые можно подставлять в поле industry проекта.",
+      "paramStructure": "by-name"
+    },
+    {
+      "name": "get_innovation_types",
+      "params": [],
+      "result": {
+        "name": "get_innovation_types_result",
+        "schema": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          }
+        }
+      },
+      "summary": "Возвращает список строк, которые можно подставлять в поле innovation-type проекта.",
+      "paramStructure": "by-name"
+    },
+    {
+      "name": "get_stats",
+      "params": [],
+      "result": {
+        "name": "get_stats_result",
+        "schema": {
+          "type": "object",
+          "properties": {
+            "num_projects": {
+              "type": "integer",
+              "description": "Количество проектов в базе."
+            },
+            "supported_projects": {
+              "type": "integer",
+              "description": "Количество проектов получивших поддержку (с голосами)."
+            },
+            "num_jobs": {
+              "type": "integer",
+              "description": "Количество открытых вакансий."
+            }
+          },
+          "required": [
+            "num_jobs",
+            "supported_projects",
+            "num_projects"
+          ],
+          "x-cl-class": "PROJECT-STATS",
+          "x-cl-package": "PLATFORM/PROJECT/API"
+        }
+      },
+      "summary": "Возвращает словарь со статистикой по проектам.",
+      "paramStructure": "by-name"
+    },
+    {
       "name": "search_projects",
       "params": [
         {
@@ -4428,69 +4491,6 @@
       },
       "summary": "Возвращает список всех профессий, какие могут быть у экспертов.",
       "description": "ID этих объектов можно использовать, чтобы изменить в профиле пользователя его skill-ids.",
-      "paramStructure": "by-name"
-    },
-    {
-      "name": "get_industries",
-      "params": [],
-      "result": {
-        "name": "get_industries_result",
-        "schema": {
-          "type": "array",
-          "items": {
-            "type": "string"
-          }
-        }
-      },
-      "summary": "Возвращает список строк, которые можно подставлять в поле industry проекта.",
-      "paramStructure": "by-name"
-    },
-    {
-      "name": "get_innovation_types",
-      "params": [],
-      "result": {
-        "name": "get_innovation_types_result",
-        "schema": {
-          "type": "array",
-          "items": {
-            "type": "string"
-          }
-        }
-      },
-      "summary": "Возвращает список строк, которые можно подставлять в поле innovation-type проекта.",
-      "paramStructure": "by-name"
-    },
-    {
-      "name": "get_stats",
-      "params": [],
-      "result": {
-        "name": "get_stats_result",
-        "schema": {
-          "type": "object",
-          "properties": {
-            "num_projects": {
-              "type": "integer",
-              "description": "Количество проектов в базе."
-            },
-            "supported_projects": {
-              "type": "integer",
-              "description": "Количество проектов получивших поддержку (с голосами)."
-            },
-            "num_jobs": {
-              "type": "integer",
-              "description": "Количество открытых вакансий."
-            }
-          },
-          "required": [
-            "num_jobs",
-            "supported_projects",
-            "num_projects"
-          ],
-          "x-cl-class": "PROJECT-STATS",
-          "x-cl-package": "PLATFORM/PROJECT/API"
-        }
-      },
-      "summary": "Возвращает словарь со статистикой по проектам.",
       "paramStructure": "by-name"
     }
   ],

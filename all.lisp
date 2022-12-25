@@ -10,10 +10,10 @@
 (in-package #:all/all)
 
 
-(defun start-all ()
-  (app/server::start)
+(defun start-all (&key debug)
+  (app/server::start :debug debug)
   (chat/server::start-me)
   (passport/server::start-me)
-  (rating/server::start-me)
-  (platform/server::start-me)
+  ;; (rating/server::start-me)
+  ;; (platform/server::start-me)
   (values))

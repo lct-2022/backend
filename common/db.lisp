@@ -49,7 +49,7 @@
 
 (defun get-db-port ()
   (parse-integer
-   (or (uiop:getenv "DB_USER")
+   (or (uiop:getenv "DB_PORT")
        "5432")))
 
 (defun get-db-name ()
@@ -81,7 +81,8 @@
 
 (defun inner-connect (&key host database-name username password
                            (port 5432)
-                           (cached *cached-default*))
+                           (cached *cached-default*)
+                           (use-ssl :no))
   "This function is used to leave a trace in the backtrace and let
    logger know which arguments are secret."
   
@@ -93,22 +94,26 @@
            :port port
            :database-name database-name
            :username username
-           :password (ensure-value-revealed password)))
+           :password (ensure-value-revealed password)
+           :use-ssl use-ssl))
 
 
 (defun connect (&key host database-name username password
-                     (port 5432)
-                     (cached *cached-default*))
+                     port
+                     (cached *cached-default*)
+                     (use-ssl :no))
   (inner-connect :host (or host
                            (get-db-host))
-                 :port port
+                 :port (or port
+                           (get-db-port))
                  :database-name (or database-name
                                     (get-db-name))
                  :username (or username
                                (get-db-user))
                  :password (or password
                                (get-db-pass))
-                 :cached cached))
+                 :cached cached
+                 :use-ssl use-ssl))
 
 
 (defun connect-toplevel ()
@@ -149,6 +154,13 @@
            :message "Unable to get cached connection inside a block with non-cached connection."))
 
   (let* ((*was-cached* cached)
+         ;; (cl-postgres:*ssl-key-file* )
+         ;;
+         ;;  
+         ;; (cl-postgres:*ssl-root-ca-file*
+         ;;   "/home/art/.postgresql/root.crt")
+         ;; (cl-postgres:*ssl-certificate-file*
+         ;;   "/home/art/.postgresql/root.crt")
          (schema (prog1 (getf connect-options :schema)
                    (remove-from-plistf connect-options :schema)))
          (mito:*connection*
@@ -364,3 +376,17 @@
         do (setf (gethash (object-id obj) result)
                  obj)
         finally (return result)))
+
+
+(defmethod mito.dao:convert-for-driver-type ((driver-type (eql :postgresql))
+                                             (col-type (eql :timestamptz))
+                                             (value local-time:timestamp))
+  (local-time:format-rfc3339-timestring nil value
+                                        :timezone local-time:+utc-zone+))
+
+
+;; Warning, this method can be redefined by SXQL in runtime
+(defmethod sxql.operator:convert-for-sql ((value local-time:timestamp))
+  (sxql.sql-type:make-sql-variable
+   (local-time:format-rfc3339-timestring nil value
+                                         :timezone local-time:+utc-zone+)))

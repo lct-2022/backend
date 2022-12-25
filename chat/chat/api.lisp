@@ -23,17 +23,19 @@
 (in-package #:chat/chat/api)
 
 
-(define-rpc-method (chat-api create-chat) (&key private team-id)
+(define-rpc-method (chat-api create-chat) (&key private team-id title)
   (:summary "Создаёт новый чат для команды.")
   (:description "Если private True, то в чат смогут писать не только члены команды, но и кто угодно.")
   (:param private boolean
           "Если выставить в True, то в чат смогут писать только члены команды.")
   (:param team-id integer)
+  (:param title string)
   (:result chat)
 
   (with-connection ()
     (let* ((chat (create-dao 'chat :id (make-uuid)
-                                   :private private))
+                                   :private private
+                                   :title title))
            (chat-id (object-id chat)))
       (when team-id
         (create-dao 'chat-team

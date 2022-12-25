@@ -14,6 +14,12 @@
       "name": "create_chat",
       "params": [
         {
+          "name": "title",
+          "schema": {
+            "type": "string"
+          }
+        },
+        {
           "name": "team_id",
           "schema": {
             "type": "integer"
@@ -52,6 +58,9 @@
             "id": {
               "type": "string"
             },
+            "title": {
+              "type": "string"
+            },
             "private": {
               "type": "string",
               "description": "Тип чата. Если private, то писать/читать его могут только члены команды."
@@ -59,6 +68,7 @@
           },
           "required": [
             "private",
+            "title",
             "id",
             "updated_at",
             "created_at"
@@ -70,6 +80,66 @@
       },
       "summary": "Создаёт новый чат для команды.",
       "description": "Если private True, то в чат смогут писать не только члены команды, но и кто угодно.",
+      "paramStructure": "by-name"
+    },
+    {
+      "name": "get_chat",
+      "params": [
+        {
+          "name": "id",
+          "schema": {
+            "type": "string"
+          },
+          "required": true
+        }
+      ],
+      "result": {
+        "name": "get_chat_result",
+        "schema": {
+          "type": "object",
+          "properties": {
+            "created_at": {
+              "type": "object",
+              "properties": {},
+              "required": [],
+              "x-cl-class": "T",
+              "x-cl-package": "COMMON-LISP"
+            },
+            "updated_at": {
+              "type": "object",
+              "properties": {},
+              "required": [],
+              "x-cl-class": "T",
+              "x-cl-package": "COMMON-LISP"
+            },
+            "synced": {
+              "type": "boolean"
+            },
+            "id": {
+              "type": "string"
+            },
+            "title": {
+              "type": "string"
+            },
+            "private": {
+              "type": "string",
+              "description": "Тип чата. Если private, то писать/читать его могут только члены команды."
+            }
+          },
+          "required": [
+            "private",
+            "title",
+            "id",
+            "updated_at",
+            "created_at"
+          ],
+          "x-cl-class": "CHAT",
+          "x-cl-package": "CHAT/CHAT/MODEL",
+          "description": "Информация о чате."
+        }
+      },
+      "summary": "Запрашивает данные о чате.",
+      "description": "Если чат не найден, то возвращает ошибку.",
       "paramStructure": "by-name"
     },
     {
@@ -199,6 +269,80 @@
       "paramStructure": "by-name"
     },
     {
+      "name": "create_fake_messages",
+      "params": [
+        {
+          "name": "chat_id",
+          "schema": {
+            "type": "string"
+          },
+          "required": true
+        },
+        {
+          "name": "num_messages",
+          "schema": {
+            "type": "integer"
+          },
+          "required": true
+        }
+      ],
+      "result": {
+        "name": "create_fake_messages_result",
+        "schema": {
+          "type": "array",
+          "items": {
+            "type": "object",
+            "properties": {
+              "created_at": {
+                "type": "object",
+                "properties": {},
+                "required": [],
+                "x-cl-class": "T",
+                "x-cl-package": "COMMON-LISP"
+              },
+              "updated_at": {
+                "type": "object",
+                "properties": {},
+                "required": [],
+                "x-cl-class": "T",
+                "x-cl-package": "COMMON-LISP"
+              },
+              "synced": {
+                "type": "boolean"
+              },
+              "id": {
+                "type": "integer"
+              },
+              "chat_id": {
+                "type": "string"
+              },
+              "user_id": {
+                "type": "integer",
+                "description": "ID пользователя, который написал сообщение."
+              },
+              "message": {
+                "type": "string",
+                "description": "Текст сообщения"
+              }
+            },
+            "required": [
+              "message",
+              "user_id",
+              "chat_id",
+              "id",
+              "updated_at",
+              "created_at"
+            ],
+            "x-cl-class": "MESSAGE",
+            "x-cl-package": "CHAT/MESSAGE/MODEL",
+            "description": "Одно сообщение из чата."
+          }
+        }
+      },
+      "summary": "Добавляет в чат NUM-MESSAGES сообщений от рандомных пользователей, помеченных как robot.",
+      "paramStructure": "by-name"
+    },
+    {
       "name": "get_messages",
       "params": [
         {
@@ -295,62 +439,6 @@
       },
       "summary": "Отдаёт сообщения из чата, с пейджинацией.",
       "description": "После того, как метод отдал пустую страницу, можно периодически\nвызывать его с тем же page-key, чтобы дождаться появления новых сообщений.\n\nПо-хорошему, в проде надо будет вместо поллинга использовать websocket или server-side-events.",
-      "paramStructure": "by-name"
-    },
-    {
-      "name": "get_chat",
-      "params": [
-        {
-          "name": "id",
-          "schema": {
-            "type": "string"
-          },
-          "required": true
-        }
-      ],
-      "result": {
-        "name": "get_chat_result",
-        "schema": {
-          "type": "object",
-          "properties": {
-            "created_at": {
-              "type": "object",
-              "properties": {},
-              "required": [],
-              "x-cl-class": "T",
-              "x-cl-package": "COMMON-LISP"
-            },
-            "updated_at": {
-              "type": "object",
-              "properties": {},
-              "required": [],
-              "x-cl-class": "T",
-              "x-cl-package": "COMMON-LISP"
-            },
-            "synced": {
-              "type": "boolean"
-            },
-            "id": {
-              "type": "string"
-            },
-            "private": {
-              "type": "string",
-              "description": "Тип чата. Если private, то писать/читать его могут только члены команды."
-            }
-          },
-          "required": [
-            "private",
-            "id",
-            "updated_at",
-            "created_at"
-          ],
-          "x-cl-class": "CHAT",
-          "x-cl-package": "CHAT/CHAT/MODEL",
-          "description": "Информация о чате."
-        }
-      },
-      "summary": "Запрашивает данные о чате.",
-      "description": "Если чат не найден, то возвращает ошибку.",
       "paramStructure": "by-name"
     }
   ],

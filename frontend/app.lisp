@@ -15,18 +15,15 @@
                 #:fmt)
   (:import-from #:app/pages/logout
                 #:make-logout-page)
-  (:import-from #:app/pages/profiles
-                #:make-profiles-widget)
-  (:import-from #:app/pages/jobs
-                #:make-jobs-widget)
   (:import-from #:reblocks/dependencies
                 #:get-dependencies)
   (:import-from #:app/widgets/header
                 #:make-page-with-header)
-  (:import-from #:app/pages/edit-profile
-                #:make-edit-profile-widget)
   (:import-from #:app/pages/chat
-                #:make-chat-page))
+                #:make-chat-page)
+  (:import-from #:app/pages/channel
+                #:make-channel-widgets
+                #:make-channels-widget))
 (in-package #:app/app)
 
 
@@ -39,25 +36,25 @@
                (make-login-page)) )
   ("/logout/" (make-page-with-header
               (make-logout-page)))
-  ("/profiles/" (make-page-with-header
-                 (make-profiles-widget)))
-  ("/profiles/add/" (make-page-with-header
-                     (make-edit-profile-widget)))
-  ("/jobs/" (make-page-with-header
-             (make-jobs-widget)))
+  ("/channels/" (make-page-with-header
+                 (make-channels-widget)))
+  ("/channels/.*" (make-page-with-header
+                   (make-channel-widget)))
   ("/chat/.*" (make-page-with-header
-               (make-chat-page)))
+               (make-chat-page)
+               :wide t))
   ("/" (make-page-with-header
         (make-landing-page))))
 
 
-(defmethod reblocks/session:init ((app app))  
+(defmethod reblocks/page:init-page ((app app) url-path expire-at)
   (make-routes))
 
 
 (defmethod get-dependencies ((app app))
-  (append (list
-           (reblocks-lass:make-dependency
-             '((body > div)
-               :background "#f3f4f7")))
-          (call-next-method)))
+  (list*
+   ;; (reblocks-lass:make-dependency
+   ;;   '(body
+   ;;     :background "rgb(51, 53, 65)"
+   ;;     :color "rgb(235, 236, 241)"))
+   (call-next-method)))

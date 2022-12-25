@@ -14,6 +14,9 @@
                 #:get-user-token)
   (:import-from #:passport/client
                 #:make-passport)
+  (:import-from #:app/vars
+                #:*text-color*
+                #:*dark-background*)
   (:export
    #:make-page-with-header))
 (in-package #:app/widgets/header)
@@ -21,21 +24,26 @@
 
 (defwidget page-with-header ()
   ((content :initarg :content
-            :reader content)))
+            :reader content)
+   (wide :initarg :wide
+         :initform nil
+         :reader widep)))
 
 
-(defun make-page-with-header (content)
-  (make-instance 'page-with-header :content content))
+(defun make-page-with-header (content &key wide)
+  (make-instance 'page-with-header
+                 :content content
+                 :wide wide))
 
 
 (defmethod render ((widget page-with-header))
   (flet ((logout (&rest rest)
            (declare (ignore rest))
            (reblocks/session:reset)
-           (reblocks/response:redirect "/alternative/logout/"))
+           (reblocks/response:redirect "/logout/"))
          (login (&rest rest)
            (declare (ignore rest))
-           (reblocks/response:redirect "/alternative/login/")))
+           (reblocks/response:redirect "/login/")))
     (let* ((api (passport/client::connect
                  (make-passport)
                  (get-user-token)))
@@ -45,104 +53,97 @@
                          (passport/client::user-avatar-url profile))))
       (reblocks/html:with-html
         (:header
-         (:link :href "https://ideahunt.ru/static/css/main.a005c85d.css"
-                :rel "stylesheet")
          (:div :class "navbar"
-               (:img :class "navbar-main-logo"
-                     :src "https://sportishka.com/uploads/posts/2022-03/1646088782_53-sportishka-com-p-gori-kirgizstana-turizm-krasivo-foto-60.jpg")
-               (:div :class "navbar-right-block"
-                     (:nav :class "navbar-menu"
-                           (:a :class "navbar-menu-point"
-                               :href "/profiles"
-                               "Эксперты")
-                           (:a :class "navbar-menu-point active"
-                               :href "/projects"
-                               "Проекты")
-                           (:a :class "navbar-menu-point"
-                               :href "/services"
-                               "Сервисы")
-                           (:a :class "navbar-menu-point"
-                               :href "/events"
-                               "Мероприятия")
-                           (:a :class "navbar-menu-point"
-                               :href "/vacancies"
-                               "Вакансии"))
+               (:div :class "main-logo"
+                     (:div :class "title"
+                           (:a :href "/"
+                               "ChitChat")))
+               (:div :class "right-block"
+                     ;; (:nav :class "navbar-menu"
+                     ;;       (:a :class "navbar-menu-point"
+                     ;;           :href "/"
+                     ;;           "TV программа"))
                      ;; Иконка профиля
                      (if avatar-url
-                         (:img :class "navbar-user-icon"
+                         (:img :class "user-icon"
                                :src avatar-url)
                          (:a :class "login-link"
                              :href "/login"
-                             "Войти"))))
-        
-         ;; (:div :class "logo"
-         ;;       (:img :src "http://placekitten.com/100/100"))
-         ;; (:div :class "main-menu"
-         ;;       (:a :href "/alternative/profiles/"
-         ;;           "Эксперты")
-         ;;       (:a :href "/alternative/jobs/"
-         ;;           "Вакансии")
-         ;;       (cond
-         ;;         ;; ((get-username)
-         ;;         ;;  (:a :href "/feedback"
-         ;;         ;;      "Обратная связь")
-        
-         ;;         ;;  (render-form-and-button "Выйти"
-         ;;         ;;                          #'logout
-         ;;         ;;                          :method :post
-         ;;         ;;                          :button-class "button secondary logout"))
-         ;;         (t
-         ;;          (render-form-and-button "Войти"
-         ;;                                  #'login
-         ;;                                  :method :post
-         ;;                                  :button-class "button secondary login"))))
-         )
+                             "Войти")))))
 
-        (:div :class "page-content"
+        (:div :class (if (widep widget)
+                         "wide-page-content"
+                         "page-content")
               (render (content widget)))))))
 
 
 
 (defmethod get-dependencies ((widget page-with-header))
-  (list
+  (list*
    (reblocks-lass:make-dependency
-     `(.page-with-header
-       :display flex
-       :flex-direction column
-       :align-items center
-
-       ((:or .navbar-user-icon
-             .login-link)
-        :margin-left 3em)
+     `(body
+       :background ,*dark-background*
+       :color ,*text-color*
        
-       (.page-content
-        :width 80%
-        :margin-left auto
-        :margin-right auto)
+       (.page-with-header
+        :display flex
+        :flex-direction column
+        :align-items center
+
+        (.navbar
+         :display flex
+         :justify-content space-between
+         :padding-left 1rem
+         :padding-right 1rem
+         (.main-logo
+          :display flex
+          :flex-direction column
+          :flex-grow 10
+          :text-align center
+          (a :color ,*text-color*)
+
+          (.title
+           :font-size 3rem
+           :font-weight bold))
+
+         (.user-icon
+          :width 64px)
+         ((:or .user-icon
+               .login-link)
+          :margin-left 3em))
        
-       (header
-        :width 100%
-        ;; :display flex
-        ;; :flex-direction row
-        ;; :align-items center
-        ;; :justify-content space-between
-        ;; :border-bottom 1px solid "#CCCCCC"
-        ;; :margin-top 0.5rem
-        ;; :padding-bottom 1rem
-
-        (.main-menu :display flex
-                    :align-items center
-                    (a :margin-right 1rem))
-
+        (.page-content
+         :width 80%
+         :margin-left auto
+         :margin-right auto)
         
-        ;; (h1 :margin-left 1em
-        ;;     :width 100%
-        ;;     :text-align center)
+        (.wide-page-content
+         :width 100%)
+       
+        (header
+         :width 100%
+         (.main-menu :display flex
+                     :align-items center
+                     (a :margin-right 1rem))
         
-        ;; (form
-        ;;  :justify-self end
-        ;;  :margin-right 1em)
+         (input
+          :margin 0)))))
 
-        (input
-         :margin 0)
-        )))))
+   (reblocks-lass:make-dependency
+           `(:media "(max-width: 600px)"
+                    (body
+                     (.page-with-header
+                      (.navbar
+                       (.user-icon
+                        :width 32px
+                        :height 32px)
+                       (.main-logo
+                        (.motto :display none)))
+
+                      (.page-content
+                       :width 100%
+                       :margin 0
+                       :padding-left 1rem
+                       :padding-right 1rem)))))
+   
+   (call-next-method)))

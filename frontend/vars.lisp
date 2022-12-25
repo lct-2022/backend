@@ -1,10 +1,17 @@
 (uiop:define-package #:app/vars
-  (:use #:cl))
+  (:use #:cl)
+  (:import-from #:function-cache
+                #:defcached))
 (in-package #:app/vars)
 
 
-(defvar *url-prefix* "/alternative")
+(defparameter *url-prefix* "")
 
 (defvar *inside-form* nil)
 
 
+(defparameter *dark-background* "rgb(51, 53, 65)")
+
+(defparameter *light-background* "rgb(61, 63, 75)")
+
+(defparameter *text-color* "rgb(235, 236, 241)")

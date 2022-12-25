@@ -12,6 +12,10 @@
        :col-type :uuid
        :primary-key t
        :accessor object-id)
+   (title :initarg :title
+          :type string
+          :col-type (or :null :text)
+          :accessor chat-title)
    (private :initarg :private
             :type string
             :col-type :boolean

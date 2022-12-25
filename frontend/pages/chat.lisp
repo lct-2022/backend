@@ -16,6 +16,9 @@
                 #:push-end
                 #:fmt)
   (:import-from #:app/vars
+                #:*text-color*
+                #:*light-background*
+                #:*dark-background*
                 #:*url-prefix*)
   (:import-from #:passport/client
                 #:make-passport)
@@ -59,6 +62,17 @@
                 #:replace-all)
   (:import-from #:cl-emoji
                 #:with-emoji-list)
+  (:import-from #:reblocks/response
+                #:send-script)
+  (:import-from #:reblocks/cached-dependencies-mixin
+                #:cached-dependencies-mixin)
+  (:import-from #:app/pages/landing
+                #:get-programme-chat-by-id)
+  (:import-from #:app/program
+                #:channel-image-url
+                #:channel-name
+                #:get-channel-by-id
+                #:programme-channel-id)
   (:export
    #:make-chat-page))
 (in-package #:app/pages/chat)
@@ -70,9 +84,10 @@
             :accessor message)))
 
 
-(defwidget post-form-widget (event-emitter widget)
+(defwidget post-form-widget (event-emitter cached-dependencies-mixin widget)
   ((chat-id :initarg :chat-id
             :accessor chat-id)))
+
 
 (defun make-known-ids-hash ()
   (make-hash-table :synchronized t))
@@ -81,6 +96,8 @@
 (defwidget chat-page ()
   ((chat-id :initform nil
             :accessor chat-id)
+   (title :initform nil
+          :accessor chat-title)
    (messages :initform nil
              :accessor messages)
    (error-message :initform nil
@@ -95,17 +112,25 @@
               :accessor post-form)))
 
 
-(defun scroll-to (widget &key (smooth t))
+(defun scroll-to (widget &key (smooth t) (focus-on-form nil))
   (reblocks/response:send-script
    (ps:ps* `(progn
-              (ps:chain console
-                        (log "Scrolling to element " ,(dom-id widget)))
-              (ps:chain document
-                        (get-element-by-id ,(dom-id widget))
-                        (scroll-into-view
-                         (ps:create "behavior" ,(if smooth
-                                                    "smooth"
-                                                    "auto"))))))))
+              ;; (ps:chain console
+              ;;           (log "Scrolling to element " ,(dom-id widget)))
+              (let ((element (ps:chain document
+                                       (get-element-by-id ,(dom-id widget)))))
+                (ps:chain element
+                          (scroll-into-view
+                           (ps:create "behavior" ,(if smooth
+                                                      "smooth"
+                                                      "auto")
+                                      "block" "center")))
+                (when ,focus-on-form
+                  (on-scroll-end
+                   window
+                   (lambda ()
+                     (focus-on-form-textarea))
+                   500)))))))
 
 
 (defun make-chat-page ()
@@ -123,7 +148,7 @@
                  (push-end widget
                            (messages chat-page))
                  (reblocks/widget:update widget :inserted-after prev-message-widget)
-                 (scroll-to widget)))))
+                 (scroll-to widget :focus-on-form t)))))
       (event-emitter:on :new-message-posted form
                         #'add-new-message-to-the-list)
       (values chat-page))))
@@ -222,10 +247,12 @@
   (passport/client:user-avatar-url
    (get-user-profile user-id)))
 
+(defun get-user-name (user-id)
+  (passport/client:user-nickname
+   (get-user-profile user-id)))
+
 
 (defmethod render ((widget chat-page))
-  (setf *widget* widget)
-
   (register-groups-bind (current-chat-id)
       ("^/chat/(.*)$" (get-path))
     (unless (string-equal current-chat-id
@@ -236,50 +263,80 @@
                    (get-user-token))))
 
         (handler-case
-            (progn (chat/client:get-chat api current-chat-id)
-                   (setf (chat-id (post-form widget)) current-chat-id
-                         (chat-id widget) current-chat-id
-                         (error-message widget) nil
-                         (messages widget) nil
-                         (known-ids widget) (make-known-ids-hash))
-                   (fetch-new-messages widget))
+            (let ((chat (chat/client:get-chat api current-chat-id)))
+              (setf (chat-id (post-form widget)) current-chat-id
+                    (chat-id widget) current-chat-id
+                    (chat-title widget) (chat/client:chat-title chat)
+                    (error-message widget) nil
+                    (messages widget) nil
+                    (known-ids widget) (make-known-ids-hash))
+              (fetch-new-messages widget))
           (openrpc-client/error:rpc-error (e)
             (setf (error-message widget)
                   (openrpc-client/error:rpc-error-message e)))))))
 
-  (cond
-    ((error-message widget)
-     (with-html
+  (with-html
+    (cond
+      ((error-message widget)
        (:p :class "error"
-           (error-message widget))))
-    (t
-     (flet ((retrieve-messages (&key &allow-other-keys)
-              (fetch-new-messages widget :insert-to-dom t)))
-       (let* ((action-code (reblocks/actions:make-action #'retrieve-messages))
-              ;; TODO: позже надо будет прикрутить отправку новых сообщений через websocket или server-side-events
-              (action (ps:ps* `(set-interval
-                                (lambda ()
-                                  (ps:chain console
-                                            (log "Fetching fresh messages"))
-                                  (initiate-action ,action-code)
-                                  nil)
-                                3000))
-                      ;; (ps:ps* `(defun fetch-messages ()
-                      ;;            (ps:chain console
-                      ;;                      (log "Fetching fresh messages"))
-                      ;;            (initiate-action ,action-code)
-                      ;;            nil))
-                      ))
-         (with-html
+           (error-message widget)))
+      (t
+       (flet ((retrieve-messages (&key &allow-other-keys)
+                (fetch-new-messages widget :insert-to-dom t)))
+         (let* ((chat-id (chat-id widget))
+                (programme-chat (get-programme-chat-by-id chat-id))
+                (channel (get-channel-by-id (programme-channel-id programme-chat)))
+                (channel-title (channel-name channel))
+                (channel-logo-url (channel-image-url channel))
+                (action-code (reblocks/actions:make-action #'retrieve-messages))
+                ;; TODO: позже надо будет прикрутить отправку новых сообщений через websocket или server-side-events
+                (action (ps:ps* `(set-interval
+                                  (lambda ()
+                                    ;; (ps:chain console
+                                    ;;           (log "Fetching fresh messages"))
+                                    (initiate-action ,action-code)
+                                    nil)
+                                  3000))
+                        ;; (ps:ps* `(defun fetch-messages ()
+                        ;;            (ps:chain console
+                        ;;                      (log "Fetching fresh messages"))
+                        ;;            (initiate-action ,action-code)
+                        ;;            nil))
+                        ))
            (:script (:raw action))
-           (cond
-             ((messages widget)
-              (:div :class "messages"
-                    (mapc #'render (messages widget)))
-              (scroll-to (lastcar (messages widget))
-                         :smooth nil))
-             (t
-              (:p "В этом чате пока нет сообщений. Стань первым!")))
+           (when (chat-title widget)
+
+             (setf (reblocks/page:get-title)
+                   (serapeum:fmt "~A - ~A"
+                                 channel-title
+                                 (chat-title widget)))
+             
+             (:div :class "chat-header"
+                   ;; TODO: надо чат к каналу как-то привязывать и к программе
+                   ;; (:h1 :class "channel-title"
+                   ;;      (:span :class "icon"
+                   ;;             (:raw "<svg width=\"28\" height=\"38\" viewBox=\"0 0 28 36\" fill=\"none\" xmlns=\"http://www.w3.org/2000/svg\"><path d=\"M0 13.57l1.307-4.616L28 0l-8.773 31.385-10.08 2.769 7.28-26.123L0 13.569zM2.427 36l6.626-24 5.227-1.754-6.813 24.37L2.427 36z\" fill=\"#55C\"></path></svg>"))
+                   ;;      (:span  "Первый канал"))
+                   (:h2 :class "channel-title"
+                        (when channel-logo-url
+                          (:img :class "channel-logo"
+                                :src channel-logo-url
+                                :title (format nil "Логотип канала ~A"
+                                               channel-title)))
+
+                        channel-title)
+                   (:h2 :class "chat-title"
+                        (chat-title widget))
+                   (:p "Осталось 12 минут.")))
+           (:div :class "messages"
+                 (cond
+                   ((messages widget)
+                    (mapc #'render (messages widget))
+                    (scroll-to (lastcar (messages widget))
+                               :smooth nil))
+                   (t
+                    (:p :class "error-message"
+                        "В этом чате пока нет сообщений. Стань первым!"))))
            (render (post-form widget))))))))
 
 
@@ -332,20 +389,27 @@
                              (humanize-duration since
                                                 :n-parts 1
                                                 :format-part #'humanize-duration/ru:format-part)))
-           (avatar-url (get-user-avatar author-id)))
+           (avatar-url (get-user-avatar author-id))
+           (author-name (get-user-name author-id)))
       (multiple-value-bind (processed-message one-emoji)
           (render-message-text (chat/client:message-message msg))
 
         (let ((classes (append (list "message-text")
                                (when one-emoji
                                  (list "only-one-emoji")))))
-          (:img :class "message-avatar"
-                :src avatar-url)
+          (:div :class "message-author"
+                (:img :class "message-avatar"
+                      :src avatar-url
+                      :title author-name)
+                ;; (:span :class "author-name"
+                ;;        )
+                )
           (:div :class "message-body"
                 (:div :class (join " " classes)
                       (:raw processed-message))
-                (:div :class "message-time"
-                      since-as-str)))))))
+                ;; (:div :class "message-time"
+                ;;       since-as-str)
+                ))))))
 
 
 (defmethod get-css-classes ((widget message-widget))
@@ -358,13 +422,17 @@
                 (list "from-current-user"))))))
 
 
-(defvar *widget* nil)
+(defmethod reblocks/widget:update :after ((widgete post-form-widget) &key &allow-other-keys)
+  (send-script (ps:ps (initialize-form))
+               t))
 
 (defmethod render ((widget post-form-widget))
   (flet ((post-message (&key message &allow-other-keys)
            (setf message
                  (str:trim message))
            (unless (string-equal message "")
+             (log:info "Posting" message)
+
              (let* ((api (chat/client::connect
                           (make-chat-api)
                           (get-user-token)))
@@ -377,39 +445,63 @@
        (with-html-form (:post #'post-message)
          (:textarea :name :message
                     :placeholder "Сюда надо что-то написать."
-                    :rows 5)
+                    :rows 2)
          (:input :type "submit"
-                 :class "button success"
-                 :value "Отправить")))
+                 :class "send-button"
+                 :value "")))
       (t
        (with-html
          (:p ("Чтобы что-то написать, надо [залогиниться](/login).")))))))
 
 
 (defmethod get-dependencies ((widget chat-page))
-  (list
+  (list*
    (reblocks-lass:make-dependency
-     '(.chat-page
-       :width 50%
+     `(.chat-page
        :margin-left auto
        :margin-right auto
        :margin-top 2rem
        :display flex
        :flex-direction column
        :gap 2rem
+       (.chat-header
+        :width 60%
+        :margin-left auto
+        :margin-right auto)
+       (.channel-title
+        :font-size 2.2rem
+        (.channel-logo
+         :height 2.2rem
+         :margin-right 0.5rem
+         :position relative
+         :margin-top -0.5rem))
+       (.chat-title
+        :font-size 2.2em)
        (.messages
         :display flex
         :flex-direction column
-        :gap 1rem
-        :max-height 80vh
-        :overflow scroll
+        :padding-bottom 100px
+        (.error-message
+         :width 60%
+         :margin-left auto
+         :margin-right auto)
         (.message-widget
          :display flex
          :flex-direction row
          :gap 1rem
+         :padding-left 20%
+         :padding-right 20%
+         :padding-top 2rem
+         :padding-bottom 2rem
+         :background-color ,*light-background*
+         :border-top 2px solid ,*dark-background*
+         (.message-author
+          :display flex
+          :max-width 64px
+          :min-width 64px
+          :height 64px
+          :flex-direction column)
          (.message-avatar
-          :width 3rem
-          :height 3rem
           :border-radius 1.5rem)
          (.message-body
           :display flex
@@ -419,20 +511,132 @@
            :font-size 0.7rem
            :color gray)
           (.message-text
-           :background white
            :padding 0.5rem
            :border-radius 0.5rem)
           ((:and .message-text .only-one-emoji)
            :font-size 10rem)))
         ((:and .message-widget .from-current-user)
-         :flex-direction row-reverse))))))
+         :border-top 2px solid ,*light-background*
+         :background-color ,*dark-background*))))
+   
+   (reblocks-lass:make-dependency
+     `(:media "(max-width: 600px)"
+              (.chat-page
+               :margin-top 1rem
+               (.chat-header
+                :margin-left 0
+                :margin-right 0
+                :width 100%
+                :text-align center
+                (.chat-title
+                 :font-size 1.2rem
+                 :white-space nowrap
+                 :overflow hidden
+                 :text-overflow ellipsis
+                 :font-weight bold))
+               (.messages
+                (.message-widget
+                 :padding-left 1rem
+                 :padding-right 1rem
+                 :padding-top 0
+                 :padding-bottom 0.5rem)))))
+
+   (call-next-method)))
 
 
 (defmethod get-dependencies ((widget post-form-widget))
-  (list
+  (list*
+   (let ((form-id (format nil "#~A form" (dom-id widget)))
+         (textarea-id (format nil "#~A textarea" (dom-id widget))))
+     (reblocks-parenscript:make-dependency*
+      `(progn
+         (defun focus-on-form-textarea ()
+           (ps:chain (j-query ,textarea-id)
+                     (focus)))
+         
+         (defun initialize-form ()
+           (let ((form (j-query ,form-id)))
+             (unless (ps:chain form
+                               (data "submit-initialized"))
+               (ps:chain form
+                         (keydown (lambda (event)
+                                    (when (= (ps:@ event key-code)
+                                             13)
+                                      ;; (ps:chain console
+                                      ;;           (log "Enter was pressed in the form" event))
+
+                                      (ps:chain (j-query this)
+                                                (trigger "submit"))
+                                      nil)
+                                    nil)))
+               (ps:chain form
+                         (data "submit-initialized" t))))
+           (focus-on-form-textarea)
+           nil)
+
+         (defun on-scroll-end (obj callback timeout)
+           (let (($this (j-query obj)))
+             (ps:chain $this
+                       (on "scroll"
+                           (lambda ()
+                             ;; (ps:chain console
+                             ;;           (log "Still scrolling"))
+                             (let ((timeout (ps:chain $this
+                                                      (data "scrollTimeout"))))
+                               (when timeout
+                                 (clear-timeout timeout))
+                               (ps:chain $this
+                                         (data "scrollTimeout"
+                                               (set-timeout callback timeout)))))))))
+
+         ;; Инициализируем форму после первоначальной загрузки страницы
+         (ps:chain document
+                   (add-event-listener
+                    "DOMContentLoaded"
+                    initialize-form)))))
+
    (reblocks-lass:make-dependency
-     '(.post-form-widget
-       (textarea :border-radius 0.5rem)
+     `(.post-form-widget
+       :width 100%
        ((> form)
+        :position fixed
+        :bottom 0
+        :width 60%
+        :left 50%
+        :transform "translate(-50%, -50%)"
+
         :display flex
-        :flex-direction column)))))
+        :flex-direction row
+        :margin-left auto
+        :margin-right auto
+        (textarea
+         :border-radius 0.5rem
+         :margin-bottom -1rem
+         :background ,*light-background*
+         :color ,*text-color*)
+
+        (.send-button
+         :border 0
+         :position relative
+         :top 2rem
+         :left 3rem
+         :transform "translate(-50%, -50%)"
+         :border-radius 50%
+         :min-width 60px
+         :min-height 60px
+         :max-width 60px
+         :max-height 60px
+         :z-index 9999
+         :background-color "#2CA5E0"
+         :background-image "url(\"data:image/svg+xml;charset=UTF-8,%3csvg role='img' xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24'%3e%3cpath fill='%23FFF' d='M23.91 3.79L20.3 20.84c-.25 1.21-.98 1.5-2 .94l-5.5-4.07-2.66 2.57c-.3.3-.55.56-1.1.56-.72 0-.6-.27-.84-.95L6.3 13.7l-5.45-1.7c-1.18-.35-1.19-1.16.26-1.75l21.26-8.2c.97-.43 1.9.24 1.53 1.73z'/%3e%3c/svg%3e\")"
+         :background-size 50% 
+         :background-repeat no-repeat
+         :background-position 50% 50%))))
+   
+   (reblocks-lass:make-dependency
+     `(:media "(max-width: 600px)"
+              (.post-form-widget
+               ((> form)
+                :bottom -1rem
+                :width 85%))))
+   (call-next-method)))

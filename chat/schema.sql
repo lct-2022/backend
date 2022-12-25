@@ -30,7 +30,7 @@ CREATE TABLE chat.message (
     message TEXT NOT NULL,
     created_at TIMESTAMPTZ,
     updated_at TIMESTAMPTZ
-)
+);
 
 CREATE INDEX chat_messages_idx ON chat.message (chat_id, id);
 
@@ -39,3 +39,6 @@ CREATE INDEX chat_messages_idx ON chat.message (chat_id, id);
 CREATE EXTENSION IF NOT EXISTS "uuid-ossp";
 
 ALTER TABLE chat.chat ALTER COLUMN id SET DEFAULT uuid_generate_v4();
+
+
+ALTER TABLE chat.chat ADD COLUMN title TEXT;

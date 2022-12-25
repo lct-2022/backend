@@ -108,6 +108,9 @@
             "id": {
               "type": "integer"
             },
+            "nickname": {
+              "type": "string"
+            },
             "email": {
               "type": "string"
             },
@@ -115,141 +118,18 @@
               "type": "string"
             },
             "avatar_url": {
-              "type": "string",
-              "description": "По-умолчанию, генерируем URL через Gravatar, по email пользователя. Часто это срабатывает."
-            },
-            "fio": {
-              "oneOf": [
-                {
-                  "type": "null"
-                },
-                {
-                  "type": "string"
-                }
-              ]
-            },
-            "birthday": {
-              "oneOf": [
-                {
-                  "type": "null"
-                },
-                {
-                  "type": "string"
-                }
-              ]
-            },
-            "gender": {
-              "oneOf": [
-                {
-                  "type": "null"
-                },
-                {
-                  "type": "string"
-                }
-              ]
-            },
-            "phone": {
-              "oneOf": [
-                {
-                  "type": "null"
-                },
-                {
-                  "type": "string"
-                }
-              ]
-            },
-            "country": {
-              "oneOf": [
-                {
-                  "type": "null"
-                },
-                {
-                  "type": "string"
-                }
-              ]
-            },
-            "city": {
-              "oneOf": [
-                {
-                  "type": "null"
-                },
-                {
-                  "type": "string"
-                }
-              ]
-            },
-            "profession_id": {
-              "type": "integer"
-            },
-            "profession": {
               "type": "string"
-            },
-            "skill_ids": {
-              "type": "array",
-              "items": {
-                "type": "integer"
-              }
-            },
-            "skills": {
-              "type": "array",
-              "items": {
-                "type": "string"
-              }
-            },
-            "education": {
-              "oneOf": [
-                {
-                  "type": "null"
-                },
-                {
-                  "type": "string"
-                }
-              ],
-              "description": "Название школы, ВУЗа, ПТУ. Научные степени."
-            },
-            "job": {
-              "oneOf": [
-                {
-                  "type": "null"
-                },
-                {
-                  "type": "string"
-                }
-              ]
-            },
-            "looking_for_job": {
-              "type": "boolean"
-            },
-            "looking_for_hackathon": {
-              "type": "boolean"
-            },
-            "about": {
-              "oneOf": [
-                {
-                  "type": "null"
-                },
-                {
-                  "type": "string"
-                }
-              ]
             },
             "admin": {
               "type": "boolean",
               "description": "Если этот признак True, то пользователь считается админом и может позволить себе больше, чем простые смертные."
-            },
-            "projects": {
-              "type": "object",
-              "properties": {},
-              "required": [],
-              "x-cl-class": "T",
-              "x-cl-package": "COMMON-LISP",
-              "description": "Эта колонка заполняется, только если в API явно запросили поле projects.\n                             Данные подтягиваются из сервиса platform."
             }
           },
           "required": [
             "avatar_url",
             "password_hash",
             "email",
+            "nickname",
             "id",
             "updated_at",
             "created_at"
@@ -450,6 +330,9 @@
             "id": {
               "type": "integer"
             },
+            "nickname": {
+              "type": "string"
+            },
             "email": {
               "type": "string"
             },
@@ -457,141 +340,18 @@
               "type": "string"
             },
             "avatar_url": {
-              "type": "string",
-              "description": "По-умолчанию, генерируем URL через Gravatar, по email пользователя. Часто это срабатывает."
-            },
-            "fio": {
-              "oneOf": [
-                {
-                  "type": "null"
-                },
-                {
-                  "type": "string"
-                }
-              ]
-            },
-            "birthday": {
-              "oneOf": [
-                {
-                  "type": "null"
-                },
-                {
-                  "type": "string"
-                }
-              ]
-            },
-            "gender": {
-              "oneOf": [
-                {
-                  "type": "null"
-                },
-                {
-                  "type": "string"
-                }
-              ]
-            },
-            "phone": {
-              "oneOf": [
-                {
-                  "type": "null"
-                },
-                {
-                  "type": "string"
-                }
-              ]
-            },
-            "country": {
-              "oneOf": [
-                {
-                  "type": "null"
-                },
-                {
-                  "type": "string"
-                }
-              ]
-            },
-            "city": {
-              "oneOf": [
-                {
-                  "type": "null"
-                },
-                {
-                  "type": "string"
-                }
-              ]
-            },
-            "profession_id": {
-              "type": "integer"
-            },
-            "profession": {
               "type": "string"
-            },
-            "skill_ids": {
-              "type": "array",
-              "items": {
-                "type": "integer"
-              }
-            },
-            "skills": {
-              "type": "array",
-              "items": {
-                "type": "string"
-              }
-            },
-            "education": {
-              "oneOf": [
-                {
-                  "type": "null"
-                },
-                {
-                  "type": "string"
-                }
-              ],
-              "description": "Название школы, ВУЗа, ПТУ. Научные степени."
-            },
-            "job": {
-              "oneOf": [
-                {
-                  "type": "null"
-                },
-                {
-                  "type": "string"
-                }
-              ]
-            },
-            "looking_for_job": {
-              "type": "boolean"
-            },
-            "looking_for_hackathon": {
-              "type": "boolean"
-            },
-            "about": {
-              "oneOf": [
-                {
-                  "type": "null"
-                },
-                {
-                  "type": "string"
-                }
-              ]
             },
             "admin": {
               "type": "boolean",
               "description": "Если этот признак True, то пользователь считается админом и может позволить себе больше, чем простые смертные."
-            },
-            "projects": {
-              "type": "object",
-              "properties": {},
-              "required": [],
-              "x-cl-class": "T",
-              "x-cl-package": "COMMON-LISP",
-              "description": "Эта колонка заполняется, только если в API явно запросили поле projects.\n                             Данные подтягиваются из сервиса platform."
             }
           },
           "required": [
             "avatar_url",
             "password_hash",
             "email",
+            "nickname",
             "id",
             "updated_at",
             "created_at"
@@ -649,6 +409,9 @@
             "id": {
               "type": "integer"
             },
+            "nickname": {
+              "type": "string"
+            },
             "email": {
               "type": "string"
             },
@@ -656,141 +419,18 @@
               "type": "string"
             },
             "avatar_url": {
-              "type": "string",
-              "description": "По-умолчанию, генерируем URL через Gravatar, по email пользователя. Часто это срабатывает."
-            },
-            "fio": {
-              "oneOf": [
-                {
-                  "type": "null"
-                },
-                {
-                  "type": "string"
-                }
-              ]
-            },
-            "birthday": {
-              "oneOf": [
-                {
-                  "type": "null"
-                },
-                {
-                  "type": "string"
-                }
-              ]
-            },
-            "gender": {
-              "oneOf": [
-                {
-                  "type": "null"
-                },
-                {
-                  "type": "string"
-                }
-              ]
-            },
-            "phone": {
-              "oneOf": [
-                {
-                  "type": "null"
-                },
-                {
-                  "type": "string"
-                }
-              ]
-            },
-            "country": {
-              "oneOf": [
-                {
-                  "type": "null"
-                },
-                {
-                  "type": "string"
-                }
-              ]
-            },
-            "city": {
-              "oneOf": [
-                {
-                  "type": "null"
-                },
-                {
-                  "type": "string"
-                }
-              ]
-            },
-            "profession_id": {
-              "type": "integer"
-            },
-            "profession": {
               "type": "string"
-            },
-            "skill_ids": {
-              "type": "array",
-              "items": {
-                "type": "integer"
-              }
-            },
-            "skills": {
-              "type": "array",
-              "items": {
-                "type": "string"
-              }
-            },
-            "education": {
-              "oneOf": [
-                {
-                  "type": "null"
-                },
-                {
-                  "type": "string"
-                }
-              ],
-              "description": "Название школы, ВУЗа, ПТУ. Научные степени."
-            },
-            "job": {
-              "oneOf": [
-                {
-                  "type": "null"
-                },
-                {
-                  "type": "string"
-                }
-              ]
-            },
-            "looking_for_job": {
-              "type": "boolean"
-            },
-            "looking_for_hackathon": {
-              "type": "boolean"
-            },
-            "about": {
-              "oneOf": [
-                {
-                  "type": "null"
-                },
-                {
-                  "type": "string"
-                }
-              ]
             },
             "admin": {
               "type": "boolean",
               "description": "Если этот признак True, то пользователь считается админом и может позволить себе больше, чем простые смертные."
-            },
-            "projects": {
-              "type": "object",
-              "properties": {},
-              "required": [],
-              "x-cl-class": "T",
-              "x-cl-package": "COMMON-LISP",
-              "description": "Эта колонка заполняется, только если в API явно запросили поле projects.\n                             Данные подтягиваются из сервиса platform."
             }
           },
           "required": [
             "avatar_url",
             "password_hash",
             "email",
+            "nickname",
             "id",
             "updated_at",
             "created_at"
@@ -841,6 +481,9 @@
                   "id": {
                     "type": "integer"
                   },
+                  "nickname": {
+                    "type": "string"
+                  },
                   "email": {
                     "type": "string"
                   },
@@ -848,141 +491,18 @@
                     "type": "string"
                   },
                   "avatar_url": {
-                    "type": "string",
-                    "description": "По-умолчанию, генерируем URL через Gravatar, по email пользователя. Часто это срабатывает."
-                  },
-                  "fio": {
-                    "oneOf": [
-                      {
-                        "type": "null"
-                      },
-                      {
-                        "type": "string"
-                      }
-                    ]
-                  },
-                  "birthday": {
-                    "oneOf": [
-                      {
-                        "type": "null"
-                      },
-                      {
-                        "type": "string"
-                      }
-                    ]
-                  },
-                  "gender": {
-                    "oneOf": [
-                      {
-                        "type": "null"
-                      },
-                      {
-                        "type": "string"
-                      }
-                    ]
-                  },
-                  "phone": {
-                    "oneOf": [
-                      {
-                        "type": "null"
-                      },
-                      {
-                        "type": "string"
-                      }
-                    ]
-                  },
-                  "country": {
-                    "oneOf": [
-                      {
-                        "type": "null"
-                      },
-                      {
-                        "type": "string"
-                      }
-                    ]
-                  },
-                  "city": {
-                    "oneOf": [
-                      {
-                        "type": "null"
-                      },
-                      {
-                        "type": "string"
-                      }
-                    ]
-                  },
-                  "profession_id": {
-                    "type": "integer"
-                  },
-                  "profession": {
                     "type": "string"
-                  },
-                  "skill_ids": {
-                    "type": "array",
-                    "items": {
-                      "type": "integer"
-                    }
-                  },
-                  "skills": {
-                    "type": "array",
-                    "items": {
-                      "type": "string"
-                    }
-                  },
-                  "education": {
-                    "oneOf": [
-                      {
-                        "type": "null"
-                      },
-                      {
-                        "type": "string"
-                      }
-                    ],
-                    "description": "Название школы, ВУЗа, ПТУ. Научные степени."
-                  },
-                  "job": {
-                    "oneOf": [
-                      {
-                        "type": "null"
-                      },
-                      {
-                        "type": "string"
-                      }
-                    ]
-                  },
-                  "looking_for_job": {
-                    "type": "boolean"
-                  },
-                  "looking_for_hackathon": {
-                    "type": "boolean"
-                  },
-                  "about": {
-                    "oneOf": [
-                      {
-                        "type": "null"
-                      },
-                      {
-                        "type": "string"
-                      }
-                    ]
                   },
                   "admin": {
                     "type": "boolean",
                     "description": "Если этот признак True, то пользователь считается админом и может позволить себе больше, чем простые смертные."
-                  },
-                  "projects": {
-                    "type": "object",
-                    "properties": {},
-                    "required": [],
-                    "x-cl-class": "T",
-                    "x-cl-package": "COMMON-LISP",
-                    "description": "Эта колонка заполняется, только если в API явно запросили поле projects.\n                             Данные подтягиваются из сервиса platform."
                   }
                 },
                 "required": [
                   "avatar_url",
                   "password_hash",
                   "email",
+                  "nickname",
                   "id",
                   "updated_at",
                   "created_at"
@@ -1069,6 +589,9 @@
                   "id": {
                     "type": "integer"
                   },
+                  "nickname": {
+                    "type": "string"
+                  },
                   "email": {
                     "type": "string"
                   },
@@ -1076,141 +599,18 @@
                     "type": "string"
                   },
                   "avatar_url": {
-                    "type": "string",
-                    "description": "По-умолчанию, генерируем URL через Gravatar, по email пользователя. Часто это срабатывает."
-                  },
-                  "fio": {
-                    "oneOf": [
-                      {
-                        "type": "null"
-                      },
-                      {
-                        "type": "string"
-                      }
-                    ]
-                  },
-                  "birthday": {
-                    "oneOf": [
-                      {
-                        "type": "null"
-                      },
-                      {
-                        "type": "string"
-                      }
-                    ]
-                  },
-                  "gender": {
-                    "oneOf": [
-                      {
-                        "type": "null"
-                      },
-                      {
-                        "type": "string"
-                      }
-                    ]
-                  },
-                  "phone": {
-                    "oneOf": [
-                      {
-                        "type": "null"
-                      },
-                      {
-                        "type": "string"
-                      }
-                    ]
-                  },
-                  "country": {
-                    "oneOf": [
-                      {
-                        "type": "null"
-                      },
-                      {
-                        "type": "string"
-                      }
-                    ]
-                  },
-                  "city": {
-                    "oneOf": [
-                      {
-                        "type": "null"
-                      },
-                      {
-                        "type": "string"
-                      }
-                    ]
-                  },
-                  "profession_id": {
-                    "type": "integer"
-                  },
-                  "profession": {
                     "type": "string"
-                  },
-                  "skill_ids": {
-                    "type": "array",
-                    "items": {
-                      "type": "integer"
-                    }
-                  },
-                  "skills": {
-                    "type": "array",
-                    "items": {
-                      "type": "string"
-                    }
-                  },
-                  "education": {
-                    "oneOf": [
-                      {
-                        "type": "null"
-                      },
-                      {
-                        "type": "string"
-                      }
-                    ],
-                    "description": "Название школы, ВУЗа, ПТУ. Научные степени."
-                  },
-                  "job": {
-                    "oneOf": [
-                      {
-                        "type": "null"
-                      },
-                      {
-                        "type": "string"
-                      }
-                    ]
-                  },
-                  "looking_for_job": {
-                    "type": "boolean"
-                  },
-                  "looking_for_hackathon": {
-                    "type": "boolean"
-                  },
-                  "about": {
-                    "oneOf": [
-                      {
-                        "type": "null"
-                      },
-                      {
-                        "type": "string"
-                      }
-                    ]
                   },
                   "admin": {
                     "type": "boolean",
                     "description": "Если этот признак True, то пользователь считается админом и может позволить себе больше, чем простые смертные."
-                  },
-                  "projects": {
-                    "type": "object",
-                    "properties": {},
-                    "required": [],
-                    "x-cl-class": "T",
-                    "x-cl-package": "COMMON-LISP",
-                    "description": "Эта колонка заполняется, только если в API явно запросили поле projects.\n                             Данные подтягиваются из сервиса platform."
                   }
                 },
                 "required": [
                   "avatar_url",
                   "password_hash",
                   "email",
+                  "nickname",
                   "id",
                   "updated_at",
                   "created_at"
@@ -1238,6 +638,18 @@
       },
       "summary": "Возвращает список пользователей по заданному запросу.",
       "description": "Запрос должен вводиться в формате ElasticSearch. Но для поиска по всем\n полям можно просто слова вводить.  Если передать \"*\" - выдаются все пользователи, начиная с самых свежих.\n\nМожно давать сложные запросы типа city: Moscow AND country: Russia.\nЕщё, можно использовать такие поля как profession и skills. Например:\n\n    profession: backend AND skills: agile\n\nИли если удобнее, то можно передавать айдишники навыков или профессии:\n\n    profession_id: 7 AND skill_ids: 42\n\nЭтот метод поддерживает пейджинацию и можно запрашивать следующие страницы результатов.",
+      "paramStructure": "by-name"
+    },
+    {
+      "name": "anonymous_login",
+      "params": [],
+      "result": {
+        "name": "anonymous_login_result",
+        "schema": {
+          "type": "string"
+        }
+      },
+      "summary": "Создаёт анонимного пользователя с рандомным логином и возвращает его токен.",
       "paramStructure": "by-name"
     }
   ],

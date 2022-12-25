@@ -4,6 +4,7 @@
                 #:transform-result
                 #:type-to-schema)
   (:import-from #:serapeum
+                #:fmt
                 #:soft-list-of
                 #:dict)
   (:import-from #:cl-json-web-tokens)
@@ -20,7 +21,9 @@
                 #:decode-json
                 #:encode-json)
   (:import-from #:common/avatar
-                #:get-avatar-url-for))
+                #:get-avatar-url-for)
+  (:import-from #:passport/nickname
+                #:get-random-nickname))
 (in-package #:passport/user)
 
 
@@ -30,111 +33,28 @@
        :col-type :bigserial
        :primary-key t
        :accessor object-id)
+   (nickname :initarg :nickname
+             :type string
+             :col-type :text
+             :accessor user-nickname)
    (email :initarg :email
           :type string
-          :col-type :text
+          :col-type (or :null :text)
           :accessor user-email)
    (password-hash :initarg :password-hash
                   :type string
-                  :col-type :text
+                  :col-type (or :null :text)
                   :reader user-password-hash)
    (avatar-url :initarg :avatar-url
                :type string
-               :col-type :text
-               :documentation "По-умолчанию, генерируем URL через Gravatar, по email пользователя. Часто это срабатывает."
+               :col-type (:or :null :text)
                :accessor avatar-url)
-   (fio :initarg :fio
-        :initform nil
-        :type (or null string)
-        :col-type (or :null :text)
-        :accessor user-fio)
-   (birthday :initarg :birthday
-             :initform nil
-             :type (or null string)
-             :col-type (or :null :text)
-             :accessor user-birthday)
-   (gender :initarg :gender
-           :initform nil
-           :type (or null string)
-           :col-type (or :null :text)
-           :accessor user-gender)
-   (phone :initarg :phone
-          :initform nil
-          :type (or null string)
-          :col-type (or :null :text)
-          :accessor user-phone)
-   (country :initarg :country
-            :initform nil
-            :type (or null string)
-            :col-type (or :null :text)
-            :accessor user-country)
-   (city :initarg :city
-         :initform nil
-         :type (or null string)
-         :col-type (or :null :text)
-         :accessor user-city)
-   (profession-id :initarg :profession-id
-                  :initform 1
-                  :type integer
-                  :col-type :bigint
-                  :accessor user-profession-id)
-   (profession :initarg :profession
-               :initform 1
-               :type string
-               :ghost t
-               :accessor user-profession)
-   
-   (skill-ids :initarg :skill-ids
-              :initform nil
-              :type (soft-list-of integer)
-              :col-type :jsonb
-              :deflate #'encode-json
-              :inflate #'decode-json
-              :accessor user-skill-ids)
-   (skills :initarg :skills
-           :initform nil
-           :type (soft-list-of string)
-           :ghost t
-           :accessor user-skills)
-   
-   (education :initarg :education
-              :initform nil
-              :type (or null string)
-              :col-type (or :null :text)
-              :accessor user-education
-              :documentation "Название школы, ВУЗа, ПТУ. Научные степени.")
-   (job :initarg :job
-        :initform nil
-        :type (or null string)
-        :col-type (or :null :text)
-        :accessor user-job)
-   (looking-for-job :initarg :looking-for-job
-                    :initform nil
-                    :type boolean
-                    :col-type :boolean
-                    :accessor looking-for-job-p)
-   (looking-for-hackathon :initarg :looking-for-hackathon
-                          :initform nil
-                          :type boolean
-                          :col-type :boolean
-                          :accessor looking-for-hackathon-p)
-   (about :initarg :about
-          :initform nil
-          :type (or null string)
-          :col-type (or :null :text)
-          :accessor user-about)
    (admin :initarg :admin
           :initform nil
           :type boolean
           :col-type :boolean
           :accessor adminp
-          :documentation "Если этот признак True, то пользователь считается админом и может позволить себе больше, чем простые смертные.")
-   (projects :initarg :projects
-             :initform nil
-             :ghost t
-             :documentation "Эта колонка заполняется, только если в API явно запросили поле projects.
-                             Данные подтягиваются из сервиса platform."
-             :accessor user-projects))
+          :documentation "Если этот признак True, то пользователь считается админом и может позволить себе больше, чем простые смертные."))
   (:table-name "passport.user")
   (:metaclass dao-table-class))
 
@@ -145,12 +65,6 @@
             (object-id user)
             (user-email user))))
 
-
-(defclass user-with-rating ()
-  ((user :initarg :user
-         :type user)
-   (rating :initarg :rating
-           :type integer)))
 
 
 (defun get-next-user-id ()
@@ -169,6 +83,7 @@
 
 (defun issue-token-for (user)
   (let ((payload (dict "user-id" (object-id user)
+                       "nickname" (user-nickname user)
                        ;; Пока у нас только одна роль. Но на будущее, роли отдаются списоком:
                        "roles" (when (adminp user)
                                  (list "admin")))))
@@ -182,6 +97,24 @@
                               )))
 
 
+(defun make-unique-nickname (nickname)
+  (loop for idx upfrom 0 to 10000
+        for candidate = (if (zerop idx)
+                            nickname
+                            (fmt "~A-~A" nickname idx))
+        unless (mito:find-dao 'user
+                              :nickname candidate)
+        do (return candidate)))
+
+(defun make-anonymous-user ()
+  (let ((nickname (make-unique-nickname
+                   (get-random-nickname))))
+    (mito:create-dao 'user
+                     :nickname nickname
+                     :avatar-url (fmt "https://robohash.org/~A.png"
+                                      nickname))))
+
+
 (defmethod assert-can-modify ((user-id integer) (obj user))
   ;; Пользователь может редактировать свой собственный профиль,
   ;; а админ может редактировать любой:
@@ -193,16 +126,6 @@
     (or (= user-id (object-id obj))
         is-admin)))
 
-
-(defun randomize-skills ()
-  (common/db::with-connection ()
-    (loop for user in (mito:retrieve-dao 'user)
-          for skills = (list (+ (random 133))
-                             (+ (random 133))
-                             (+ (random 133)))
-          do (setf (user-skill-ids user)
-                   skills)
-             (mito:save-dao user))))
 
 (defun randomize-avatars ()
   (common/db::with-connection ()

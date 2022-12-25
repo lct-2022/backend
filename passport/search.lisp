@@ -2,6 +2,7 @@
   (:use #:cl
         #:common/utils)
   (:import-from #:passport/user
+                #:user-nickname
                 #:user-skills
                 #:user-skill-ids
                 #:user-profession-id
@@ -28,22 +29,11 @@
 (defmethod make-document-for-index ((user user))
   (uiop:symbol-call "PASSPORT/SERVER" "ENRICH-USER" user nil)
   
-  (dict "fio" (user-fio user)
-        "country" (user-country user)
-        "city" (user-city user)
-        "education" (user-education user)
-        "profession" (user-profession user)
-        "profession_id" (user-profession-id user)
-        "skills" (join ", " (user-skills user))
-        "skill_ids" (user-skill-ids user)
-        "profession_id" (user-profession-id user)
-        "job" (user-job user)
-        "about" (user-about user)))
+  (dict "nickname" (user-nickname user)))
 
 
 (defmethod get-fields-to-search ((user (eql 'user)))
-  (list "fio" "country" "city" "education" "job" "about"
-        "profession" "skills"))
+  (list "nickname"))
 
 
 (defun enrich (users fields)

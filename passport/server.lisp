@@ -7,6 +7,8 @@
                 #:return-error
                 #:define-rpc-method)
   (:import-from #:passport/user
+                #:make-anonymous-user
+                #:issue-token-for-new-anonymous
                 #:user-profession-id
                 #:user-profession
                 #:user-with-rating
@@ -72,6 +74,13 @@
          (openrpc-server:return-error "Неправильный email или пароль." :code 1))))))
 
 
+(define-rpc-method (passport-api anonymous-login) ()
+  (:summary "Создаёт анонимного пользователя с рандомным логином и возвращает его токен.")
+  (:result string)
+  (with-connection ()
+    (issue-token-for (make-anonymous-user))))
+
+
 (define-rpc-method (passport-api signup) (email password fio)
   (:param email string)
   (:param password string)
@@ -115,65 +124,14 @@
 
 
 (define-update-method (passport-api update-profile user)
-                      (fio
-                       birthday
-                       gender
-                       phone
-                       country
-                       city
-                       profession-id
-                       skill-ids
-                       education
-                       job
-                       about
-                       looking-for-job
-                       looking-for-hackathon)
+                      (avatar-url)
   (with-session (user-id)
     (find-dao 'user
               :id user-id)))
 
 
-(defcached (get-professions-map :timeout (* 15 60)) ()
-  (loop with client = (platform/client::connect (make-platform))
-        with items = (platform/client:get-professions client)
-        with result = (make-hash-table)
-        for item in items
-        do (setf (gethash (platform/client::profession-id item) result)
-                 (platform/client::profession-title item))
-        finally (return result)))
-
-
-(defcached (get-skills-map :timeout (* 15 60)) ()
-  (loop with client = (platform/client::connect (make-platform))
-        with items = (platform/client:get-skills client)
-        with result = (make-hash-table)
-        for item in items
-        do (setf (gethash (platform/client:skill-id item) result)
-                 (platform/client:skill-title item))
-        finally (return result)))
-
-
 (defun enrich-users (users additional-fields)
-  (when (member "projects" additional-fields
-                :test #'string-equal)
-    (loop for user in users
-          do (let* ((client (platform/client::connect
-                             (make-platform))))
-               (setf (passport/user::user-projects user)
-                     (platform/client:user-projects client (object-id user)))
-               user)))
-
-  (loop with professions = (get-professions-map)
-        with skills = (get-skills-map)
-        for user in users
-        do (setf (user-profession user)
-                 (gethash (user-profession-id user) professions *default-profession-id*))
-           (setf (passport/user::user-skills user)
-                 (remove-if #'null
-                            (mapcar (lambda (id)
-                                      (gethash id skills ))
-                                    (passport/user::user-skill-ids user)))))
-  
+  (declare (ignore additional-fields))
   users)
 
 

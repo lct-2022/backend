@@ -15,7 +15,9 @@
                 #:remove-action-from-uri)
   (:shadow #:restart)
   (:export
-   #:restart))
+   #:restart
+   #:start
+   #:stop))
 (in-package #:app/server)
 
 
@@ -48,34 +50,30 @@
 
       ;; Remove :action key from action arguments
       (remf action-arguments (alexandria:make-keyword (string-upcase reblocks/variables::*action-string*)))
+
+      (multiple-value-bind (action-result current-page)
+          (reblocks/hooks:with-action-hook (app action-name action-arguments)
+            (reblocks/actions::eval-action
+             app
+             action-name
+             action-arguments))
       
-      (when (reblocks/request::pure-request-p)
-        (log:debug "Request is pure, processing will be aborted.")
-        ;; TODO: add with-action-hook ()
-        (reblocks/response::immediate-response
-         (reblocks/actions::eval-action
-          app
-          action-name
-          action-arguments)))
-
-      (reblocks/hooks:with-action-hook (app action-name action-arguments)
-        (reblocks/actions::eval-action
-         app
-         action-name
-         action-arguments))))
-
-
-  ;; Remove "action" parameter for the GET parameters
-  ;; it it is not an AJAX request
-  (when (and (not (reblocks/request::ajax-request-p))
-             (reblocks/request::get-parameter reblocks/variables::*action-string*))
-    
-    (let ((url (remove-action-from-uri
-                (reblocks/request::get-path :with-params t))))
-      (log:debug "Redirecting to an URL without action parameter" url)
-      (reblocks/response::redirect (concatenate 'string
-                                                *url-prefix*
-                                                url)))))
+        (cond
+          ((reblocks/request::pure-request-p)
+           (log:debug "Request is pure, processing will be aborted.")
+           (reblocks/response::immediate-response action-result))
+          ;; Remove "action" parameter for the GET parameters
+          ;; if it is not an AJAX request
+          ((not (reblocks/request::ajax-request-p))
+           (let ((url (remove-action-from-uri
+                       (reblocks/request::get-path :with-params t))))
+             (log:debug "Redirecting to an URL without action parameter" url)
+             (reblocks/response::redirect (concatenate 'string
+                                                       *url-prefix*
+                                                       url))))
+          (t
+           (values action-result
+                   current-page)))))))
 
 
 ;; Этот хак нужен, чтобы правильно работало формирование урлов внутри Reblocks
@@ -102,20 +100,27 @@
 
 (defun start (&rest args
               &key
-                (port 8080)
-		(interface "localhost"))
+              (port 9001)
+	      (interface "localhost")
+              (debug nil))
   ;; Just to suppres debug logs to TTY from Reblocks.
   ;; I'll need to fix Reblocks to prohibit it from
   ;; configure logging if they are already configured.
   (common/logging::setup)
   (start-slynk-if-needed)
+  (local-time:reread-timezone-repository)
+
+  ;; TODO: может быть это и не нужно?
+  (cl+ssl:ssl-load-global-verify-locations #P"/home/art/.postgresql/root.crt")
+  
   (reblocks/server:start :port port
 			 :interface interface
                          :apps 'app
                          ;; WOO requires libev, and also
                          ;; there is a problem with hanging workers:
                          ;; https://github.com/fukamachi/woo/issues/100
-			 :server-type :hunchentoot)
+			 :server-type :hunchentoot
+                         :debug debug)
   (common/logging::setup)
   (log:info "Server started")
   (setf *arguments* args)
@@ -127,14 +132,21 @@
 (defun cl-user::start-server ()
   ;; Entry point for webapp, started in the Docker
   (start :port (parse-integer (or (uiop:getenv "APP_PORT")
-				  "80"))
+				  "9001"))
 	 :interface (or (uiop:getenv "APP_INTERFACE")
 			"0.0.0.0"))
   (loop do (sleep 5)))
 
 
+(defun stop ()
+  (reblocks/server:stop (getf *arguments* :interface)
+                        (getf *arguments* :port))
+  (values))
+
+
 (defun restart ()
-  (apply #'reblocks/server:stop *arguments*)
+  (stop)
   (apply #'start *arguments*)
-  (reblocks/debug:reset-latest-session)
+  (with-simple-restart (ignore "Ignore and continue")
+    (reblocks/debug:reset-latest-session))
   (values))

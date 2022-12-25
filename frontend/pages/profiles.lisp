@@ -91,7 +91,6 @@
                                             :raw user
                                             :id (passport/client:user-id user)
                                             :avatar-url (passport/client:user-avatar-url user)
-                                            :fio (passport/client:user-fio user)
                                             :rating rating))))
         (appendf (users-list widget)
                  new-profiles))
