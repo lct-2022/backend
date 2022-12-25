@@ -23,7 +23,11 @@
                 #:make-chat-page)
   (:import-from #:app/pages/channel
                 #:make-channel-widgets
-                #:make-channels-widget))
+                #:make-channels-widget)
+  (:import-from #:reblocks/page
+                #:render-headers)
+  (:import-from #:reblocks/html
+                #:with-html))
 (in-package #:app/app)
 
 
@@ -58,3 +62,11 @@
    ;;     :background "rgb(51, 53, 65)"
    ;;     :color "rgb(235, 236, 241)"))
    (call-next-method)))
+
+
+(defmethod render-headers ((app app))
+  (with-html
+    (:link :rel "shortcut icon"
+           :href "/favicon.ico"
+           :type "image/x-icon"))
+  (call-next-method))

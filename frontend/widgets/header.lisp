@@ -74,7 +74,14 @@
         (:div :class (if (widep widget)
                          "wide-page-content"
                          "page-content")
-              (render (content widget)))))))
+              (render (content widget)))
+
+        (:div :class "footer"
+              (:p :class "contacts"
+                  "По любым вопросам обращаться в Телеграм:"
+                  (:img :src "https://altezza-store.ru/images/telegram.png")
+                  (:a :href "https://t.me/ivanodigital"
+                      "ivanodigital")))))))
 
 
 
@@ -127,7 +134,14 @@
                      (a :margin-right 1rem))
         
          (input
-          :margin 0)))))
+          :margin 0))
+
+        (.footer
+         (.contacts
+          :margin-bottom 7rem
+          (img
+           :height 1em)
+          (a :color ,*text-color*))))))
 
    (reblocks-lass:make-dependency
            `(:media "(max-width: 600px)"
