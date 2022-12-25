@@ -28,3 +28,6 @@ yarn-error.log*
 /.vscode
 /.idea
 /.qlot/
+/.local-config.lisp
+/ideahunt.css
+/xmltv.xml.gz

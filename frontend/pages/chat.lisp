@@ -73,6 +73,15 @@
                 #:channel-name
                 #:get-channel-by-id
                 #:programme-channel-id)
+  (:import-from #:reblocks-ui/popup
+                #:hide-popup
+                #:render-popup-content
+                #:popup-widget)
+  (:import-from #:ps
+                #:@
+                #:chain)
+  (:import-from #:reblocks-ui/form
+                #:render-link)
   (:export
    #:make-chat-page))
 (in-package #:app/pages/chat)
@@ -93,6 +102,11 @@
   (make-hash-table :synchronized t))
 
 
+(defwidget share-dialog (popup-widget)
+  ((chat-id :initform nil
+            :accessor chat-id)))
+
+
 (defwidget chat-page ()
   ((chat-id :initform nil
             :accessor chat-id)
@@ -109,7 +123,9 @@
    (next-page-key :initform nil
                   :accessor next-page-key)
    (post-form :initarg :post-form
-              :accessor post-form)))
+              :accessor post-form)
+   (share-widget :initform (make-instance 'share-dialog)
+                 :reader share-widget)))
 
 
 (defun scroll-to (widget &key (smooth t) (focus-on-form nil))
@@ -252,6 +268,119 @@
    (get-user-profile user-id)))
 
 
+(defmethod render-popup-content ((widget share-dialog))
+  (let ((url (fmt "https://chit-chat.ru/chat/~A"
+                  (chat-id widget)))
+        (url-id (fmt "~A-url"
+                     (dom-id widget))))
+    (with-html
+      (:input :class "url"
+              :type "text"
+              :id url-id
+              :value url)
+      (:div :class "tooltip-container"
+            :onmouseout "onMouseOut()"
+            (:button :onclick "shareToClipboard()"
+                     :class "button success"
+                     (:span :class "tooltiptext"
+                            :id "myTooltip"
+                            "Скопировать в буфер обмена")
+                     "Скопировать"))
+      
+      (render-link (lambda (&rest rest)
+                     (declare (ignore rest))
+                     (hide-popup widget))
+                   "Закрыть"
+                   :class "button secondary"))))
+
+
+(defmethod get-dependencies ((widget share-dialog))
+  (let ((url-id (fmt "~A-url"
+                     (dom-id widget))))
+    (list*
+     (reblocks-parenscript:make-dependency*
+      ;; From https://www.w3schools.com/howto/howto_js_copy_clipboard.asp
+      `(progn
+         (defun share-to-clipboard ()
+           (let ((node (chain document
+                              (get-element-by-id ,url-id))))
+             (chain node (select))
+             ;; For mobile devices
+             (chain node (set-selection-range 0 99999))
+             (let ((text (@ node value))
+                   (tooltip (chain document
+                                   (get-element-by-id "myTooltip"))))
+               (chain navigator
+                      clipboard
+                      (write-text text))
+
+               (setf (@ tooltip inner-h-t-m-l)
+                     (+ "Скопировано: " text))
+             
+               (chain console
+                      (log "Copied the text:" text)))))
+         (defun on-mouse-out ()
+           (let ((tooltip (chain document
+                                 (get-element-by-id "myTooltip"))))
+             (setf (@ tooltip inner-h-t-m-l)
+                   "Скопировать в буфер обмена")))))
+    
+     (reblocks-lass:make-dependency
+       `(.popup.share-dialog
+         (.popup-content
+          :width inherit
+          :max-width 80%
+          
+          (.button
+           :margin-right 1rem
+           :margin-bottom 0)
+          
+          (.url
+           :white-space nowrap
+           :color black
+           :font-size 1.5rem)
+
+          (.tooltip-container
+           :position relative
+           :display inline-block
+           (.tooltiptext
+            :visibility hidden          
+            ;; :width 140px
+            :white-space nowrap
+            :background-color "#555"      
+            :color "#fff"                 
+            :text-align center          
+            :border-radius 6px          
+            :padding 5px                
+            :position absolute          
+            :z-index 1                  
+            :bottom 120%                
+            :left 50%                   
+            :margin-left -50%
+            :opacity 0                  
+            :transition opacity 0.3s)
+           ((:and .tooltiptext :after)
+            :content ""
+            :position absolute         
+            :top 100%                  
+            :left 50%                  
+            :margin-left -5px          
+            :border-width 5px          
+            :border-style solid        
+            :border-color "#555" transparent transparent transparent 
+            )
+           
+           )
+
+          ((:and .tooltip-container :hover)
+           (.tooltiptext
+            :visibility visible        
+            :opacity 1                
+            )))
+         ))
+     (call-next-method))))
+
+
 (defmethod render ((widget chat-page))
   (register-groups-bind (current-chat-id)
       ("^/chat/(.*)$" (get-path))
@@ -281,6 +410,8 @@
        (:p :class "error"
            (error-message widget)))
       (t
+       (render (share-widget widget))
+       
        (flet ((retrieve-messages (&key &allow-other-keys)
                 (fetch-new-messages widget :insert-to-dom t)))
          (let* ((chat-id (chat-id widget))
@@ -326,7 +457,16 @@
 
                         channel-title)
                    (:h2 :class "chat-title"
-                        (chat-title widget))
+                        (chat-title widget)
+                        (:span :class "share"
+                               (reblocks-ui/form:render-link
+                                (lambda (&rest rest)
+                                  (declare (ignore rest))
+                                  (setf (chat-id (share-widget widget))
+                                        (chat-id widget))
+                                  (reblocks-ui/popup:show-popup (share-widget widget)))
+                                "Поделиться"
+                                :class "button")))
                    (:p "Осталось 12 минут.")))
            (:div :class "messages"
                  (cond
@@ -476,7 +616,10 @@
          :position relative
          :margin-top -0.5rem))
        (.chat-title
-        :font-size 2.2em)
+        :font-size 2.2em
+        (.button
+         :margin-left 1rem
+         :margin-bottom 0))
        (.messages
         :display flex
         :flex-direction column
