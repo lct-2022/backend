@@ -16,3 +16,7 @@ github cl-json-web-tokens svetlyak40wt/cl-json-web-tokens :branch fix-padding-on
 # Waiting for this pull:
 # https://github.com/fukamachi/dexador/pull/143
 github dexador svetlyak40wt/dexador :branch fix-usage-of-closed-stream
+
+# Waiting for this pull:
+# https://github.com/fukamachi/event-emitter/pull/13
+github event-emitter svetlyak40wt/event-emitter :branch remove-listener-restart

@@ -10,6 +10,7 @@
                 #:format-time
                 #:get-user-token)
   (:import-from #:app/program
+                #:get-channels-for-landing
                 #:programme-chat-id
                 #:programme-channel-id
                 #:programme-start
@@ -51,7 +52,14 @@
   (:import-from #:function-cache
                 #:defcached)
   (:import-from #:passport/client
-                #:make-passport))
+                #:make-passport)
+  (:import-from #:app/controllers/programme-workflow
+                #:channel
+                #:archived-p
+                #:get-workflows-for-channels)
+  (:import-from #:app/widgets/landing-channel
+                #:workflow
+                #:make-landing-channel-widget))
 (in-package #:app/pages/landing)
 
 
@@ -60,24 +68,12 @@
 
 
 (defwidget landing-page ()
-  ())
+  ((widgets :initform nil
+            :accessor widgets)))
 
 
 (defun make-landing-page ()
   (make-instance 'landing-page))
-
-
-(defun min-left (programme)
-  (let* ((now (local-time:now))
-         (stop (programme-stop programme))
-         (difference (local-time:timestamp-difference stop
-                                                      now)))
-    (max 0
-         (coerce
-          (floor
-           (/ difference
-              60))
-          'integer))))
 
 
 (defcached (get-user-nickname :timeout 60) (user-id)
@@ -116,67 +112,45 @@
                   (get-user-avatar user-id)))))))
 
 
-(defun render-program-item (channel programme)
-  (let ((ch-title (channel-name channel))
-        (ch-image-url (channel-image-url channel))
-        (pr-title (programme-title programme)))
-    (flet ((open-chat (&rest args)
-             (declare (ignore args))
-             (let ((chat-id (create-chat-for-program programme)))
-               (redirect (fmt "/chat/~A" chat-id)))))
-      (multiple-value-bind (last-message nickname avatar-url)
-          (get-latest-chat-message programme)
-        (with-html
-          (:div :class "chat"
-                :onclick (reblocks/actions:make-js-action #'open-chat)
-                (:div :class "chat-content"
-                      (:div :class "channel-title"
-                            (when ch-image-url
-                              (:img :class "channel-logo"
-                                    :src ch-image-url))
-                            ch-title)
-                      (:div :class "program-title"
-                            :title pr-title
-                            pr-title)
-                      (:div :class "program-progress"
-                            (:div :class "left"
-                                  (if (zerop (min-left programme))
-                                      "заканчивается"
-                                      (fmt "осталось ~A мин" (min-left programme)))))
-                      
-                      (when last-message
-                        (:div :class "last-message"
-                              (:img :class "nickname"
-                                    :src avatar-url
-                                    :title nickname)
-                              (:div :class "text"
-                                    last-message))))))))))
+(defun init-widgets-if-needed (landing-page)
+  (let ((widgets (widgets landing-page)))
+    ;; В некоторых виджетах могут остаться передачи, которые уже закончились.
+    ;; их надо обновить:
+    (cond
+      (widgets
+       (loop for widget in widgets
+             for workflow = (workflow widget)
+             for channel = (channel workflow)
+             when (archived-p workflow)
+             do (let ((new-workflow (first (get-workflows-for-channels (list channel)))))
+                  (if new-workflow
+                      (setf (workflow widget)
+                            new-workflow)
+                      (log:warn "Unable to find workflow for" channel)))))
+      (t
+       (let* ((channels (get-channels-for-landing))
+              (workflows (get-workflows-for-channels channels))
+              (widgets (mapcar #'make-landing-channel-widget workflows)))
+         (setf (widgets landing-page)
+               widgets)))))
+  (values))
+
 
 (defmethod render ((widget landing-page))
+  (with-simple-restart (ignore "Continue without subwidgets update")
+    (init-widgets-if-needed widget))
+  
   (with-html
-    (let (;; (program (app/program::get-program))
-          ;; (now (now))
-          (programs  (get-programs-for-landing)))
-      (:h2 :class "motto"
-           "Обсуждайте телепередачи с теми, кто тоже их смотрит!")
-      
-      (:div :class "chats"
-            (loop for (channel programme) in programs
-                  do (render-program-item channel programme))
+    (:h2 :class "motto"
+         "Обсуждайте телепередачи с теми, кто тоже их смотрит!")
+    
+    (:div :class "chats"
+          (mapc #'render (widgets widget))
 
-            (:div :class "chats-link"
-                  (:div :class "channel-title"
-                        (:a :href "/channels/"
-                            "Все каналы")))))))
-
-
-(defun get-chat-for-program (programme)
-  (with-connection ()
-    (let ((chat (mito:find-dao 'app/program::programme-chat
-                               :channel-id (programme-channel-id programme)
-                               :start (programme-start programme))))
-      (when chat
-        (programme-chat-id chat)))))
+          (:div :class "chats-link"
+                (:div :class "channel-title"
+                      (:a :href "/channels/"
+                          "Все каналы"))))))
 
 
 (defun get-programme-chat-by-id (chat-id)
@@ -185,29 +159,40 @@
                    :chat-id chat-id)))
 
 
-(defun create-chat-for-program (programme)
-  (let ((program-title (programme-title programme)))
-    (or (get-chat-for-program programme)
-        (progn
-          (log:info "Creating chat for" program-title)
-    
-          (let* ((client (chat/client::connect (make-chat-api)))
-                 (chat (chat/client:create-chat client
-                                                :title program-title))
-                 (chat-id (chat/client:chat-id chat)))
-            (chat/client:create-fake-messages
-             client
-             chat-id
-             (random-in-range 3 10))
+;; (defun get-chat-for-program (programme)
+;;   (with-connection ()
+;;     (let ((chat (mito:find-dao 'app/program::programme-chat
+;;                                :channel-id (programme-channel-id programme)
+;;                                :start (programme-start programme))))
+;;       (when chat
+;;         (programme-chat-id chat)))))
 
-            (with-connection ()
-              (mito:create-dao 'app/program::programme-chat
-                               :channel-id (programme-channel-id programme)
-                               :start (programme-start programme)
-                               :stop (programme-stop programme)
-                               :title program-title
-                               :chat-id chat-id))
-            (values chat-id))))))
+
+(defun create-chat-for-program (programme)
+  (error "Delete me")
+  ;; (let ((program-title (programme-title programme)))
+  ;;   (or (get-chat-for-program programme)
+  ;;       (progn
+  ;;         (log:info "Creating chat for" program-title)
+    
+  ;;         (let* ((client (chat/client::connect (make-chat-api)))
+  ;;                (chat (chat/client:create-chat client
+  ;;                                               :title program-title))
+  ;;                (chat-id (chat/client:chat-id chat)))
+  ;;           (chat/client:create-fake-messages
+  ;;            client
+  ;;            chat-id
+  ;;            (random-in-range 3 10))
+
+  ;;           (with-connection ()
+  ;;             (mito:create-dao 'app/program::programme-chat
+  ;;                              :channel-id (programme-channel-id programme)
+  ;;                              :start (programme-start programme)
+  ;;                              :stop (programme-stop programme)
+  ;;                              :title program-title
+  ;;                              :chat-id chat-id))
+  ;;           (values chat-id)))))
+  )
 
 
 (defmethod get-dependencies ((widget landing-page))
@@ -224,52 +209,52 @@
               :gap 1em
               :margin-top 2em
               :margin-bottom 4em
-              (.chat
-               :cursor pointer
-               :background-color ,*light-background*
-               :min-width "30%"
-               :max-width "30%"
-               :padding 1em
-               :padding-bottom 0.6rem
-               :border-radius 0.5em
-               :font-size 1.4em
-               :font-weight 500
-               (.chat-content
-                ((:or .program-title
-                      .channel-title)
-                 (a :color "rgb(235, 236, 241)") 
-                 :overflow hidden
-                 :white-space nowrap
-                 :text-overflow ellipsis)
-                (.last-message
-                 :font-size 1rem
-                 :display flex
-                 :margin-top 0.5rem
-                 (.nickname
-                  :width 1.3rem
-                  :height 1.3rem
-                  :margin-right 0.2rem)
-                 ;; ((:and .text :before)
-                 ;;  :content ":")
-                 (.text
-                  :overflow hidden
-                  :white-space nowrap
-                  :text-overflow ellipsis))
-                (.channel-title
-                 (.channel-logo
-                  :width 32px
-                  :height 32px
-                  :margin-right 0.5rem))
-                (.program-progress
-                 :display flex
-                 (.done
-                  :background white
-                  :height 2px
-                  :margin-top 0.7rem)
-                 (.left
-                  :white-space nowrap
-                  :font-size 0.8rem
-                  :margin-right 0.5rem))))
+              ;; (.chat
+              ;;  :cursor pointer
+              ;;  :background-color ,*light-background*
+              ;;  :min-width "30%"
+              ;;  :max-width "30%"
+              ;;  :padding 1em
+              ;;  :padding-bottom 0.6rem
+              ;;  :border-radius 0.5em
+              ;;  :font-size 1.4em
+              ;;  :font-weight 500
+              ;;  (.chat-content
+              ;;   ((:or .program-title
+              ;;         .channel-title)
+              ;;    (a :color "rgb(235, 236, 241)") 
+              ;;    :overflow hidden
+              ;;    :white-space nowrap
+              ;;    :text-overflow ellipsis)
+              ;;   (.last-message
+              ;;    :font-size 1rem
+              ;;    :display flex
+              ;;    :margin-top 0.5rem
+              ;;    (.nickname
+              ;;     :width 1.3rem
+              ;;     :height 1.3rem
+              ;;     :margin-right 0.2rem)
+              ;;    ;; ((:and .text :before)
+              ;;    ;;  :content ":")
+              ;;    (.text
+              ;;     :overflow hidden
+              ;;     :white-space nowrap
+              ;;     :text-overflow ellipsis))
+              ;;   (.channel-title
+              ;;    (.channel-logo
+              ;;     :width 32px
+              ;;     :height 32px
+              ;;     :margin-right 0.5rem))
+              ;;   (.program-progress
+              ;;    :display flex
+              ;;    (.done
+              ;;     :background white
+              ;;     :height 2px
+              ;;     :margin-top 0.7rem)
+              ;;    (.left
+              ;;     :white-space nowrap
+              ;;     :font-size 0.8rem
+              ;;     :margin-right 0.5rem))))
 
               (.chats-link
                :min-width "30%"
@@ -293,7 +278,8 @@
                       :flex-direction column
                       :margin-top 1rem
                       :margin-bottom 1rem
-                      (.chat
-                       :min-width 80%
-                       :max-width 100%)))))
+                      ;; (.chat
+                      ;;  :min-width 80%
+                      ;;  :max-width 100%)
+                      ))))
          (call-next-method)))

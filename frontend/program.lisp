@@ -5,6 +5,8 @@
   (:import-from #:cl-cookie)
   (:import-from #:fxml)
   (:import-from #:local-time
+                #:timestamp-difference
+                #:now
                 #:unix-to-timestamp
                 #:timestamp)
   (:import-from #:serapeum
@@ -48,37 +50,37 @@
 ;;     ))
 
 
-(defclass program ()
-  ((begin :initarg :begin
-          :type timestamp
-          :reader program-begin)
-   (end :initarg :end
-        :type timestamp
-        :reader program-end)
-   (title :initarg :title
-          :type string
-          :reader program-title)))
+;; (defclass program ()
+;;   ((begin :initarg :begin
+;;           :type timestamp
+;;           :reader program-begin)
+;;    (end :initarg :end
+;;         :type timestamp
+;;         :reader program-end)
+;;    (title :initarg :title
+;;           :type string
+;;           :reader program-title)))
 
 
-(defmethod print-object ((obj program) stream)
-  (print-unreadable-object (obj stream :type t)
-    (format stream "[~A -> ~A] ~A"
-            (program-begin obj)
-            (program-end obj)
-            (program-title obj))))
+;; (defmethod print-object ((obj program) stream)
+;;   (print-unreadable-object (obj stream :type t)
+;;     (format stream "[~A -> ~A] ~A"
+;;             (program-begin obj)
+;;             (program-end obj)
+;;             (program-title obj))))
 
 
-(defcached (get-program :timeout (* 15 60)) ()
-  (let* ((response (dex:get "https://stream.1tv.ru/api/schedule.json"))
-         (data (yason:parse response))
-         (channel (gethash "channel" data))
-         (schedule (gethash "schedule" channel))
-         (program (gethash "program" schedule)))
-    (loop for item in program
-          collect (make-instance 'program
-                                 :begin (unix-to-timestamp (gethash "begin" item))
-                                 :end (unix-to-timestamp (gethash "end" item))
-                                 :title (gethash "title" item)))))
+;; (defcached (get-program :timeout (* 15 60)) ()
+;;   (let* ((response (dex:get "https://stream.1tv.ru/api/schedule.json"))
+;;          (data (yason:parse response))
+;;          (channel (gethash "channel" data))
+;;          (schedule (gethash "schedule" channel))
+;;          (program (gethash "program" schedule)))
+;;     (loop for item in program
+;;           collect (make-instance 'program
+;;                                  :begin (unix-to-timestamp (gethash "begin" item))
+;;                                  :end (unix-to-timestamp (gethash "end" item))
+;;                                  :title (gethash "title" item)))))
 
 
 (defvar *file* nil)
@@ -168,7 +170,7 @@
         (format stream "~A"
                 (channel-name obj))
       (error (err)
-        (format stream "~A" err)))))
+        (format stream "ERROR: ~A" err)))))
 
 
 (defmethod print-object ((obj programme) stream)
@@ -205,14 +207,14 @@
 (defmethod print-object ((channel channel) stream)
   (print-unreadable-object (channel stream :type t)
     (format stream "id=~A name=~A"
-            (channel-id channel)
+            (mito:object-id channel)
             (channel-name channel))))
 
 
 (defmethod print-object ((programme programme) stream)
   (print-unreadable-object (programme stream :type t)
     (format stream "channel-id=~A title=~A"
-            (channel-id programme)
+            (programme-channel-id programme)
             (programme-title programme))))
 
 
@@ -407,8 +409,28 @@
           collect (list channel programme))))
 
 
+(defcached (get-channels-for-landing :timeout 60) ()
+  (common/db:with-connection ()
+    (mito:select-dao 'channel
+      (where (:and (:not-null :rating)))
+      (order-by (:asc :tv.channel.rating))
+      (limit 11))))
 
-(defun get-channel-by-id (channel-id)
-  (with-connection ()
-    (mito:find-dao 'channel
-                   :id channel-id)))
+
+
+(defun min-left (programme)
+  (let* ((now (now))
+         (stop (programme-stop programme))
+         (difference (timestamp-difference stop
+                                           now))
+         (title (programme-title programme)))
+    (log:debug "Calculating MIN-LEFT for"
+               title
+               stop
+               difference)
+    (max 0
+         (coerce
+          (floor
+           (/ difference
+              60))
+          'integer))))

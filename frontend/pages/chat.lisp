@@ -74,28 +74,55 @@
                 #:get-channel-by-id
                 #:programme-channel-id)
   (:import-from #:reblocks-ui/popup
+                #:show-popup
                 #:hide-popup
                 #:render-popup-content
                 #:popup-widget)
-  (:import-from #:ps
+  (:import-from #:parenscript
                 #:@
                 #:chain)
   (:import-from #:reblocks-ui/form
                 #:render-link)
+  (:import-from #:reblocks-websocket
+                #:websocket-widget)
+  (:import-from #:app/bus
+                #:remove-event-handler
+                #:make-event-handler
+                #:send-message-to-the-bus
+                #:add-event-handler)
+  (:import-from #:common/db
+                #:with-connection)
+  (:import-from #:app/processes
+                #:ensure-every-minute-thread-is-running)
+  (:import-from #:app/widgets/chat-archived-popup
+                #:chat-archived-popup)
+  (:import-from #:app/widgets/with-event-handlers
+                #:init-handlers
+                #:with-event-handlers-mixin)
+  (:import-from #:app/controllers/programme-workflow
+                #:next-workflow
+                #:chat-id)
+  (:import-from #:app/utils/user
+                #:get-user-name
+                #:get-user-avatar)
   (:export
    #:make-chat-page))
 (in-package #:app/pages/chat)
 
 
 
-(defwidget message-widget ()
+(defwidget message-widget (websocket-widget)
   ((message :initarg :message
             :accessor message)))
 
 
-(defwidget post-form-widget (event-emitter cached-dependencies-mixin widget)
+(defwidget post-form-widget (event-emitter
+                             cached-dependencies-mixin
+                             websocket-widget)
   ((chat-id :initarg :chat-id
-            :accessor chat-id)))
+            :accessor chat-id)
+   (chat-archived :initform nil
+                  :accessor chat-archived-p)))
 
 
 (defun make-known-ids-hash ()
@@ -107,9 +134,27 @@
             :accessor chat-id)))
 
 
-(defwidget chat-page ()
+(defwidget remaining-time (websocket-widget)
   ((chat-id :initform nil
             :accessor chat-id)
+   (chat-archived :initform nil
+                  :accessor chat-archived-p)
+   (programme-stop :initform nil
+                   :accessor programme-stop)
+   (next-chat-id :initform nil
+                 :accessor next-chat-id)
+   (on-every-minute-func :initform nil
+                         :accessor on-every-minute-func))
+  (:documentation "Этот виджет апдейтит себя по событию :every-minute.
+                   Когда время заканчивается, дисейблит форму отправки и показывает popup
+                   с предложением перейти к следующему чату канала."))
+
+
+(defwidget chat-page (with-event-handlers-mixin websocket-widget)
+  ((chat-id :initform nil
+            :accessor chat-id)
+   (chat-archived :initform nil
+                  :accessor chat-archived-p)
    (title :initform nil
           :accessor chat-title)
    (messages :initform nil
@@ -123,51 +168,126 @@
    (next-page-key :initform nil
                   :accessor next-page-key)
    (post-form :initarg :post-form
+              :type post-form-widget
               :accessor post-form)
+   (remaining-time-widget :initarg :remaining-time-widget
+                          :initform nil
+                          :type (or null remaining-time)
+                          :accessor remaining-time-widget)
    (share-widget :initform (make-instance 'share-dialog)
-                 :reader share-widget)))
+                 :reader share-widget)
+   (archived-popup :initform (make-instance 'chat-archived-popup)
+                   :reader archived-popup)))
 
 
 (defun scroll-to (widget &key (smooth t) (focus-on-form nil))
-  (reblocks/response:send-script
-   (ps:ps* `(progn
-              ;; (ps:chain console
-              ;;           (log "Scrolling to element " ,(dom-id widget)))
-              (let ((element (ps:chain document
-                                       (get-element-by-id ,(dom-id widget)))))
-                (ps:chain element
-                          (scroll-into-view
-                           (ps:create "behavior" ,(if smooth
-                                                      "smooth"
-                                                      "auto")
-                                      "block" "center")))
-                (when ,focus-on-form
-                  (on-scroll-end
-                   window
-                   (lambda ()
-                     (focus-on-form-textarea))
-                   500)))))))
+  (declare (ignore focus-on-form))
+  ;; TODO: make reblocks/response:send-script work through websocket if it is available
+  ;; maybe it is good idea to inject communication-transport object into the current-page?
+  (let ((func (if reblocks-websocket:*background*
+                  'reblocks-websocket:send-script
+                  'reblocks/response:send-script)))
+    (funcall func
+             (ps:ps*
+              `(progn
+                 (ps:chain console
+                           (log "Scrolling to element " ,(dom-id widget)))
+                 (let ((element (ps:chain document
+                                          (get-element-by-id ,(dom-id widget)))))
+                   (ps:chain element
+                             (scroll-into-view
+                              (ps:create "behavior" ,(if smooth
+                                                         "smooth"
+                                                         "auto")
+                                         "block" "center")))
+
+                   ;; NOTE: до перехода на Websocket, нужно было отдельно переводить фокус на форму
+                   ;; (when ,focus-on-form
+                   ;;   (on-scroll-end
+                   ;;    window
+                   ;;    (lambda ()
+                   ;;      (focus-on-form-textarea))
+                   ;;    500))
+                   ))))))
+
+
+(defmethod (setf chat-archived-p) :after ((value t) (widget chat-page))
+  (setf (chat-archived-p (post-form widget))
+        value)
+  (reblocks/widget:update (post-form widget))
+
+  (setf (chat-archived-p (remaining-time-widget widget))
+        value)
+  (reblocks/widget:update (remaining-time-widget widget)))
+
+
+(defmethod init-handlers ((widget chat-page))
+  (list :new-message
+        (make-event-handler add-message-to-frontend (message)
+          (check-type message chat/client:message)
+
+          (when (string-equal (chat-id widget)
+                              (chat/client:message-chat-id message))
+              
+            (log:info "Adding message to the list" message)
+            (bt:with-lock-held ((add-messages-lock widget))
+              (let ((message-widget (make-message-widget message))
+                    (prev-message-widget (lastcar (messages widget))))
+                (setf (gethash (chat/client:message-id message)
+                               (known-ids widget))
+                      t)
+                (push-end message-widget
+                          (messages widget))
+                (reblocks/widget:update message-widget :inserted-after prev-message-widget)
+                (scroll-to message-widget :focus-on-form t)))))
+        
+        :chat-was-archived
+        (make-event-handler on-chat-archivation (workflow)
+          (log:info "Processing event that chat was archived")
+          
+          (when (string-equal (chat-id widget)
+                              (chat-id workflow))
+            (log:info "Horay! This event is for the current chat!")
+            
+            (setf (chat-archived-p widget)
+                  t)
+            
+            (let* ((popup (archived-popup widget))
+                   (next-workflow (next-workflow workflow)))
+              (when next-workflow
+                ;; Прокинем в popup ссылку на следующий чат:
+                (setf (app/widgets/chat-archived-popup::next-chat-id popup)
+                      (chat-id next-workflow))
+                (setf (app/widgets/chat-archived-popup::next-programme-title popup)
+                      (app/program::programme-title
+                       (app/controllers/programme-workflow::programme next-workflow))))
+              (show-popup popup))))))
+
+
+(defun init-remaining-time-event-handler (remaining-time)
+  (let* ((on-every-minute
+           (make-event-handler add-message-to-frontend ()
+             (reblocks/widget:update remaining-time))))
+
+    (when (on-every-minute-func remaining-time)
+      (remove-event-handler :new-minute (on-every-minute-func remaining-time)))
+
+    (setf (on-every-minute-func remaining-time)
+          on-every-minute)
+    (add-event-handler :new-minute on-every-minute)
+    (values remaining-time)))
 
 
 (defun make-chat-page ()
   (let* ((form (make-instance 'post-form-widget))
+         (remaining-time (make-instance 'remaining-time))
          (chat-page (make-instance 'chat-page
-                                   :post-form form)))
-    (flet ((add-new-message-to-the-list (message)
-             (log:info "Adding message to the list" message)
-             (bt:with-lock-held ((add-messages-lock chat-page))
-               (let ((widget (make-message-widget message))
-                     (prev-message-widget (lastcar (messages chat-page))))
-                 (setf (gethash (chat/client:message-id message)
-                                (known-ids chat-page))
-                       t)
-                 (push-end widget
-                           (messages chat-page))
-                 (reblocks/widget:update widget :inserted-after prev-message-widget)
-                 (scroll-to widget :focus-on-form t)))))
-      (event-emitter:on :new-message-posted form
-                        #'add-new-message-to-the-list)
-      (values chat-page))))
+                                   :post-form form
+                                   :remaining-time-widget remaining-time)))
+
+    ;; TODO: может вызывать установку хэндлеров UPDATE, когда reblocks-websocket:*background* = False?
+    (init-remaining-time-event-handler remaining-time)
+    (values chat-page)))
 
 
 (defun make-message-widget (message)
@@ -239,13 +359,6 @@
       (%get-current-user-profile token))))
 
 
-(defcached (get-user-profile :timeout 15) (user-id)
-  (let* ((api (passport/client::connect
-               (make-passport)
-               (get-user-token))))
-    (passport/client:get-profile api user-id)))
-
-
 (defun get-current-user-id ()
   (let ((profile (get-current-user-profile)))
     (when profile
@@ -258,15 +371,6 @@
 (defun get-current-user-avatar ()
   (passport/client:user-avatar-url
    (get-current-user-profile)))
-
-(defun get-user-avatar (user-id)
-  (passport/client:user-avatar-url
-   (get-user-profile user-id)))
-
-(defun get-user-name (user-id)
-  (passport/client:user-nickname
-   (get-user-profile user-id)))
-
 
 (defmethod render-popup-content ((widget share-dialog))
   (let ((url (fmt "https://chit-chat.ru/chat/~A"
@@ -381,7 +485,37 @@
      (call-next-method))))
 
 
+(defmethod render ((widget remaining-time))
+  (with-html
+    (when (programme-stop widget)
+      (let ((diff (coerce
+                   (floor
+                    (/ (local-time:timestamp-difference (programme-stop widget)
+                                                        (local-time:now))
+                       60))
+                   'integer)))
+        (cond
+          ((chat-archived-p widget)
+           (:p "В архиве."))
+          ((< diff 1)
+           (:p "Вот-вот закончится."))
+          (t
+           (:p (fmt "Осталось ~A мин."
+                    diff))))))))
+
+
+(defun get-programme-stop (chat-id)
+  "Определяет когда заканчивается передача, к которой привязан чат."
+  (with-connection ()
+    (let ((data (mito:find-dao 'app/program::programme-chat
+                               :chat-id chat-id)))
+      (when data
+        (app/program::programme-stop data)))))
+
+
 (defmethod render ((widget chat-page))
+  (ensure-every-minute-thread-is-running)
+
   (register-groups-bind (current-chat-id)
       ("^/chat/(.*)$" (get-path))
     (unless (string-equal current-chat-id
@@ -399,6 +533,13 @@
                     (error-message widget) nil
                     (messages widget) nil
                     (known-ids widget) (make-known-ids-hash))
+              ;; Установим время окончания передачи
+              (setf (programme-stop (remaining-time-widget widget))
+                    (get-programme-stop current-chat-id))
+              
+              (setf (chat-archived-p widget)
+                    (chat/client:chat-archived chat))
+
               (fetch-new-messages widget))
           (openrpc-client/error:rpc-error (e)
             (setf (error-message widget)
@@ -411,36 +552,43 @@
            (error-message widget)))
       (t
        (render (share-widget widget))
+       (render (archived-popup widget))
        
-       (flet ((retrieve-messages (&key &allow-other-keys)
-                (fetch-new-messages widget :insert-to-dom t)))
+       (flet (
+              ;; (retrieve-messages (&key &allow-other-keys)
+              ;;   (fetch-new-messages widget :insert-to-dom t))
+              )
          (let* ((chat-id (chat-id widget))
                 (programme-chat (get-programme-chat-by-id chat-id))
                 (channel (get-channel-by-id (programme-channel-id programme-chat)))
                 (channel-title (channel-name channel))
                 (channel-logo-url (channel-image-url channel))
-                (action-code (reblocks/actions:make-action #'retrieve-messages))
+                ;; (action-code (reblocks/actions:make-action #'retrieve-messages))
                 ;; TODO: позже надо будет прикрутить отправку новых сообщений через websocket или server-side-events
-                (action (ps:ps* `(set-interval
-                                  (lambda ()
-                                    ;; (ps:chain console
-                                    ;;           (log "Fetching fresh messages"))
-                                    (initiate-action ,action-code)
-                                    nil)
-                                  3000))
-                        ;; (ps:ps* `(defun fetch-messages ()
-                        ;;            (ps:chain console
-                        ;;                      (log "Fetching fresh messages"))
-                        ;;            (initiate-action ,action-code)
-                        ;;            nil))
-                        ))
-           (:script (:raw action))
+                ;; (action (ps:ps* `(set-interval
+                ;;                   (lambda ()
+                ;;                     ;; (ps:chain console
+                ;;                     ;;           (log "Fetching fresh messages"))
+                ;;                     (initiate-action ,action-code)
+                ;;                     nil)
+                ;;                   3000))
+                ;;         ;; (ps:ps* `(defun fetch-messages ()
+                ;;         ;;            (ps:chain console
+                ;;         ;;                      (log "Fetching fresh messages"))
+                ;;         ;;            (initiate-action ,action-code)
+                ;;         ;;            nil))
+                ;;         )
+                )
+           ;; (:script (:raw action))
            (when (chat-title widget)
 
              (setf (reblocks/page:get-title)
                    (serapeum:fmt "~A - ~A"
                                  channel-title
                                  (chat-title widget)))
+
+             ;; TODO: remove
+             ;; (add-event-handler :new-message (on-new-message-func widget))
              
              (:div :class "chat-header"
                    ;; TODO: надо чат к каналу как-то привязывать и к программе
@@ -467,7 +615,15 @@
                                   (reblocks-ui/popup:show-popup (share-widget widget)))
                                 "Поделиться"
                                 :class "button")))
-                   (:p "Осталось 12 минут.")))
+
+                   (render (remaining-time-widget widget))
+                   
+                   ;; (cond
+                   ;;   ((chat-archived-p (post-form widget))
+                   ;;    (:p "В архиве."))
+                   ;;   ((remaining-time-widget widget)
+                   ;;    (render (remaining-time-widget widget))))
+                   ))
            (:div :class "messages"
                  (cond
                    ((messages widget)
@@ -567,23 +723,27 @@
                t))
 
 (defmethod render ((widget post-form-widget))
-  (flet ((post-message (&key message &allow-other-keys)
-           (setf message
-                 (str:trim message))
-           (unless (string-equal message "")
-             (log:info "Posting" message)
+  (flet ((post-message (&key text &allow-other-keys)
+           (setf text
+                 (str:trim text))
+           (unless (string-equal text "")
+             (log:info "Posting" text)
 
              (let* ((api (chat/client::connect
                           (make-chat-api)
                           (get-user-token)))
-                    (message (chat/client:post api (chat-id widget) message)))
+                    (message (chat/client:post api (chat-id widget) text)))
                ;; Сбросим состояние окна для ввода сообщения
                (reblocks/widget:update widget)
-               (emit :new-message-posted widget message)))))
+               
+               (send-message-to-the-bus message)))))
     (cond
+      ((chat-archived-p widget)
+       nil)
       ((get-user-token)
-       (with-html-form (:post #'post-message)
-         (:textarea :name :message
+       (with-html-form (:post #'post-message
+                        :class "form")
+         (:textarea :name :text
                     :placeholder "Сюда надо что-то написать."
                     :rows 2)
          (:input :type "submit"
@@ -741,7 +901,7 @@
    (reblocks-lass:make-dependency
      `(.post-form-widget
        :width 100%
-       ((> form)
+       ((> .form)
         :position fixed
         :bottom 0
         :width 60%
@@ -779,7 +939,7 @@
    (reblocks-lass:make-dependency
      `(:media "(max-width: 600px)"
               (.post-form-widget
-               ((> form)
+               ((> .form)
                 :bottom -1rem
                 :width 85%))))
    (call-next-method)))

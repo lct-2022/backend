@@ -37,6 +37,18 @@
       "paramStructure": "by-name"
     },
     {
+      "name": "anonymous_login",
+      "params": [],
+      "result": {
+        "name": "anonymous_login_result",
+        "schema": {
+          "type": "string"
+        }
+      },
+      "summary": "Создаёт анонимного пользователя с рандомным логином и возвращает его токен.",
+      "paramStructure": "by-name"
+    },
+    {
       "name": "signup",
       "params": [
         {
@@ -161,147 +173,9 @@
       "name": "update_profile",
       "params": [
         {
-          "name": "looking_for_hackathon",
+          "name": "avatar_url",
           "schema": {
-            "type": "boolean"
-          }
-        },
-        {
-          "name": "looking_for_job",
-          "schema": {
-            "type": "boolean"
-          }
-        },
-        {
-          "name": "about",
-          "schema": {
-            "oneOf": [
-              {
-                "type": "null"
-              },
-              {
-                "type": "string"
-              }
-            ]
-          }
-        },
-        {
-          "name": "job",
-          "schema": {
-            "oneOf": [
-              {
-                "type": "null"
-              },
-              {
-                "type": "string"
-              }
-            ]
-          }
-        },
-        {
-          "name": "education",
-          "schema": {
-            "oneOf": [
-              {
-                "type": "null"
-              },
-              {
-                "type": "string"
-              }
-            ]
-          }
-        },
-        {
-          "name": "skill_ids",
-          "schema": {
-            "type": "array",
-            "items": {
-              "type": "integer"
-            }
-          }
-        },
-        {
-          "name": "profession_id",
-          "schema": {
-            "type": "integer"
-          }
-        },
-        {
-          "name": "city",
-          "schema": {
-            "oneOf": [
-              {
-                "type": "null"
-              },
-              {
-                "type": "string"
-              }
-            ]
-          }
-        },
-        {
-          "name": "country",
-          "schema": {
-            "oneOf": [
-              {
-                "type": "null"
-              },
-              {
-                "type": "string"
-              }
-            ]
-          }
-        },
-        {
-          "name": "phone",
-          "schema": {
-            "oneOf": [
-              {
-                "type": "null"
-              },
-              {
-                "type": "string"
-              }
-            ]
-          }
-        },
-        {
-          "name": "gender",
-          "schema": {
-            "oneOf": [
-              {
-                "type": "null"
-              },
-              {
-                "type": "string"
-              }
-            ]
-          }
-        },
-        {
-          "name": "birthday",
-          "schema": {
-            "oneOf": [
-              {
-                "type": "null"
-              },
-              {
-                "type": "string"
-              }
-            ]
-          }
-        },
-        {
-          "name": "fio",
-          "schema": {
-            "oneOf": [
-              {
-                "type": "null"
-              },
-              {
-                "type": "string"
-              }
-            ]
+            "type": "string"
           }
         }
       ],
@@ -442,90 +316,6 @@
       "paramStructure": "by-name"
     },
     {
-      "name": "popular_profiles",
-      "params": [
-        {
-          "name": "limit",
-          "schema": {
-            "type": "integer"
-          }
-        }
-      ],
-      "result": {
-        "name": "popular_profiles_result",
-        "schema": {
-          "type": "array",
-          "items": {
-            "type": "object",
-            "properties": {
-              "user": {
-                "type": "object",
-                "properties": {
-                  "created_at": {
-                    "type": "object",
-                    "properties": {},
-                    "required": [],
-                    "x-cl-class": "T",
-                    "x-cl-package": "COMMON-LISP"
-                  },
-                  "updated_at": {
-                    "type": "object",
-                    "properties": {},
-                    "required": [],
-                    "x-cl-class": "T",
-                    "x-cl-package": "COMMON-LISP"
-                  },
-                  "synced": {
-                    "type": "boolean"
-                  },
-                  "id": {
-                    "type": "integer"
-                  },
-                  "nickname": {
-                    "type": "string"
-                  },
-                  "email": {
-                    "type": "string"
-                  },
-                  "password_hash": {
-                    "type": "string"
-                  },
-                  "avatar_url": {
-                    "type": "string"
-                  },
-                  "admin": {
-                    "type": "boolean",
-                    "description": "Если этот признак True, то пользователь считается админом и может позволить себе больше, чем простые смертные."
-                  }
-                },
-                "required": [
-                  "avatar_url",
-                  "password_hash",
-                  "email",
-                  "nickname",
-                  "id",
-                  "updated_at",
-                  "created_at"
-                ],
-                "x-cl-class": "USER",
-                "x-cl-package": "PASSPORT/USER"
-              },
-              "rating": {
-                "type": "integer"
-              }
-            },
-            "required": [
-              "rating",
-              "user"
-            ],
-            "x-cl-class": "USER-WITH-RATING",
-            "x-cl-package": "PASSPORT/USER"
-          }
-        }
-      },
-      "paramStructure": "by-name"
-    },
-    {
       "name": "search_users",
       "params": [
         {
@@ -638,18 +428,6 @@
       },
       "summary": "Возвращает список пользователей по заданному запросу.",
       "description": "Запрос должен вводиться в формате ElasticSearch. Но для поиска по всем\n полям можно просто слова вводить.  Если передать \"*\" - выдаются все пользователи, начиная с самых свежих.\n\nМожно давать сложные запросы типа city: Moscow AND country: Russia.\nЕщё, можно использовать такие поля как profession и skills. Например:\n\n    profession: backend AND skills: agile\n\nИли если удобнее, то можно передавать айдишники навыков или профессии:\n\n    profession_id: 7 AND skill_ids: 42\n\nЭтот метод поддерживает пейджинацию и можно запрашивать следующие страницы результатов.",
-      "paramStructure": "by-name"
-    },
-    {
-      "name": "anonymous_login",
-      "params": [],
-      "result": {
-        "name": "anonymous_login_result",
-        "schema": {
-          "type": "string"
-        }
-      },
-      "summary": "Создаёт анонимного пользователя с рандомным логином и возвращает его токен.",
       "paramStructure": "by-name"
     }
   ],

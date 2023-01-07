@@ -13,6 +13,11 @@
                 #:*url-prefix*)
   (:import-from #:reblocks/request-handler
                 #:remove-action-from-uri)
+  (:import-from #:reblocks/variables)
+  (:import-from #:app/processes
+                #:ensure-every-minute-thread-is-running)
+  (:import-from #:app/controllers/programme-workflow
+                #:schedule-regular-workflow-update)
   (:shadow #:restart)
   (:export
    #:restart
@@ -100,7 +105,9 @@
 
 (defun start (&rest args
               &key
-              (port 9001)
+              (port (parse-integer
+                     (or (uiop:getenv "PORT")
+                         "9001")))
 	      (interface "localhost")
               (debug nil))
   ;; Just to suppres debug logs to TTY from Reblocks.
@@ -112,6 +119,12 @@
 
   ;; TODO: может быть это и не нужно?
   (cl+ssl:ssl-load-global-verify-locations #P"/home/art/.postgresql/root.crt")
+
+  (setf reblocks/variables:*pages-expire-in* (* 60 60))
+  (setf reblocks/variables:*max-pages-per-session* 10)
+
+  (ensure-every-minute-thread-is-running)
+  (schedule-regular-workflow-update)
   
   (reblocks/server:start :port port
 			 :interface interface

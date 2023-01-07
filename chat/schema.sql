@@ -42,3 +42,5 @@ ALTER TABLE chat.chat ALTER COLUMN id SET DEFAULT uuid_generate_v4();
 
 
 ALTER TABLE chat.chat ADD COLUMN title TEXT;
+
+ALTER TABLE chat.chat ADD COLUMN archived BOOLEAN NOT NULL DEFAULT False;

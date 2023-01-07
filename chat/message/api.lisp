@@ -1,6 +1,7 @@
 (uiop:define-package #:chat/message/api
   (:use #:cl
         #:common/utils)
+  (:import-from #:csv)
   (:import-from #:openrpc-server
                 #:define-rpc-method)
   (:import-from #:chat/api
@@ -20,11 +21,14 @@
   (:import-from #:local-time
                 #:timestamp-)
   (:import-from #:serapeum
+                #:fmt
                 #:dict)
   (:import-from #:log4cl-extras/error
                 #:with-log-unhandled)
   (:import-from #:serapeum/bundle
-                #:random-elt))
+                #:random-elt)
+  (:import-from #:chat/chat/model
+                #:chat-archived-p))
 (in-package #:chat/message/api)
 
 
@@ -36,10 +40,21 @@
 
   (with-session (user-id)
     (with-connection ()
-      (create-dao 'message
-                  :chat-id chat-id
-                  :user-id user-id
-                  :message message))))
+      
+      (let ((chat (find-dao 'chat/chat/model::chat
+                            :id chat-id)))
+        (unless chat
+          (openrpc-server:return-error (fmt "Чат с id ~S не найден." chat-id)
+                                       :code 10))
+        
+        (when (chat-archived-p chat)
+          (openrpc-server:return-error (fmt "Чат с id ~S в архиве и недоступен на запись." chat-id)
+                                       :code 11))
+        
+        (create-dao 'message
+                    :chat-id chat-id
+                    :user-id user-id
+                    :message message)))))
 
 
 (defvar *next-phrases*
@@ -97,15 +112,37 @@
              (sleep 5))))
 
 
+;; (defun generate-random-message ()
+;;   (bt:with-lock-held (*next-phrases-lock*)
+;;     (prog1
+;;         (if *next-phrases*
+;;             (pop *next-phrases*)
+;;             (generate-phrase-from (random-elt *starting-phrases*)))
+;;       (unless *next-phrases*
+;;         (bt:make-thread 'fill-next-phrases
+;;                         :name "Next Phrases Filler")))))
+
+(defparameter *phrases* nil)
+
+
+(defun load-phrases ()
+  (with-open-file (f (asdf:system-relative-pathname :app "phrases.csv"))
+    (loop for row in (cdr (csv:read-csv f))
+          for phrase = (first row)
+          unless (string= phrase "")
+          collect phrase into phrases
+          and count 1 into phrases-count
+          finally (return (make-array phrases-count
+                                      :initial-contents phrases)))))
+
+
 (defun generate-random-message ()
   (bt:with-lock-held (*next-phrases-lock*)
-    (prog1
-        (if *next-phrases*
-            (pop *next-phrases*)
-            (generate-phrase-from (random-elt *starting-phrases*)))
-      (unless *next-phrases*
-        (bt:make-thread 'fill-next-phrases
-                        :name "Next Phrases Filler")))))
+    (unless *phrases*
+      (setf *phrases*
+            (load-phrases)))
+
+    (random-elt *phrases*)))
 
 
 (defcached (get-all-robot-ids :timeout 60) ()

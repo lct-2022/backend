@@ -11,7 +11,6 @@
                 #:issue-token-for-new-anonymous
                 #:user-profession-id
                 #:user-profession
-                #:user-with-rating
                 #:issue-token-for
                 #:get-user-by
                 #:is-email-available-p
@@ -156,27 +155,6 @@
          (return-error (fmt "Пользователь с id = ~A не найден."
                             id)
                        :code 4))))))
-
-
-(define-rpc-method (passport-api popular-profiles) (&key (limit 10))
-  (:param limit integer)
-  (:result (list-of user-with-rating))
-
-  (with-connection ()
-    ;; Сначала стучимся с микросервис рейтингов, и получаем top популярных профилей
-    (let* ((client (rating/client:connect (make-rating)))
-           (top (rating/client::get-top client "user" :limit limit))
-           (top-ids (mapcar #'rating/client::top-item-subject-id top))
-           (users
-             ;; Теперь запросим их по id и отдадим уже проекты
-             (select-dao-by-ids 'user
-                                top-ids)))
-      ;; Нам надо вернуть объект вместе с его рейтингом.
-      (loop for top-item in top
-            for user in users
-            collect (make-instance 'user-with-rating
-                                   :user user
-                                   :rating (rating/client::top-item-rating top-item))))))
 
 
 (defun start-me ()

@@ -6,6 +6,7 @@
   (:import-from #:chat/api
                 #:chat-api)
   (:import-from #:chat/chat/model
+                #:chat-archived-p
                 #:chat)
   (:import-from #:chat/chat-member/model
                 #:chat-member)
@@ -70,6 +71,32 @@
       (let ((chat (find-dao 'chat :id id)))
         (cond
           (chat chat)
+          (t
+           (openrpc-server:return-error (fmt "Чат с id ~S не найден." id)
+                                        :code 10)))))))
+
+(define-rpc-method (chat-api archive-chat) (id)
+  (:summary "Архивирует чат.")
+  (:description "Если чат не найден, то возвращает ошибку.")
+  (:param id string)
+  (:result chat)
+
+  (handler-bind
+      ((error (lambda (err)
+                (unless (typep err 'jsonrpc:jsonrpc-error)
+                  (openrpc-server:return-error (fmt "Ошибка: ~S" err)
+                                               :code 11)))))
+    ;; Провалидируем что id это корректный uuid
+    (uuid:make-uuid-from-string id)
+
+    (with-connection ()
+      (let ((chat (find-dao 'chat :id id)))
+        (cond
+          (chat
+           (setf (chat-archived-p chat)
+                 t)
+           (mito:save-dao chat)
+           chat)
           (t
            (openrpc-server:return-error (fmt "Чат с id ~S не найден." id)
                                         :code 10)))))))

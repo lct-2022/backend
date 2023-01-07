@@ -22,7 +22,8 @@
   (:import-from #:app/pages/chat
                 #:make-chat-page)
   (:import-from #:app/pages/channel
-                #:make-channel-widgets
+                #:make-channel-widget)
+  (:import-from #:app/pages/channels
                 #:make-channels-widget)
   (:import-from #:reblocks/page
                 #:render-headers)
