@@ -1,6 +1,7 @@
-(when (probe-file ".local-config.lisp")
-  (load (probe-file ".local-config.lisp")))
-
+(pushnew "~/projects/prometheus.cl/" asdf:*central-registry* :test #'equal)
+(pushnew "~/projects/prometheus-gc/" asdf:*central-registry* :test #'equal)
+(pushnew "~/projects/reblocks-prometheus/" asdf:*central-registry* :test #'equal)
+(pushnew "~/projects/jsonrpc/" asdf:*central-registry* :test #'equal)
 (pushnew "~/projects/openrpc/" asdf:*central-registry* :test #'equal)
 (pushnew "~/projects/cl-schedule/" asdf:*central-registry* :test #'equal)
 (pushnew "~/projects/action-list/" asdf:*central-registry* :test #'equal)

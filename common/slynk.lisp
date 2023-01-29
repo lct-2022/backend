@@ -23,6 +23,8 @@
 ;; mrepl plugin.
 (defvar slynk:*use-dedicated-output-stream*)
 
+(defvar *slynk-already-running* nil)
+
 
 (defun on-connection-open (conn)
   (log:info "SLY connected")
@@ -36,7 +38,8 @@
 
 
 (defun start-slynk-if-needed ()
-  (when (uiop:getenv "SLYNK_PORT")
+  (when (and (uiop:getenv "SLYNK_PORT")
+             (not *slynk-already-running*))
     (let ((port (parse-integer (uiop:getenv "SLYNK_PORT")))
 	  (interface (or (uiop:getenv "SLYNK_INTERFACE")
 			 "127.0.0.1"))
@@ -52,5 +55,7 @@
       (format t "Run ssh -6 -L ~A:localhost:4005 ~A~%"
               port
               hostname)
-      (format t "Then open local Emacs and connect to the slynk on 4005 port~%")))
+      (format t "Then open local Emacs and connect to the slynk on 4005 port~%")
+      
+      (setf *slynk-already-running* t)))
   (values))

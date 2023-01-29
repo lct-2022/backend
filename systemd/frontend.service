@@ -1,0 +1,17 @@
+[Unit]
+Description=Chit Chat Frontend
+After=network.target
+StartLimitIntervalSec=0
+[Service]
+Type=simple
+Restart=always
+RestartSec=1
+User=art
+Environment=SLYNK_PORT=9405
+Environment=APP_PORT=9011
+Environment=APP_INTERFACE=localhost
+WorkingDirectory=/home/art/projects/chit-chat
+ExecStart=/home/art/projects/chit-chat/roswell/frontend
+
+[Install]
+WantedBy=multi-user.target

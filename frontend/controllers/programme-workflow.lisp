@@ -41,6 +41,7 @@
   (:import-from #:mito
                 #:object-id)
   (:import-from #:app/bus
+                #:send-message-to-the-bus
                 #:remove-event-handler
                 #:make-event-handler
                 #:add-event-handler
@@ -54,7 +55,11 @@
   (:import-from #:log4cl-extras/error
                 #:with-log-unhandled)
   (:import-from #:app/utils
-                #:get-user-token))
+                #:get-user-token)
+  (:import-from #:org.shirakumo.fraf.action-list
+                #:blocking-p)
+  (:import-from #:org.shirakumo.fraf.action-list
+                #:finished-p))
 (in-package #:app/controllers/programme-workflow)
 
 
@@ -65,6 +70,19 @@
 ;; EVENTS, которые кидает в bus обновление workflow:
 ;; (:program-was-started workflow)
 ;; (:chat-was-archived workflow)
+
+
+;; (unless (string-equal text "")
+;;              (log:info "Posting" text)
+
+;;              (let* ((api (chat/client::connect
+;;                           (make-chat-api)
+;;                           (get-user-token)))
+;;                     (message (chat/client:post api (chat-id widget) text)))
+;;                ;; Сбросим состояние окна для ввода сообщения
+;;                (reblocks/widget:update widget)
+               
+;;                (send-message-to-the-bus message)))
 
 
 (defclass programme-workflow (action-list)
@@ -115,10 +133,10 @@
                  (chat (chat/client:create-chat client
                                                 :title program-title))
                  (chat-id (chat/client:chat-id chat)))
-            (chat/client:create-fake-messages
-             client
-             chat-id
-             (random-in-range 3 10))
+            ;; (chat/client:create-fake-messages
+            ;;  client
+            ;;  chat-id
+            ;;  (random-in-range 3 10))
 
             (with-connection ()
               (mito:create-dao 'app/program::programme-chat
@@ -151,6 +169,50 @@
     (setf (started-p workflow)
           t)
     (emit-with-continue :program-was-started workflow)))
+
+
+(defclass post-random-messages (org.shirakumo.fraf.action-list:action)
+  ((max-delay :initform 15
+              :accessor max-delay)
+   (max-delay-limit :initform (* 10 60)
+                    :reader max-delay-limit)
+   (next-message-at :initform (+ (get-universal-time)
+                                 (random 15))
+                    :accessor next-message-at)))
+
+
+(defmethod update ((action post-random-messages) dt)
+  (log:debug "Checking if new message should be posted")
+  (let ((workflow (action-list action)))
+    (cond
+      ((archived-p workflow)
+       (log:debug "Chat was archived, removing action post-random-messages from the list")
+       (setf (finished-p action)
+             t))
+      
+      ((>= (get-universal-time)
+           (next-message-at action))
+       (log:debug "Posting new message")
+
+       (let* ((client (chat/client::connect (make-chat-api)))
+              (chat-id (chat-id workflow))
+              (messages (chat/client:create-fake-messages client chat-id 1))
+              (message (first messages)))
+         (when message
+           (send-message-to-the-bus message)))
+       
+       (setf (next-message-at action)
+             (+ (get-universal-time)
+                (random (max-delay action))))
+       (setf (max-delay action)
+             (min
+              (max-delay-limit action)
+              (* (max-delay action)
+                 2)))))))
+
+
+(defmethod blocking-p ((action post-random-messages))
+  nil)
 
 
 (defclass create-chat-for-next-program (immediate-action)
@@ -225,8 +287,9 @@
                    (make-instance 'wait-till
                                   :time (programme-start programme))
                    (make-instance 'start-new-programme)
-                   ;; Дальше каждую минуту будем чекать что-то?
-
+                   ;; Дальше время от времени будем постить рандомные сообщения от имени роботов
+                   (make-instance 'post-random-messages)
+                   
                    ;; За 5 минут до окончания программы
                    ;; создаём чат для следующей:
                    (make-instance 'wait-till

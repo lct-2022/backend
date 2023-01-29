@@ -8,6 +8,7 @@
   (:import-from #:reblocks/actions
                 #:make-js-action)
   (:import-from #:app/program
+                #:get-channel-url
                 #:min-left
                 #:programme-title
                 #:channel-image-url
@@ -34,7 +35,9 @@
                 #:make-event-handler)
   (:import-from #:app/utils/user
                 #:get-user-name
-                #:get-user-avatar))
+                #:get-user-avatar)
+  (:import-from #:str
+                #:replace-all))
 (in-package #:app/widgets/landing-channel)
 
 
@@ -119,44 +122,46 @@
     widget))
 
 
+(defun simplify-title (text)
+  (replace-all "Художественный фильм" "Х-ф" text))
+
+
 (defmethod render ((widget landing-channel-widget))
   (let* ((workflow (workflow widget))
          (channel (channel workflow))
          (programme (programme workflow))
          (ch-title (channel-name channel))
          (ch-image-url (channel-image-url channel))
-         (pr-title (programme-title programme)))
-    (flet ((open-chat (&rest args)
-             (declare (ignore args))
-             (let* ((chat-id (chat-id workflow)))
-               (redirect (fmt "/chat/~A" chat-id)))))
-      (destructuring-bind (&optional last-message nickname avatar-url)
-          (latest-chat-message workflow)
-        (with-html
-          (:div :class "chat"
-                :onclick (make-js-action #'open-chat)
-                (:div :class "chat-content"
-                      (:div :class "channel-title"
-                            (when ch-image-url
-                              (:img :class "channel-logo"
-                                    :src ch-image-url))
-                            ch-title)
-                      (:div :class "program-title"
-                            :title pr-title
-                            pr-title)
-                      (:div :class "program-progress"
-                            (:div :class "left"
-                                  (if (zerop (min-left programme))
-                                      "заканчивается"
-                                      (fmt "осталось ~A мин" (min-left programme)))))
-                      
-                      (when last-message
-                        (:div :class "last-message"
-                              (:img :class "nickname"
-                                    :src avatar-url
-                                    :title nickname)
-                              (:div :class "text"
-                                    last-message))))))))))
+         (pr-title (programme-title programme))
+         (chat-id (chat-id workflow))
+         (chat-url (fmt "/chat/~A" chat-id)))
+    (destructuring-bind (&optional last-message nickname avatar-url)
+        (latest-chat-message workflow)
+      (with-html
+        (:div :class "chat"
+              (:a :href chat-url
+                 (:div :class "chat-content"
+                       (:div :class "channel-title"
+                             (when ch-image-url
+                               (:img :class "channel-logo"
+                                     :src ch-image-url))
+                             ch-title)
+                       (:div :class "program-title"
+                             :title pr-title
+                             (simplify-title pr-title))
+                       (:div :class "program-progress"
+                             (:div :class "left"
+                                   (if (zerop (min-left programme))
+                                       "заканчивается"
+                                       (fmt "осталось ~A мин" (min-left programme)))))
+                     
+                       (when last-message
+                         (:div :class "last-message"
+                               (:img :class "nickname"
+                                     :src avatar-url
+                                     :title nickname)
+                               (:div :class "text"
+                                     last-message))))))))))
 
 
 (defmethod get-dependencies ((widget landing-channel-widget))
@@ -166,16 +171,16 @@
              :background-color ,*light-background*
              :min-width "30%"
              :max-width "30%"
-             :padding 1em
-             :padding-bottom 0.6rem
+             :padding 0.6rem 2rem 0.6rem 2rem
              :border-radius 0.5em
              :font-size 1.4em
              :font-weight 500
+
+             (a :color "rgb(235, 236, 241)") 
              
              (.chat-content
               ((:or .program-title
                     .channel-title)
-               (a :color "rgb(235, 236, 241)") 
                :overflow hidden
                :white-space nowrap
                :text-overflow ellipsis)

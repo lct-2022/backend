@@ -16,3 +16,13 @@
 - ELASTIC_PORT - по-умолчанию 9200.
 - ELASTIC_USER - по-умолчанию admin.
 - ELASTIC_PASS - пароль пользователя.
+
+### Сборка бинарников
+
+```
+qlot exec ros build roswell/frontend.ros
+```
+
+### Обновить сертификат
+
+sudo certbot --nginx -d chit-chat.ru -d www.chit-chat.ru -d dev.chit-chat.ru

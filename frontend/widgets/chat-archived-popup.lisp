@@ -11,7 +11,7 @@
   (:import-from #:reblocks/html
                 #:with-html)
   (:import-from #:reblocks-ui/form
-                #:render-link)
+                #:render-form-and-button)
   (:import-from #:reblocks-websocket
                 #:websocket-widget)
   (:import-from #:reblocks/dependencies
@@ -39,11 +39,14 @@
                          (next-chat-id widget))
               (next-programme-title widget))))
     
-    (:p (render-link (lambda (&rest rest)
-                       (declare (ignore rest))
-                       (hide-popup widget))
-                     "Закрыть"
-                     :class "button secondary"))))
+    (:p (render-form-and-button
+         :close 
+         (lambda (&rest rest)
+           (declare (ignore rest))
+           (hide-popup widget))
+         :method :post
+         :value "Закрыть"
+         :button-class "button secondary"))))
 
 
 (defmethod get-dependencies ((widget chat-archived-popup))

@@ -99,6 +99,10 @@
            :initform nil
            :col-type (or :null :bigint)
            :accessor channel-rating)
+   (url :initarg :url
+        :initform nil
+        :col-type (or :null :text)
+        :accessor channel-url)
    (image-url :initarg :image-url
               :initform nil
               :col-type (or :null :text)
@@ -434,3 +438,59 @@
            (/ difference
               60))
           'integer))))
+
+
+(defvar *channel-title-to-url* nil)
+
+
+(defun get-channel-urls (&optional (page 1))
+  (flet ((first-elt (array)
+           (unless (zerop (length array))
+             (elt array 0))))
+    (let* ((response (dex:get (fmt "https://podryad.tv/vladivostok/tv-online/channels?page=~A"
+                                   page)))
+           (doc (plump:parse response))
+           (items (clss:select ".tv-online__channels-list__item" doc))
+           ;; Элемент A есть всегда, но на последней странице у него нет HREF
+           (next-page-link (first-elt
+                            (clss:select ".paging__next" doc)))
+           (has-next-page (when (and next-page-link
+                                     (plump:attribute next-page-link
+                                                      "href"))
+                            t)))
+      (append
+       (loop for item across items
+             for a = (first-elt
+                      (clss:select ".tv-online__channels-list__item__details__item__description a"
+                        item))
+             for url = (when a
+                         (plump:attribute a
+                                          "href"))
+             for title-node = (first-elt
+                               (clss:select ".tv-online__channels-list__item__description__title__name"
+                                 item))
+             for title = (when title-node
+                           (string-trim '(#\Newline #\Space)
+                                        (plump:text title-node)))
+             collect (cons title url))
+       (when has-next-page
+         (get-channel-urls (1+ page)))))))
+
+
+(defun update-channel-urls ()
+  (unless *channel-title-to-url*
+    (setf *channel-title-to-url*
+          (get-channel-urls)))
+
+  (with-connection ()
+    ;; Из 214 выкачаных урлов, title совпал только у 98. Почему?
+    (loop for (title . url) in *channel-title-to-url*
+          do (mito:execute-sql "UPDATE tv.channel SET url = ? WHERE name = ?"
+                               (list url title)))))
+
+
+(defcached get-channel-url (channel-id)
+  (with-connection ()
+    (let* ((rows (mito:retrieve-by-sql "SELECT url FROM tv.channel WHERE id = ?" :binds (list channel-id))))
+      (when rows
+        (getf (first rows) :url)))))

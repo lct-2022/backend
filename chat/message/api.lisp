@@ -31,6 +31,8 @@
                 #:chat-archived-p))
 (in-package #:chat/message/api)
 
+(declaim (optimize (space 3) (debug 1)))
+
 
 (define-rpc-method (chat-api post) (chat-id message)
   (:summary "Добавляет в чат сообщение от текущего пользователя.")
@@ -127,8 +129,8 @@
 
 (defun load-phrases ()
   (with-open-file (f (asdf:system-relative-pathname :app "phrases.csv"))
-    (loop for row in (cdr (csv:read-csv f))
-          for phrase = (first row)
+    (loop for line in (uiop:slurp-stream-lines f)
+          for phrase = (string-trim '(#\Newline #\Tab #\Space #\ZERO_WIDTH_NO-BREAK_SPACE) line)
           unless (string= phrase "")
           collect phrase into phrases
           and count 1 into phrases-count
@@ -212,3 +214,43 @@
         (let ((last-message (lastcar results)))
           (values results
                   (object-id last-message)))))))
+
+;; Эксперимент по книге
+;; (locally
+;;     (declaim (optimize (debug 3) (speed 0))))
+
+(defmacro do-vector ((var vector &key (start 0) (end nil)) &body body)
+  `(block nil
+     (map-vector #'(lambda (,var) ,@body)
+                 ,vector :start ,start :end ,end)))
+
+;; (declaim (inline map-vector))
+(declaim (notinline map-vector))
+(defun map-vector (fn vector &key (start 0) end)
+  (loop for index from start below (or end (length vector))
+        do (funcall fn (aref vector index))))
+
+(defun foo (v)
+  (let ((cnt 0))
+    (do-vector (item v)
+      (incf cnt item))
+    cnt))
+
+
+;; Alternative
+(defmacro do-vector2 ((var vector &key (start 0) (end nil)) &body body)
+  `(let ((v ,vector))
+     (loop for index from ,start below (or ,end (length v))
+           for ,var = (aref v index)
+           do (progn ,@body))))
+
+(defun foo2 (v)
+  (let ((cnt 0))
+    (do-vector2 (item v)
+      (incf cnt item))
+    cnt))
+
+
+(defun show-policy ()
+  #.(with-output-to-string (*standard-output*)
+      (sb-ext:describe-compiler-policy)))

@@ -103,6 +103,28 @@
        url))))
 
 
+(defun setup-gc ()
+  (setf (sb-ext:bytes-consed-between-gcs)
+        (* 10 1024 1024))
+  
+  (loop for gen upto 6
+        do (setf (sb-ext:generation-bytes-consed-between-gcs gen)
+                 (* 5 1024 1024)))
+  
+  (loop for gen upto 6
+        do (setf (sb-ext:generation-minimum-age-before-gc gen)
+                 0.75d0))
+
+  (if (and (uiop:getenv "PORT")
+           (string-equal (uiop:getenv "PORT") "9011"))
+      (setf (sb-ext:gc-logfile)
+            ;; With 0.25 min age
+            "/tmp/gc.log2")
+      (setf (sb-ext:gc-logfile)
+            ;; With 0.25 min age
+            "/tmp/gc-api.log2")))
+
+
 (defun start (&rest args
               &key
               (port (parse-integer
@@ -110,6 +132,11 @@
                          "9001")))
 	      (interface "localhost")
               (debug nil))
+  (when (probe-file ".local-config.lisp")
+    (load (probe-file ".local-config.lisp")))
+  
+  (setup-gc)
+  
   ;; Just to suppres debug logs to TTY from Reblocks.
   ;; I'll need to fix Reblocks to prohibit it from
   ;; configure logging if they are already configured.
@@ -120,7 +147,7 @@
   ;; TODO: может быть это и не нужно?
   (cl+ssl:ssl-load-global-verify-locations #P"/home/art/.postgresql/root.crt")
 
-  (setf reblocks/variables:*pages-expire-in* (* 60 60))
+  (setf reblocks/variables:*pages-expire-in* (* 10 60))
   (setf reblocks/variables:*max-pages-per-session* 10)
 
   (ensure-every-minute-thread-is-running)

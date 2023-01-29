@@ -3,7 +3,12 @@
   (:import-from #:event-emitter
                 #:event-emitter)
   (:import-from #:reblocks-websocket
-                #:no-active-websockets))
+                #:no-active-websockets)
+  (:import-from #:trivial-garbage
+                #:weak-pointer-value
+                #:make-weak-pointer)
+  (:import-from #:serapeum
+                #:maybe-invoke-restart))
 (in-package #:app/bus)
 
 
@@ -46,7 +51,10 @@
                  ;; (when (boundp 'reblocks/request::*request*)
                  ;;   reblocks/request::*request*)
                  )
-               '(page reblocks/page::*current-page*)
+               ;; Here we are using weak pages because all event handlers
+               ;; are created inside particular page and should be removed
+               ;; from the bus when page gets expired:
+               '(page (make-weak-pointer reblocks/page::*current-page*))
                '(app reblocks/variables::*current-app*)
                (when ev-loop-symbol
                  (list 'evloop ev-loop-symbol)))
@@ -63,13 +71,25 @@
                   (let ,(let-bindings
                          '(reblocks/session::*session* session)
                          '(reblocks/request::*request* request)
-                         '(reblocks/page::*current-page* page)
+                         '(reblocks/page::*current-page* (weak-pointer-value page))
                          '(reblocks/variables::*current-app* app)
                          ;; Hack
                          (when woo-package
                            (list ev-loop-symbol 'evloop))
                          '(reblocks-websocket::*background* t))
-                    ,@body)))
+                    (cond
+                      (reblocks/page::*current-page*
+                       ,@body)
+                      ;; when page was expired, remove listener
+                      (t
+                       (let ((restart (find-restart 'wsd:remove-listener)))
+                         (cond
+                           (restart
+                            ;; Removing listener because it's page was expired.
+                            (invoke-restart restart))
+                           (t
+                            ;; We should never get here
+                            (log:warn "No restart for removing listener.")))))))))
            #',func-name)))))
 
 
@@ -82,9 +102,7 @@
                          (invoke-restart restart)))))
                  (error (lambda (condition)
                           (log4cl-extras/error:print-backtrace :condition condition)
-                          (let ((restart (find-restart 'continue condition)))
-                            (when restart
-                              (invoke-restart restart))))))
+                          (maybe-invoke-restart 'continue))))
     (apply #'event-emitter:emit event *bus* args)))
 
 

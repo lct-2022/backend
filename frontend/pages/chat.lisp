@@ -69,6 +69,7 @@
   (:import-from #:app/pages/landing
                 #:get-programme-chat-by-id)
   (:import-from #:app/program
+                #:get-channel-url
                 #:channel-image-url
                 #:channel-name
                 #:get-channel-by-id
@@ -82,7 +83,7 @@
                 #:@
                 #:chain)
   (:import-from #:reblocks-ui/form
-                #:render-link)
+                #:render-form-and-button)
   (:import-from #:reblocks-websocket
                 #:websocket-widget)
   (:import-from #:app/bus
@@ -382,20 +383,23 @@
               :type "text"
               :id url-id
               :value url)
-      (:div :class "tooltip-container"
-            :onmouseout "onMouseOut()"
-            (:button :onclick "shareToClipboard()"
-                     :class "button success"
-                     (:span :class "tooltiptext"
-                            :id "myTooltip"
-                            "Скопировать в буфер обмена")
-                     "Скопировать"))
+      (:div :class "controls"
+            (:div :class "tooltip-container"
+                  :onmouseout "onMouseOut()"
+                  (:button :onclick "shareToClipboard()"
+                           :class "button success"
+                           (:span :class "tooltiptext"
+                                  :id "myTooltip"
+                                  "Скопировать в буфер обмена")
+                           "Скопировать"))
       
-      (render-link (lambda (&rest rest)
-                     (declare (ignore rest))
-                     (hide-popup widget))
-                   "Закрыть"
-                   :class "button secondary"))))
+            (render-form-and-button :close
+                                    (lambda (&rest rest)
+                                      (declare (ignore rest))
+                                      (hide-popup widget))
+                                    :method :post
+                                    :value "Закрыть"
+                                    :button-class "button secondary")))))
 
 
 (defmethod get-dependencies ((widget share-dialog))
@@ -434,6 +438,9 @@
          (.popup-content
           :width inherit
           :max-width 80%
+
+          (.controls
+           :display flex)
           
           (.button
            :margin-right 1rem
@@ -518,6 +525,11 @@
 
   (register-groups-bind (current-chat-id)
       ("^/chat/(.*)$" (get-path))
+
+    (log:info "Checking if ~A is equal to ~A"
+              current-chat-id
+              (chat-id widget))
+    
     (unless (string-equal current-chat-id
                           (chat-id widget))
       ;; Сначала убедимся, что такой чат есть
@@ -540,6 +552,7 @@
               (setf (chat-archived-p widget)
                     (chat/client:chat-archived chat))
 
+              (log:info "Fetching all chat messages")
               (fetch-new-messages widget))
           (openrpc-client/error:rpc-error (e)
             (setf (error-message widget)
@@ -560,8 +573,10 @@
               )
          (let* ((chat-id (chat-id widget))
                 (programme-chat (get-programme-chat-by-id chat-id))
-                (channel (get-channel-by-id (programme-channel-id programme-chat)))
+                (channel-id (programme-channel-id programme-chat))
+                (channel (get-channel-by-id channel-id))
                 (channel-title (channel-name channel))
+                (channel-url (get-channel-url channel-id))
                 (channel-logo-url (channel-image-url channel))
                 ;; (action-code (reblocks/actions:make-action #'retrieve-messages))
                 ;; TODO: позже надо будет прикрутить отправку новых сообщений через websocket или server-side-events
@@ -583,9 +598,9 @@
            (when (chat-title widget)
 
              (setf (reblocks/page:get-title)
-                   (serapeum:fmt "~A - ~A"
-                                 channel-title
-                                 (chat-title widget)))
+                   (fmt "~A - ~A"
+                        channel-title
+                        (chat-title widget)))
 
              ;; TODO: remove
              ;; (add-event-handler :new-message (on-new-message-func widget))
@@ -597,33 +612,30 @@
                    ;;             (:raw "<svg width=\"28\" height=\"38\" viewBox=\"0 0 28 36\" fill=\"none\" xmlns=\"http://www.w3.org/2000/svg\"><path d=\"M0 13.57l1.307-4.616L28 0l-8.773 31.385-10.08 2.769 7.28-26.123L0 13.569zM2.427 36l6.626-24 5.227-1.754-6.813 24.37L2.427 36z\" fill=\"#55C\"></path></svg>"))
                    ;;      (:span  "Первый канал"))
                    (:h2 :class "channel-title"
-                        (when channel-logo-url
-                          (:img :class "channel-logo"
-                                :src channel-logo-url
-                                :title (format nil "Логотип канала ~A"
-                                               channel-title)))
+                        (:a :href channel-url
+                            :target "_blank"
+                            (when channel-logo-url
+                              (:img :class "channel-logo"
+                                    :src channel-logo-url
+                                    :title (format nil "Логотип канала ~A"
+                                                   channel-title)))
 
-                        channel-title)
+                            channel-title))
                    (:h2 :class "chat-title"
-                        (chat-title widget)
+                        (:div :class "text" (chat-title widget))
                         (:span :class "share"
-                               (reblocks-ui/form:render-link
+                               (reblocks-ui/form:render-form-and-button
+                                :share
                                 (lambda (&rest rest)
                                   (declare (ignore rest))
                                   (setf (chat-id (share-widget widget))
                                         (chat-id widget))
                                   (reblocks-ui/popup:show-popup (share-widget widget)))
-                                "Поделиться"
-                                :class "button")))
+                                :method :post
+                                :value "Поделиться"
+                                :button-class "button tiny")))
 
-                   (render (remaining-time-widget widget))
-                   
-                   ;; (cond
-                   ;;   ((chat-archived-p (post-form widget))
-                   ;;    (:p "В архиве."))
-                   ;;   ((remaining-time-widget widget)
-                   ;;    (render (remaining-time-widget widget))))
-                   ))
+                   (render (remaining-time-widget widget))))
            (:div :class "messages"
                  (cond
                    ((messages widget)
@@ -770,13 +782,23 @@
         :margin-right auto)
        (.channel-title
         :font-size 2.2rem
+        (a
+         :color ,*text-color*)
+        ((:and a :hover)
+         :text-decoration underline)
         (.channel-logo
          :height 2.2rem
          :margin-right 0.5rem
          :position relative
          :margin-top -0.5rem))
        (.chat-title
-        :font-size 2.2em
+        :font-size 1.5em
+        :white-space nowrap
+        :display flex
+
+        (.text
+         :overflow hidden
+         :text-overflow ellipsis)
         (.button
          :margin-left 1rem
          :margin-bottom 0))

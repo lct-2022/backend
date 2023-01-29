@@ -28,19 +28,25 @@
   (:import-from #:reblocks/page
                 #:render-headers)
   (:import-from #:reblocks/html
-                #:with-html))
+                #:with-html)
+  (:import-from #:reblocks-prometheus
+                #:prometheus-app-mixin)
+  (:import-from #:app/widgets/test-page
+                #:make-test-page))
 (in-package #:app/app)
 
 
 (defapp app
+  :subclasses (prometheus-app-mixin)
   :prefix "/")
 
 
 (defroutes routes
     ("/login/" (make-page-with-header
-               (make-login-page)) )
+                (make-login-page)) )
   ("/logout/" (make-page-with-header
-              (make-logout-page)))
+               (make-logout-page)))
+  ("/test/" (make-test-page))
   ("/channels/" (make-page-with-header
                  (make-channels-widget)))
   ("/channels/.*" (make-page-with-header
@@ -55,6 +61,11 @@
 (defmethod reblocks/page:init-page ((app app) url-path expire-at)
   (make-routes))
 
+;; TODO: раскомментировать, чтобы мерять производительность
+;; (defmethod reblocks/page:render :around ((app app) inner-html &key dependencies)
+;;   (declare (ignore dependencies))
+;;   (time (call-next-method)))
+
 
 (defmethod get-dependencies ((app app))
   (list*
@@ -66,8 +77,41 @@
 
 
 (defmethod render-headers ((app app))
-  (with-html
-    (:link :rel "shortcut icon"
-           :href "/favicon.ico"
-           :type "image/x-icon"))
+  ;; (with-html
+  ;;   (:link :rel "shortcut icon"
+  ;;          :href "/favicon.ico"
+  ;;          :type "image/x-icon")
+
+  ;;   (:meta :property "og:type"
+  ;;          :content "article")
+  ;;   (:meta :name "twitter:card"
+  ;;          :content "summary_large_image")
+    
+  ;;   (:meta :property "og:url"
+  ;;          :content (reblocks/request:get-uri))
+    
+  ;;   (:meta :property "og:image"
+  ;;          :content "https://chit-chat.ru/images/link-preview.png")
+  ;;   ;; Размеры в два раза меньше реальных
+  ;;   (:meta :property "og:image:width"
+  ;;          :content "600")
+  ;;   (:meta :property "og:image:height"
+  ;;          :content "315")
+    
+  ;;   (:meta :name "twitter:image"
+  ;;          :content "https://chit-chat.ru/images/link-preview.png")
+    
+  ;;   (:meta :property "og:title"
+  ;;          :content (or (reblocks/page:get-title)
+  ;;                       "Обсуждайте в прямом эфире!"))
+  ;;   (:meta :name "twitter:title"
+  ;;          :content (or (reblocks/page:get-title)
+  ;;                       "Обсуждайте в прямом эфире!"))
+    
+  ;;   ;; Если добавить дескрипшн, то картинка превратится в мелкую иконку:
+  ;;   ;; (:meta :property "og:description"
+  ;;   ;;        :content "Можно ещё какой-нибудь description зафигачить.")
+  ;;   (:meta :property "og:site_name"
+  ;;          :content "Chit-Chat.ru"))
+  
   (call-next-method))

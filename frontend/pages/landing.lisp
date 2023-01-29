@@ -140,6 +140,9 @@
   (with-simple-restart (ignore "Continue without subwidgets update")
     (init-widgets-if-needed widget))
   
+  (setf (reblocks/page:get-title)
+        "ChitChat - чаты в прямом эфире")
+  
   (with-html
     (:h2 :class "motto"
          "Обсуждайте телепередачи с теми, кто тоже их смотрит!")
