@@ -10,6 +10,7 @@
   (:import-from #:function-cache
                 #:defcached)
   (:import-from #:app/program
+                #:get-programme-chat-url
                 #:programme-start
                 #:programme-stop
                 #:programme-title
@@ -100,27 +101,24 @@
                     (when passed
                       (list "passed"))
                     (when current
-                      (list "current"))))
-          (pr-title (programme-title programme)))
-      (flet ((open-chat (&rest args)
-               (declare (ignore args))
-               (let ((chat-id (create-chat-for-program pr-title)))
-                 (redirect (fmt "/chat/~A" chat-id)))))
-        (:div :class (str:join " " classes)
-              (:div :class "interval"
-                    (fmt "~A -> ~A"
-                         (format-timestring nil (programme-start programme)
-                                            :format '((:hour 2) #\: (:min 2))
-                                            :timezone (get-user-timezone))
-                         (format-timestring nil (programme-stop programme)
-                                            :format '((:hour 2) #\: (:min 2))
-                                            :timezone (get-user-timezone))))
-              (:div :class "title"
-                    (programme-title programme)
-                    (if current
-                        (render-form-and-button :open-chat
-                                                #'open-chat
-                                                :value "Открыть чат"))))))))
+                      (list "current")))))
+      (:div :class (str:join " " classes)
+            (:div :class "interval"
+                  (fmt "~A -> ~A"
+                       (format-timestring nil (programme-start programme)
+                                          :format '((:hour 2) #\: (:min 2))
+                                          :timezone (get-user-timezone))
+                       (format-timestring nil (programme-stop programme)
+                                          :format '((:hour 2) #\: (:min 2))
+                                          :timezone (get-user-timezone))))
+            (:div :class "title"
+                  (programme-title programme)
+                  (when current
+                    (let ((chat-url (get-programme-chat-url programme)))
+                      (when chat-url
+                        (:a :class "button tiny"
+                            :href chat-url
+                            "Открыть чат")))))))))
 
 
 (defmethod get-dependencies ((widget channel-widget))
@@ -136,11 +134,8 @@
                :border-radius 0.5rem
                (.title
                 :display flex
-                (form
-                 :margin-left 1rem
-                 :margin-top -0.5rem
-                 (input
-                  :margin 0))))
+                (.button
+                 :margin 0 0 0 1rem)))
               ((:and .programme .passed)
                (.title
                 :color "#949393"))

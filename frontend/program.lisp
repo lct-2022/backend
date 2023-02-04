@@ -10,6 +10,7 @@
                 #:unix-to-timestamp
                 #:timestamp)
   (:import-from #:serapeum
+                #:->
                 #:fmt)
   (:import-from #:gzip-stream
                 #:gzip-input-stream)
@@ -622,3 +623,23 @@
                                        :binds (list source-id channel-id))))
       (when rows
         (getf (first rows) :url)))))
+
+
+(defcached %get-programme-chat-url (source-id channel-id start)
+  (with-connection ()
+    (let ((chat (mito:find-dao 'programme-chat
+                               :source-id source-id
+                               :channel-id channel-id
+                               :start start)))
+      (when chat
+        (let ((chat-id (programme-chat-id chat)))
+          (fmt "/chat/~A" chat-id))))))
+
+
+(-> get-programme-chat-url
+    (programme)
+    (values (or null string) &optional))
+(defun get-programme-chat-url (programme)
+  (%get-programme-chat-url (channel-source-id programme)
+                           (programme-channel-id programme)
+                           (programme-start programme)))
