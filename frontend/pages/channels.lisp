@@ -10,6 +10,7 @@
   (:import-from #:function-cache
                 #:defcached)
   (:import-from #:app/program
+                #:channel-id
                 #:channel-name
                 #:channel)
   (:import-from #:serapeum
@@ -38,6 +39,7 @@
 (defcached (get-all-channels :timeout 60) ()
   (with-connection ()
     (mito:select-dao 'channel
+      (sxql:where (:= :source-id app/vars:*current-source-id*))
       (sxql:order-by :name))))
 
 
@@ -63,7 +65,7 @@
   (with-html
     (:div :class "channel"
           (:a :href (fmt "/channels/~A"
-                         (object-id channel ))
+                         (channel-id channel ))
               (channel-name channel)))))
 
 

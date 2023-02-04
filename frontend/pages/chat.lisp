@@ -69,6 +69,8 @@
   (:import-from #:app/pages/landing
                 #:get-programme-chat-by-id)
   (:import-from #:app/program
+                #:channel-url
+                #:channel-source-id
                 #:get-channel-url
                 #:channel-image-url
                 #:channel-name
@@ -574,9 +576,10 @@
          (let* ((chat-id (chat-id widget))
                 (programme-chat (get-programme-chat-by-id chat-id))
                 (channel-id (programme-channel-id programme-chat))
-                (channel (get-channel-by-id channel-id))
+                (source-id (channel-source-id programme-chat))
+                (channel (get-channel-by-id source-id channel-id))
                 (channel-title (channel-name channel))
-                (channel-url (get-channel-url channel-id))
+                (channel-url (channel-url channel))
                 (channel-logo-url (channel-image-url channel))
                 ;; (action-code (reblocks/actions:make-action #'retrieve-messages))
                 ;; TODO: позже надо будет прикрутить отправку новых сообщений через websocket или server-side-events

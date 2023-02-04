@@ -3,6 +3,8 @@
   (:import-from #:org.shirakumo.fraf.action-list
                 #:action-list)
   (:import-from #:app/program
+                #:channel-source-id
+                #:channel-id
                 #:programme
                 #:programme-stop
                 #:programme-title
@@ -133,13 +135,9 @@
                  (chat (chat/client:create-chat client
                                                 :title program-title))
                  (chat-id (chat/client:chat-id chat)))
-            ;; (chat/client:create-fake-messages
-            ;;  client
-            ;;  chat-id
-            ;;  (random-in-range 3 10))
-
             (with-connection ()
               (mito:create-dao 'app/program::programme-chat
+                               :source-id (channel-source-id programme)
                                :channel-id (programme-channel-id programme)
                                :start (programme-start programme)
                                :stop (programme-stop programme)
@@ -223,8 +221,10 @@
   (with-connection ()
     (first
      (mito:select-dao 'programme
-       (where (:and (:= :channel-id
-                        (object-id channel))
+       (where (:and (:= :source-id
+                        (channel-source-id channel))
+                    (:= :channel-id
+                        (channel-id channel))
                     (:> :start :current_timestamp)))
        (order-by (:asc :start))
        (limit 1)))))
@@ -329,6 +329,7 @@
 
 
 (defun update-workflows ()
+  ;; TODO: bind with-html
   (unless *last-update-time*
     (setf *last-update-time*
           (get-universal-time)))
@@ -340,7 +341,10 @@
                 *last-update-time*)))
     (loop for workflow in *workflows*
           do (with-simple-restart (continue "Ignore error and proceed to the next workflow.")
-               (update workflow dt)))
+               ;; Тут нужен with-html-string, чтобы если какие-то штуки типа with-javascript
+               ;; попробую рендерить код, то он бы не сыпался в REPL или stdout
+               (reblocks/html:with-html-string
+                 (update workflow dt))))
     (setf *workflows*
           (remove-if #'archived-p
                      *workflows*))
@@ -351,13 +355,15 @@
 
 
 (defun get-workflows-for-channels (channels)
-  (loop with by-id = (make-hash-table)
+  (loop with by-id = (make-hash-table :test 'equal)
         for workflow in *workflows*
-        for channel-id = (mito:object-id (channel workflow))
+        ;; Здесь игнорируем source-id, потому что во всех workflow
+        ;; он должен быть одинаковым
+        for channel-id = (channel-id (channel workflow))
         do (setf (gethash channel-id by-id)
                  workflow)
         finally (return (loop for channel in channels
-                              for workflow = (gethash (mito:object-id channel) by-id)
+                              for workflow = (gethash (channel-id channel) by-id)
                               when workflow
                               collect workflow))))
 

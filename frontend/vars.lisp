@@ -1,7 +1,9 @@
 (uiop:define-package #:app/vars
   (:use #:cl)
   (:import-from #:function-cache
-                #:defcached))
+                #:defcached)
+  (:export
+   #:*current-source-id*))
 (in-package #:app/vars)
 
 
@@ -15,3 +17,6 @@
 (defparameter *light-background* "rgb(61, 63, 75)")
 
 (defparameter *text-color* "rgb(235, 236, 241)")
+
+
+(defparameter *current-source-id* 2)

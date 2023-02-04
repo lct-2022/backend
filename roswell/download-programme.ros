@@ -1,0 +1,49 @@
+#!/bin/sh
+#|-*- mode:lisp -*-|#
+#|
+exec ros -Q -- $0 "$@"
+|#
+(progn ;;init forms
+  (ros:ensure-asdf)
+  #+quicklisp
+  (ql:quickload '(app
+                  common/config
+                  alexandria
+                  app/program)
+                :silent t))
+
+(defpackage :ros.script.frontend.3883378986
+  (:use :cl)
+  (:import-from #:common/config
+                #:load-config)
+  (:import-from #:alexandria
+                #:with-output-to-file
+                #:read-file-into-string)
+  (:import-from #:app/program
+                #:process-file
+                #:download-file))
+(in-package :ros.script.frontend.3883378986)
+
+
+(defun main (&rest argv)
+  (declare (ignorable argv))
+
+  (load-config)
+  (log:config :sane2 :warn)
+  (download-file)
+  
+  (let* ((state-filename ".programme-hashsum")
+         (data app/program::*file*)
+         (digest (ironclad:byte-array-to-hex-string (ironclad:digest-sequence :sha256 data)))
+         (prev-digest (when (probe-file state-filename)
+                        (read-file-into-string state-filename))))
+    (cond
+      ((equal prev-digest digest)
+       (log:info "Programme already processed."))
+      (t
+       (log:info "Updating the program")
+       (process-file)
+       (with-output-to-file (s state-filename)
+         (write-string digest s))))))
+
+;;; vim: set ft=lisp lisp:

@@ -8,6 +8,7 @@
   (:import-from #:reblocks/actions
                 #:make-js-action)
   (:import-from #:app/program
+                #:channel-id
                 #:get-channel-url
                 #:min-left
                 #:programme-title
@@ -68,7 +69,8 @@
          (new-channel (channel workflow))
          (new-programme (programme workflow)))
     (cond
-      ((mito:object= old-channel new-channel)
+      ((equal (channel-id old-channel)
+              (channel-id new-channel))
        (ignore-errors
         (log4cl-extras/error:with-log-unhandled ()
           (log:debug "Switching to new program" new-programme)))

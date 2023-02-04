@@ -23,7 +23,9 @@
   (:import-from #:plump)
   (:import-from #:clss)
   (:import-from #:common/db
-                #:with-connection))
+                #:with-connection)
+  (:import-from #:alexandria
+                #:assoc-value))
 (in-package #:app/program)
 
 
@@ -85,13 +87,41 @@
 
 (defvar *file* nil)
 
-(defun download-file ()
-  (setf *file* (dex:get "http://www.teleguide.info/download/new3/xmltv.xml.gz"))
-  (values))
+(defun download-file (source-id)
+  (let* ((source (with-connection ()
+                   (mito:find-dao 'channel-source
+                                  :id source-id)))
+         (source-name (channel-source-name source))
+         (source-url (channel-source-url source)))
+    (log:info "Downloading file for" source-name)
+    (setf *file* (dex:get source-url
+                          :keep-alive nil))
+    (values)))
+
+
+(defclass channel-source ()
+  ((name :initarg :name
+         :initform nil
+         :col-type :text
+         :accessor channel-source-name)
+   (url :initarg :url
+        :initform nil
+        :col-type :text
+        :accessor channel-source-url))
+  (:table-name "tv.channel_source")
+  (:metaclass mito:dao-table-class))
 
 
 (defclass channel ()
-  ((name :initarg :name
+  ((source-id :initarg :source-id
+              :initform 0
+              :col-type :bigint
+              :accessor channel-source-id)
+   (channel-id :initarg :channel-id
+               :type string
+               :col-type :text
+               :accessor channel-id)
+   (name :initarg :name
          :initform nil
          :col-type :text
          :accessor channel-name)
@@ -108,6 +138,7 @@
               :col-type (or :null :text)
               :accessor channel-image-url))
   (:table-name "tv.channel")
+  (:primary-key source-id channel-id)
   (:metaclass mito:dao-table-class))
 
 
@@ -117,6 +148,10 @@
                :col-type :bigint
                :type integer
                :accessor programme-channel-id)
+   (source-id :initarg :source-id
+              :initform 0
+              :col-type :bigint
+              :accessor channel-source-id)
    (start :initarg :start
           :initform nil
           :col-type :timestamptz
@@ -135,7 +170,7 @@
                 :col-type :text
                 :type string
                 :accessor programme-description))
-  (:primary-key channel-id start)
+  (:primary-key source-id channel-id start stop)
   (:table-name "tv.programme")
   (:metaclass mito:dao-table-class))
 
@@ -146,6 +181,9 @@
                :col-type :bigint
                :type integer
                :accessor programme-channel-id)
+   (source-id :initarg :source-id
+              :col-type :bigint
+              :accessor channel-source-id)
    (start :initarg :start
           :initform nil
           :col-type :timestamptz
@@ -163,7 +201,7 @@
    (chat-id :initarg :chat-id
             :col-type :uuid
             :reader programme-chat-id))
-  (:primary-key channel-id start)
+  (:primary-key source-id channel-id start)
   (:table-name "tv.programme_chat")
   (:metaclass mito:dao-table-class))
 
@@ -203,15 +241,17 @@
 (defun programme-id (programme)
   (unless (programme-start programme)
     (error "Unable to make id for programme: ~A" programme))
-  (fmt "~A-~A"
-       (channel-id programme)
+  (fmt "~A-~A-~A"
+       (channel-source-id programme)
+       (programme-channel-id programme)
        (local-time:timestamp-to-unix (programme-start programme))))
 
 
 (defmethod print-object ((channel channel) stream)
   (print-unreadable-object (channel stream :type t)
-    (format stream "id=~A name=~A"
-            (mito:object-id channel)
+    (format stream "source=~A id=~A name=~A"
+            (channel-source-id channel)
+            (channel-id channel)
             (channel-name channel))))
 
 
@@ -226,12 +266,14 @@
   (make-hash-table :test 'equal :synchronized t))
 
 
-(defun channel-exists (channel-id)
-  (mito:find-dao 'channel :id channel-id))
+(defun channel-exists (source-id channel-id)
+  (mito:find-dao 'channel
+                 :source-id source-id
+                 :channel-id channel-id))
 
-(defun programme-exists (channel-id program-start)
-  (let ((rows (mito:retrieve-by-sql "SELECT 1 FROM tv.programme WHERE channel_id = ? AND start = ?"
-                                    :binds (list channel-id program-start))))
+(defun programme-exists (source-id channel-id program-start)
+  (let ((rows (mito:retrieve-by-sql "SELECT 1 FROM tv.programme WHERE source_id = ? AND channel_id = ? AND start = ?"
+                                    :binds (list source-id channel-id program-start))))
     (not (null rows))))
 
 
@@ -252,101 +294,176 @@
       (local-time:parse-rfc3339-timestring ts))))
 
 
-(defun process-file (&key (num-programs-to-process nil)
-                          (force nil))
+(defun process-file (source-id &key (num-programs-to-process nil)
+                                    (force nil)
+                                    (progress t))
   (declare (ignorable num-programs-to-process))
-
+  
   (when (or force
             (null *file*))
-    (download-file))
+    (download-file source-id))
   
-  (common/db:with-connection ()
-    (block xml-processing
-      (flex:with-input-from-sequence (s *file*)
-        (let ((gzip-stream (make-instance 'gzip-input-stream
-                                          :understream s))
-              (channel-id nil)
-              (programme-params nil)
-              (text-stream (make-string-output-stream)))
-          (flet ((getattr (attrs name)
-                   (let ((attr (fxml.sax:find-attribute name attrs)))
-                     (when attr
-                       (fxml.sax:attribute-value attr))))
-                 (get-text ()
-                   (string-trim '(#\Newline #\Space)
-                                (get-output-stream-string text-stream))))
-            (fxml:parse gzip-stream
-                        (fxml.sax:make-callback-handler
-                         :start-element (lambda (ns lname qname attrs)
-                                          (declare (ignore ns lname))
-                                          (cond
-                                            ((string-equal qname "channel")
-                                             (setf channel-id
-                                                   (parse-integer (getattr attrs "id"))))
-                                            ((string-equal qname "programme")
-                                             (setf programme-params nil)
-                                             (setf (getf programme-params :channel-id)
-                                                   (parse-integer (getattr attrs "channel")))
-                                             (setf (getf programme-params :start)
-                                                   (parse-timestamp (getattr attrs "start")))
-                                             (setf (getf programme-params :stop)
-                                                   (parse-timestamp (getattr attrs "stop"))))
-                                            ((string-equal qname "display-name")
-                                             ;; Just ignore to not log
-                                             nil)
-                                            (t
-                                             (log:info "Element start" qname attrs)))
-                                          (values))
-                         :characters (lambda (data)
-                                       (write-string data text-stream)
-                                       (values))
-                         :end-element (lambda (ns lname qname)
-                                        (declare (ignore ns lname))
-                                        (cond
-                                          ((string-equal qname "channel")
-                                           (let* ((channel-name
-                                                    (get-text)))
-                                             (unless (channel-exists channel-id)
-                                               (mito:create-dao 'channel
-                                                                :id channel-id
-                                                                :name channel-name))
-                                             (setf channel-id nil)))
-                                          ((string-equal qname "title")
-                                           (when programme-params
-                                             (setf (getf programme-params :title)
-                                                   (get-text))))
-                                          ((string-equal qname "desc")
-                                           (when programme-params
-                                             (setf (getf programme-params :description)
-                                                   (get-text))))
-                                          ((string-equal qname "programme")
-                                           (when programme-params
-                                             (unless (programme-exists
-                                                      (getf programme-params :channel-id)
-                                                      (getf programme-params :start))
-                                               (apply #'mito:create-dao
-                                                      'programme
-                                                      programme-params)))
-                                           ;; Раскомментировать для отладки, чтобы парсить только часть
-                                           (when num-programs-to-process
-                                             (decf num-programs-to-process)
-                                             (when (zerop num-programs-to-process)
-                                               (return-from xml-processing))))
-                                          
-                                          ((string-equal qname "display-name")
-                                           ;; Just ignore to not log
-                                           nil)
-                                          (t
-                                           (log:info "Element ended" qname)))
-                                        (values)))
-                        :forbid-external nil
-                        :entity-resolver (lambda (some-arg url)
-                                           (declare (ignore some-arg))
-                                           (log:info "Downloading" url)
-                                           (let ((data (dex:get url
-                                                                :force-binary t)))
-                                             (crypto:make-octet-input-stream data)))))
-          (sb-ext:gc :full t))))))
+  (let* ((ids-to-params
+           '(("rossia1" 1 "https://vgtrk.ru/russiatv")
+             ("pervy" 2 "http://www.1tv.ru")
+             ("tnt" 3 "http://tnt-online.ru")
+             ("ntv" 4 "http://www.ntv.ru")
+             ("sts" 5 "https://ctc.ru")
+             ("rentv" 6 "https://ren.tv/live")
+             ("rossia-24" 7 "http://www.vesti.ru")
+             ("piatnica" 8 "https://friday.ru/live")
+             ("tvcentr" 9 "https://www.tvc.ru/channel/onair")
+             ("domashny" 10 "https://domashniy.ru/online")
+             ("zvezda" 11 "https://tvzvezda.ru/schedule/")
+             ("yu" 12 "https://www.u-tv.ru/online/")))
+         (channel-ids (mapcar #'car ids-to-params))
+         (programme-count 0)
+         (progress-every-n-programms 100))
+    (common/db:with-connection ()
+      (block xml-processing
+        (flex:with-input-from-sequence (s *file*)
+          (let ((gzip-stream (make-instance 'gzip-input-stream
+                                            :understream s))
+                (text-stream (make-string-output-stream))
+                channel-id
+                programme-params
+                inside-programme
+                inside-channel
+                inside-first-channel-desc
+                first-channel-desc-processed
+                image-url)
+            (labels ((getattr (attrs name)
+                       (let ((attr (fxml.sax:find-attribute name attrs)))
+                         (when attr
+                           (fxml.sax:attribute-value attr))))
+                     (get-text ()
+                       (string-trim '(#\Newline #\Space)
+                                    (get-output-stream-string text-stream)))
+                     (on-start (ns lname qname attrs)
+                       (declare (ignore ns lname))
+                       (cond
+                         ((string-equal qname "channel")
+                          (setf channel-id
+                                (getattr attrs "id"))
+                          (setf inside-channel t)
+                          (setf first-channel-desc-processed nil)
+                          (setf inside-first-channel-desc nil)
+                          (setf image-url nil))
+                         
+                         ((string-equal qname "display-name")
+                          (when (and inside-channel
+                                     (not first-channel-desc-processed))
+                            (setf inside-first-channel-desc t)))
+                         
+                         ((string-equal qname "icon")
+                          (setf image-url
+                                (getattr attrs "src")))
+                         
+                         ((string-equal qname "programme")
+                          (setf programme-params nil)
+                          (setf inside-programme t)
+                          (setf (getf programme-params :channel-id)
+                                (getattr attrs "channel"))
+                          (setf (getf programme-params :source-id)
+                                source-id)
+                          (setf (getf programme-params :start)
+                                (parse-timestamp (getattr attrs "start")))
+                          (setf (getf programme-params :stop)
+                                (parse-timestamp (getattr attrs "stop"))))
+                         
+                         (t
+                          (log:info "Element start" qname attrs)))
+                       (values))
+                     (on-characters (data)
+                       (when (or inside-programme
+                                 inside-first-channel-desc)
+                         (write-string data text-stream))
+                       (values))
+                     (on-end (ns lname qname)
+                       (declare (ignore ns lname))
+                       (cond
+                         ((string-equal qname "channel")
+                          (let* ((channel-name
+                                   (get-text))
+                                 (params (assoc channel-id
+                                                ids-to-params
+                                                :test #'string=))
+                                 (channel-rating (second params))
+                                 (channel-url (third params)))
+                            (when (and (member channel-id channel-ids
+                                               :test #'string=)
+                                       (not (channel-exists source-id channel-id)))
+                              (mito:create-dao 'channel
+                                               :source-id source-id
+                                               :channel-id channel-id
+                                               :rating channel-rating
+                                               :image-url image-url
+                                               :url channel-url
+                                               :name channel-name))
+                            (setf channel-id nil)
+                            (setf inside-channel nil)))
+                         ((string-equal qname "display-name")
+                          (when inside-channel
+                            (when inside-first-channel-desc
+                              (setf first-channel-desc-processed t)
+                              (setf inside-first-channel-desc nil))))
+                         ((string-equal qname "title")
+                          (when programme-params
+                            (setf (getf programme-params :title)
+                                  (get-text))))
+                         ((string-equal qname "desc")
+                          (when programme-params
+                            (setf (getf programme-params :description)
+                                  (get-text))))
+                         ((string-equal qname "programme")
+                          (when programme-params
+                            (let ((channel-id (getf programme-params :channel-id)))
+                              (when (member channel-id channel-ids
+                                            :test #'string=)
+                                (unless (programme-exists
+                                         (getf programme-params :source-id)
+                                         channel-id
+                                         (getf programme-params :start))
+                                  (apply #'mito:create-dao
+                                         'programme
+                                         programme-params))
+                                (when progress
+                                  (incf programme-count)
+                                  (when (zerop (mod programme-count
+                                                    progress-every-n-programms))
+                                    (log:warn "Already" programme-count "were processed")))
+                                
+                                ;; Для отладки, чтобы парсить только часть
+                                (when num-programs-to-process
+                                  (decf num-programs-to-process)
+                                  (when (zerop num-programs-to-process)
+                                    (return-from xml-processing))))))
+                          (setf inside-programme nil))
+                         
+                         (t
+                          (log:info "Element ended" qname)))
+                       (values))
+                     (resolve-entity (some-arg url)
+                       (declare (ignore some-arg))
+                       (log:info "Downloading" url)
+                       (let ((data (dex:get url
+                                            :force-binary t)))
+                         (crypto:make-octet-input-stream data))))
+              (declare (dynamic-extent #'getattr
+                                       #'get-text
+                                       #'on-start
+                                       #'on-end
+                                       #'on-characters
+                                       #'resolve-entity))
+              
+              (fxml:parse gzip-stream
+                          (fxml.sax:make-callback-handler
+                           :start-element #'on-start
+                           :characters #'on-characters
+                           :end-element #'on-end)
+                          :forbid-external nil
+                          :entity-resolver #'resolve-entity))
+            (sb-ext:gc :full t)))))))
 
 
 
@@ -389,18 +506,25 @@
           do (update-channel-image-and-rating title rating image-url))))
 
 
-(defcached (get-channel-by-id :timeout 60) (channel-id)
+(defcached (get-channel-by-id :timeout 60) (source-id channel-id)
   (common/db:with-connection ()
-    (mito:find-dao 'channel :id channel-id)))
+    (mito:find-dao 'channel :source-id source-id
+                            :channel-id channel-id)))
 
+
+(defparameter *source-id* 2)
 
 (defcached (get-programs-for-landing :timeout 60) ()
   (common/db:with-connection ()
     (loop for programme in (mito:select-dao 'programme
                              (join 'tv.channel
-                                   :on (:= :tv.programme.channel-id
-                                        :tv.channel.id))
-                             (where (:and (:not-null :tv.channel.rating)
+                                   :on (:and (:= :tv.programme.channel_id
+                                              :tv.channel.channel_id)
+                                             (:= :tv.programme.source_id
+                                              :tv.channel.source_id)))
+                             (where (:and (:= :tv.channel.source_id
+                                              *source-id*)
+                                          (:not-null :tv.channel.rating)
                                           (:<=
                                            :tv.programme.start
                                            :current_timestamp)
@@ -409,14 +533,17 @@
                                            :tv.programme.stop)))
                              (order-by (:asc :tv.channel.rating))
                              (limit 11))
-          for channel = (get-channel-by-id (programme-channel-id programme))
+          for channel = (get-channel-by-id (channel-source-id programme)
+                                           (programme-channel-id programme))
           collect (list channel programme))))
 
 
 (defcached (get-channels-for-landing :timeout 60) ()
   (common/db:with-connection ()
     (mito:select-dao 'channel
-      (where (:and (:not-null :rating)))
+      (where (:and (:not-null :rating)
+                   (:= :source-id
+                       *source-id*)))
       (order-by (:asc :tv.channel.rating))
       (limit 11))))
 
@@ -489,8 +616,9 @@
                                (list url title)))))
 
 
-(defcached get-channel-url (channel-id)
+(defcached get-channel-url (source-id channel-id)
   (with-connection ()
-    (let* ((rows (mito:retrieve-by-sql "SELECT url FROM tv.channel WHERE id = ?" :binds (list channel-id))))
+    (let* ((rows (mito:retrieve-by-sql "SELECT url FROM tv.channel WHERE source_id = ? AND channel_id = ?"
+                                       :binds (list source-id channel-id))))
       (when rows
         (getf (first rows) :url)))))

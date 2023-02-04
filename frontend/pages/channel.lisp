@@ -24,6 +24,7 @@
                 #:get-dependencies)
   (:import-from #:reblocks-lass)
   (:import-from #:app/vars
+                #:*current-source-id*
                 #:*light-background*
                 #:*text-color*)
   (:import-from #:group-by
@@ -71,10 +72,12 @@
               channel-id)
         (setf (channel widget)
               (mito:find-dao 'channel
-                             :id channel-id))
+                             :channel-id channel-id
+                             :source-id *current-source-id*))
         (setf (schedule widget)
               (mito:select-dao 'programme
                 (where (:and (:= :channel-id channel-id)
+                             (:= :source-id *current-source-id*)
                              (:raw "start BETWEEN current_date AND current_date + '1 day'::interval"))))))))
   (with-html
     (let ((channel (channel widget))
