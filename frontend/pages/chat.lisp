@@ -120,7 +120,7 @@
 
 
 (defwidget post-form-widget (event-emitter
-                             cached-dependencies-mixin
+                             ;; cached-dependencies-mixin
                              websocket-widget)
   ((chat-id :initarg :chat-id
             :accessor chat-id)
@@ -711,6 +711,7 @@
           (:div :class "message-author"
                 (:img :class "message-avatar"
                       :src avatar-url
+                      :onclick "insertQuote()"
                       :title author-name)
                 ;; (:span :class "author-name"
                 ;;        )
@@ -759,6 +760,7 @@
        (with-html-form (:post #'post-message
                         :class "form")
          (:textarea :name :text
+                    :class "text-input"
                     :placeholder "Сюда надо что-то написать."
                     :rows 2)
          (:input :type "submit"
@@ -878,6 +880,29 @@
          (textarea-id (format nil "#~A textarea" (dom-id widget))))
      (reblocks-parenscript:make-dependency*
       `(progn
+         (defun insert-quote ()
+           (let* ((message (ps:chain window
+                                     event
+                                     target
+                                     parent-node
+                                     parent-node
+                                     (get-elements-by-class-name "message-text")
+                                     0
+                                     inner-text))
+                  (quote (+ "> "
+                            message
+                            "
+
+"))
+                  (textarea (ps:chain document
+                                      (get-elements-by-class-name "post-form-widget")
+                                      0
+                                      (get-elements-by-class-name "text-input")
+                                      0)))
+             (setf (ps:@ textarea value)
+                   (+ quote
+                      (ps:@ textarea value)))))
+         
          (defun focus-on-form-textarea ()
            (ps:chain (j-query ,textarea-id)
                      (focus)))
