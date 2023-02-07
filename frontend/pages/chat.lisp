@@ -880,6 +880,16 @@
          (textarea-id (format nil "#~A textarea" (dom-id widget))))
      (reblocks-parenscript:make-dependency*
       `(progn
+         (defun prepend-with (text prefix)
+           (loop with result = ""
+                 for line in (ps:chain text
+                                       (split "
+"))
+                 do (setf result
+                          (+ result prefix line "
+"))
+                 finally (return result)))
+         
          (defun insert-quote ()
            (let* ((message (ps:chain window
                                      event
@@ -889,8 +899,7 @@
                                      (get-elements-by-class-name "message-text")
                                      0
                                      inner-text))
-                  (quote (+ "> "
-                            message
+                  (quote (+ (prepend-with message "> ")
                             "
 
 "))
